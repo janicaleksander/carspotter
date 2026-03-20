@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.dao.CarDao
 import com.example.carspotter.dao.CategoryDao
@@ -47,7 +48,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun settingDao(): SettingDao
     abstract fun favouriteDao(): FavouriteDao
 
-    abstract fun healthCheck()
 
     companion object {
         const val DATABASE_NAME = "carspotter_database"
@@ -57,7 +57,13 @@ abstract class AppDatabase : RoomDatabase() {
             AppDatabase::class.java,
             DATABASE_NAME
         )
-            .addMigrations(MIGRATION_0_1, MIGRATION_1_2)
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    seedDatabase(db)
+
+                }
+            })
             .build()
     }
 }

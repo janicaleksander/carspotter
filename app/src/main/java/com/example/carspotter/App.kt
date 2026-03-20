@@ -16,7 +16,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         CoroutineScope(Dispatchers.IO).launch {
-            database.healthCheck()
+            database.openHelper.writableDatabase
         }
     }
 }
