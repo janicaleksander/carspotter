@@ -2,7 +2,7 @@ package com.example.carspotter.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.example.car_spotter.models.Category
+import com.example.carspotter.models.Category
 @Dao
 interface CategoryDao {
     @Query("SELECT * FROM category")

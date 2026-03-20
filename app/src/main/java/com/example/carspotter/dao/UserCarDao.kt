@@ -2,9 +2,9 @@ package com.example.carspotter.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.example.car_spotter.models.Car
-import com.example.car_spotter.models.CollectionTypeEnum
-import com.example.car_spotter.models.UserCar
+import com.example.carspotter.models.Car
+import com.example.carspotter.models.CollectionTypeEnum
+import com.example.carspotter.models.UserCar
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserCarDao {

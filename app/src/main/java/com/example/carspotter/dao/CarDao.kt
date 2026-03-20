@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.car_spotter.models.Car
+import com.example.carspotter.models.Car
 @Dao
 interface CarDao {
     @Insert

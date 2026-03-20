@@ -3,7 +3,7 @@ package com.example.carspotter.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.car_spotter.models.Media
+import com.example.carspotter.models.Media
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface MediaDao {

@@ -2,7 +2,7 @@ package com.example.carspotter.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.example.carspotter.model.Brand
+import com.example.carspotter.models.Brand
 
 @Dao
 interface BrandDao {
