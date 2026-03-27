@@ -3,6 +3,7 @@ package com.example.carspotter.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.carspotter.models.Favourite
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,7 @@ interface FavouriteDao {
     fun getAll(userId: String): Flow<List<Favourite>>
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(favourites:List<Favourite>)
 }
 //It's worth to add Flow to every get statements

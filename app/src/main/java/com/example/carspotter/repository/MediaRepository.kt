@@ -16,14 +16,14 @@ class MediaRepository @Inject constructor(
 
     //get itd
 
-    suspend fun syncMedia(userId:String){
-
+    suspend fun syncMedia(userId: String) {
         val allMedias = mutableListOf<Media>()
-        val limit = 25;
+        val limit = 25
         var offset = 0
+        var medias: List<Media>
 
-            try {
-                do {
+        try {
+            do {
                 val mediaResponse = tablesDB.listRows(
                     databaseId = BuildConfig.DATABASE_ID,
                     tableId = "media",
@@ -37,23 +37,28 @@ class MediaRepository @Inject constructor(
                     )
                 )
 
-                val medias = mediaResponse.rows.map { row ->
+                medias = mediaResponse.rows.map { row ->
                     Media(
                         id = row.id,
-                        carId = row.data["carId"] as String,
-                        userId = row.data["userId"] as String,
-                        type = MediaTypeEnum.fromValue(row.data["type"] as String),
-                        filePath = row.data["filePath"] as String,
-                        createdAt = LocalDateTime.parse(row.data["createdAt"] as String)
+                        carId = row.data["carId"] as? String ?: "",
+                        userId = row.data["userId"] as? String,
+                        type = MediaTypeEnum.fromValue(row.data["type"] as? String ?: ""),
+                        filePath = row.data["filePath"] as? String ?: "",
+                        createdAt = row.data["createdAt"]?.let {
+                            LocalDateTime.parse(it as? String)
+                        } ?: LocalDateTime.now()
                     )
                 }
+
                 allMedias.addAll(medias)
                 offset += limit
-            }while (medias.size == limit)
+
+            } while (medias.size == limit)
+
             mediaDao.insertAll(allMedias)
-        }catch (e: Exception){
+
+        } catch (e: Exception) {
             throw e
         }
-
     }
 }
