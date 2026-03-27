@@ -19,6 +19,10 @@ interface FavouriteDao {
 
     @Query("SELECT * FROM favourite WHERE userId=:userId")
     fun getAll(userId: String): Flow<List<Favourite>>
+
+
+    @Insert
+    fun insertAll(favourites:List<Favourite>)
 }
 //It's worth to add Flow to every get statements
 //because then we don't have to fetch every time we change the screen, we can just observe the data,

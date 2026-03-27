@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CategoryRepository
+import com.example.carspotter.repository.FavouriteRepository
 import com.example.carspotter.repository.SettingsRepository
 import com.example.carspotter.repository.UserCarRepository
 import dagger.assisted.Assisted
@@ -20,6 +21,7 @@ class SyncWorker @AssistedInject constructor(
     private val brandRepository: BrandRepository,
     private val userCarRepository: UserCarRepository,
     private val settingsRepository: SettingsRepository,
+    private val favouriteRepository: FavouriteRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -27,6 +29,7 @@ class SyncWorker @AssistedInject constructor(
             brandRepository.syncBrands()
             categoryRepository.syncCategories()
             userCarRepository.syncCar("id")
+            favouriteRepository.syncFavourites("id")
             settingsRepository.syncSettings()
 
             Log.e("SyncWorker", "Data sync successful")
