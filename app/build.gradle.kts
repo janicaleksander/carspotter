@@ -74,6 +74,24 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation("io.appwrite:sdk-for-android:22.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
+    val work_version = "2.11.2"
+
+
+    // Kotlin + coroutines
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+
+    // optional - RxJava2 support
+    implementation("androidx.work:work-rxjava2:$work_version")
+
+    // optional - GCMNetworkManager support
+    implementation("androidx.work:work-gcm:$work_version")
+
+    // optional - Test helpers
+    androidTestImplementation("androidx.work:work-testing:$work_version")
+
+    // optional - Multiprocess support
+    implementation("androidx.work:work-multiprocess:$work_version")
+    implementation("androidx.hilt:hilt-work:1.3.0")
 // Import the BoM for the Firebase platform
 
     // Add the dependency for the Cloud Storage library
