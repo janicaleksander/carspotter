@@ -18,6 +18,6 @@ interface MediaDao {
     @Query("DELETE FROM media WHERE id = :mediaId")
     suspend fun deleteMediaById(mediaId: String)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(categories:List<Media>)//get only this with isTop
 }

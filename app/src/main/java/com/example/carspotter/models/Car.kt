@@ -24,18 +24,18 @@ import java.util.UUID
 )
 data class Car(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(),
-    val brand:String,// FK
-    val model:String,
-    val year: Int,
-    val price: Double,
-    val description:String,
-    val category:String, //FK
-    val isTop: Boolean,
+        val id: String = UUID.randomUUID().toString(),
+        val brand:String,// FK
+        val model:String,
+        val year: Int,
+        val price: Double,
+        val description:String,
+        val category:String, //FK
+        val isTop: Boolean,
 
-    //These three only for top cars
-    val powerHP:Int?,
-    val acceleration: Double?,
-    val maxSpeed:Double?,
+        //These three only for top cars
+        val powerHP:Int?,
+        val acceleration: Double?,
+        val maxSpeed:Double?,
 
     )

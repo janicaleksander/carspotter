@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.Category
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CarDao {
@@ -22,8 +23,11 @@ interface CarDao {
     @Query("DELETE FROM car WHERE id = :id")
     fun deleteById(id: String)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(categories:List<Car>) //get only this with isTop
+    @Query("SELECT * FROM car")
+    fun getAll(): Flow<List<Car>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(cars:List<Car>) //get only this with isTop and only with userID id
 
 
 }

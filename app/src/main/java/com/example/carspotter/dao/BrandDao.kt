@@ -12,6 +12,6 @@ interface BrandDao {
     @Query("SELECT * FROM brand")
     fun getAll(): Flow<List<Brand>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(brands: List<Brand>)
 }

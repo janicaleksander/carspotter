@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.CategoryDao
 import com.example.carspotter.models.Category
+import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -20,24 +21,37 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getAll();
     }
 
-    suspend fun syncCategories(){
+    suspend fun syncCategories() {
+        val allCategories = mutableListOf<Category>()
+        var offset = 0
+        val limit = 100
+
         try {
-            val response = tablesDB.listRows(
-                databaseId = BuildConfig.DATABASE_ID,
-                tableId = "category"
-            )
-
-            val categories = response.rows.map { row ->
-                Category(
-                    id = row.id,
-                    name = row.data["name"]?.toString()?: "Unknown"
+            do {
+                val response = tablesDB.listRows(
+                    databaseId = BuildConfig.DATABASE_ID,
+                    tableId = "category",
+                    queries = listOf(
+                        Query.limit(limit),
+                        Query.offset(offset)
+                    )
                 )
-            }
-            Log.e("SyncWorker", "Fetched ${categories.size} brands from Appwrite")
 
-            categoryDao.insertAll(categories)
+                val categories = response.rows.map { row ->
+                    Category(
+                        id = row.id,
+                        name = row.data["name"]?.toString() ?: "Unknown"
+                    )
+                }
 
-        } catch (e: Exception){
+                allCategories.addAll(categories)
+                offset += limit
+
+            } while (response.rows.size == limit)
+
+            categoryDao.insertAll(allCategories)
+
+        } catch (e: Exception) {
             e.printStackTrace()
             throw e
         }

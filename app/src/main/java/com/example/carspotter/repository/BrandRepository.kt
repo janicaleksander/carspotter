@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.models.Brand
+import io.appwrite.Query
 import io.appwrite.services.Databases
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -19,26 +20,28 @@ class BrandRepository @Inject constructor(
     fun getBrands(): Flow<List<Brand>> {
         return brandDao.getAll()
     }
+    // BrandRepository
     suspend fun syncBrands() {
-        try {
+        val allBrands = mutableListOf<Brand>()
+        var offset = 0
+        val limit = 25
+
+        do {
             val response = tablesDB.listRows(
                 databaseId = BuildConfig.DATABASE_ID,
-                tableId = "brand"
-            )
-
-            val brands = response.rows.map { row ->
-                Brand(
-                    id = row.id,
-                    name = row.data["name"]?.toString() ?: "Unknown"
+                tableId = "brand",
+                queries = listOf(
+                    Query.limit(limit),
+                    Query.offset(offset)
                 )
+            )
+            val brands = response.rows.map { row ->
+                Brand(id = row.id, name = row.data["name"]?.toString() ?: "Unknown")
             }
-            Log.e("SyncWorker", "Fetched ${brands.size} brands from Appwrite")
-            brandDao.insertAll(brands)
+            allBrands.addAll(brands)
+            offset += limit
+        } while (brands.size == limit)
 
-        } catch (e: Exception) {
-            //TODO errors
-            e.printStackTrace()
-            throw e
-        }
+        brandDao.insertAll(allBrands)
     }
 }
