@@ -10,6 +10,7 @@ import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.FavouriteRepository
 import com.example.carspotter.repository.SettingsRepository
 import com.example.carspotter.repository.UserCarRepository
+import com.example.carspotter.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -21,7 +22,8 @@ class SyncWorker @AssistedInject constructor(
     private val brandRepository: BrandRepository,
     private val userCarRepository: UserCarRepository,
     private val settingsRepository: SettingsRepository,
-    private val favouriteRepository: FavouriteRepository
+    private val favouriteRepository: FavouriteRepository,
+    private val userRepository: UserRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -30,6 +32,7 @@ class SyncWorker @AssistedInject constructor(
             categoryRepository.syncCategories()
             userCarRepository.syncCar("id")
             favouriteRepository.syncFavourites("id")
+            userRepository.syncUser("id")
             settingsRepository.syncSettings()
 
             Log.e("SyncWorker", "Data sync successful")

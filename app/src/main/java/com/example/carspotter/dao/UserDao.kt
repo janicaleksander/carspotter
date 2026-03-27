@@ -10,5 +10,5 @@ interface UserDao {
     suspend fun getUserById(userId: String): User?
 
     @Insert
-    suspend fun insertUser(user: User)
+    suspend fun insert(user: User)
 }

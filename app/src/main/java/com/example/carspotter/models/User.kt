@@ -9,7 +9,6 @@ import java.util.UUID
 data class User(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
-    val email: String,
     val nickname: String,
     val createdAt: LocalDateTime
 )
