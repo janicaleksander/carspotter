@@ -1,6 +1,7 @@
 package com.example.carspotter.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import com.example.carspotter.models.Settings
 
@@ -8,4 +9,7 @@ import com.example.carspotter.models.Settings
 interface SettingDao {
     @Query("SELECT * FROM setting ORDER BY id DESC LIMIT 1")
     suspend fun getNewest(): Settings
+
+    @Insert
+    fun insert(settings: Settings)
 }

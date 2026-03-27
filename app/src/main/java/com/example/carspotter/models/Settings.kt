@@ -8,9 +8,8 @@ import java.util.UUID
 @Entity(tableName = "setting")
 data class Settings(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(),
+    val id: String,
     val appName: String,
     val author: String,
-    val version: String,
-    val buildDate: LocalDateTime
+    val version: String
 )

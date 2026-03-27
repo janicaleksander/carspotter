@@ -25,23 +25,26 @@ class BrandRepository @Inject constructor(
         val allBrands = mutableListOf<Brand>()
         var offset = 0
         val limit = 25
-
-        do {
-            val response = tablesDB.listRows(
-                databaseId = BuildConfig.DATABASE_ID,
-                tableId = "brand",
-                queries = listOf(
-                    Query.limit(limit),
-                    Query.offset(offset)
+        try {
+            do {
+                val response = tablesDB.listRows(
+                    databaseId = BuildConfig.DATABASE_ID,
+                    tableId = "brand",
+                    queries = listOf(
+                        Query.limit(limit),
+                        Query.offset(offset)
+                    )
                 )
-            )
-            val brands = response.rows.map { row ->
-                Brand(id = row.id, name = row.data["name"]?.toString() ?: "Unknown")
-            }
-            allBrands.addAll(brands)
-            offset += limit
-        } while (brands.size == limit)
+                val brands = response.rows.map { row ->
+                    Brand(id = row.id, name = row.data["name"]?.toString() ?: "Unknown")
+                }
+                allBrands.addAll(brands)
+                offset += limit
+            } while (brands.size == limit)
 
-        brandDao.insertAll(allBrands)
+            brandDao.insertAll(allBrands)
+        }catch (e: Exception){
+            throw e
+        }
     }
 }
