@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.carspotter.ui.theme.CarspotterTheme
@@ -27,16 +29,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
-            1, TimeUnit.DAYS,
-            15, TimeUnit.MINUTES)
-            .build()
+        val syncWork = OneTimeWorkRequestBuilder<SyncWorker>().build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "sync_work",
-            ExistingPeriodicWorkPolicy.KEEP,
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "sync_work_test",
+            ExistingWorkPolicy.REPLACE,
             syncWork
         )
+
         setContent {
             val viewModel: AuthViewModel = hiltViewModel()
         }

@@ -1,5 +1,6 @@
 package com.example.carspotter.repository
 
+import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.models.Brand
@@ -31,12 +32,13 @@ class BrandRepository @Inject constructor(
                     name = row.data["name"]?.toString() ?: "Unknown"
                 )
             }
-
+            Log.e("SyncWorker", "Fetched ${brands.size} brands from Appwrite")
             brandDao.insertAll(brands)
 
         } catch (e: Exception) {
             //TODO errors
             e.printStackTrace()
+            throw e
         }
     }
 }

@@ -2,7 +2,9 @@ package com.example.carspotter.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.carspotter.models.Category
 import com.example.carspotter.models.Media
 import kotlinx.coroutines.flow.Flow
 @Dao
@@ -15,4 +17,7 @@ interface MediaDao {
 
     @Query("DELETE FROM media WHERE id = :mediaId")
     suspend fun deleteMediaById(mediaId: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(categories:List<Media>)//get only this with isTop
 }

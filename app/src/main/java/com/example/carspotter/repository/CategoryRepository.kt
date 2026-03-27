@@ -1,5 +1,6 @@
 package com.example.carspotter.repository
 
+import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.CategoryDao
 import com.example.carspotter.models.Category
@@ -32,10 +33,13 @@ class CategoryRepository @Inject constructor(
                     name = row.data["name"]?.toString()?: "Unknown"
                 )
             }
+            Log.e("SyncWorker", "Fetched ${categories.size} brands from Appwrite")
+
             categoryDao.insertAll(categories)
 
         } catch (e: Exception){
             e.printStackTrace()
+            throw e
         }
     }
 }

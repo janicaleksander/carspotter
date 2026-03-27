@@ -1,6 +1,7 @@
 package com.example.carspotter.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -21,9 +22,11 @@ class SyncWorker @AssistedInject constructor(
         return try {
             brandRepository.syncBrands()
             categoryRepository.syncCategories()
+            Log.e("SyncWorker", "Data sync successful")
             Result.success()
 
         } catch (e: Exception) {
+            Log.e("SyncWorker", "Error syncing data", e)
             Result.failure()
         }
     }
