@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters
 import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.FavouriteRepository
+import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.SettingsRepository
 import com.example.carspotter.repository.UserCarRepository
 import com.example.carspotter.repository.UserRepository
@@ -23,7 +24,8 @@ class SyncWorker @AssistedInject constructor(
     private val userCarRepository: UserCarRepository,
     private val settingsRepository: SettingsRepository,
     private val favouriteRepository: FavouriteRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val mediaRepository: MediaRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -33,6 +35,7 @@ class SyncWorker @AssistedInject constructor(
             userCarRepository.syncCar("id")
             favouriteRepository.syncFavourites("id")
             userRepository.syncUser("id")
+            mediaRepository.syncMedia("id")
             settingsRepository.syncSettings()
 
             Log.e("SyncWorker", "Data sync successful")

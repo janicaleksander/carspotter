@@ -1,8 +1,8 @@
 package com.example.carspotter.models
 
 enum class CollectionTypeEnum(val value: String) {
-    GARAGE("GARAGE"),
-    DREAM("DREAM");
+    GARAGE("garage"),
+    DREAM("dream");
 
     companion object {
         fun fromValue(value: String): CollectionTypeEnum =
