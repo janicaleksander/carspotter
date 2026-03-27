@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,10 +7,18 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+val properties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    properties.load(localPropertiesFile.inputStream())
+}
 android {
     namespace = "com.example.carspotter"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.carspotter"
         minSdk = 26
@@ -16,6 +26,10 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "APPWRITE_PUBLIC_ENDPOINT", properties.getProperty("APPWRITE_PUBLIC_ENDPOINT") ?: "\"\"")
+        buildConfigField("String", "APPWRITE_PROJECT_ID", properties.getProperty("APPWRITE_PROJECT_ID") ?: "\"\"")
+        buildConfigField("String", "DATABASE_ID", properties.getProperty("DATABASE_ID") ?: "\"\"")
+        buildConfigField("String", "STORAGE_ID", properties.getProperty("STORAGE_ID") ?: "\"\"")
     }
 
     buildTypes {
@@ -58,4 +72,11 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation("io.appwrite:sdk-for-android:22.2.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
+// Import the BoM for the Firebase platform
+
+    // Add the dependency for the Cloud Storage library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+
 }

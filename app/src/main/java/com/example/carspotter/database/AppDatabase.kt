@@ -35,7 +35,7 @@ import com.example.carspotter.models.UserCar
         Favourite::class,
         Settings::class
     ],
-    version = 2 //TODO change these every time we change migrations
+    version = 1 //TODO change these every time we change migrations
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -57,13 +57,14 @@ abstract class AppDatabase : RoomDatabase() {
             AppDatabase::class.java,
             DATABASE_NAME
         )
-            .addCallback(object : RoomDatabase.Callback() {
+            .addCallback(object : Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
-                    seedDatabase(db)
+                    //seedDatabase(db)
 
                 }
             })
+            .fallbackToDestructiveMigration(true)
             .build()
     }
 }

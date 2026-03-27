@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserCarDao {
 
     @Query("SELECT carId FROM user_car WHERE userId = :userId AND collectionType = :collectionType")
-    fun getAllCarsId(userId:Long,collectionType: String): Flow<List<Long>>
+    fun getAllCarsId(userId: String, collectionType: String): Flow<List<String>>
 
 }

@@ -3,6 +3,8 @@ package com.example.carspotter.models
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.UUID
+
 @Entity(
     tableName = "favourite",
     foreignKeys = [
@@ -21,8 +23,8 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Favourite(
-    @PrimaryKey(autoGenerate = true)
-    val id:Long = 0,
-    val userId:Long, // FK
-    val carId:Long // FK
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val userId: String, // FK
+    val carId: String // FK
 )

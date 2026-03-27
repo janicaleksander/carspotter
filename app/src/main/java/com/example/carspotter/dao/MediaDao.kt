@@ -11,8 +11,8 @@ interface MediaDao {
     suspend fun inset(media: Media)
 
     @Query("SELECT * FROM media WHERE carId = :carId")
-    fun getMediaByCarId(carId: Long): Flow<List<Media>>
+    fun getMediaByCarId(carId: String): Flow<List<Media>>
 
     @Query("DELETE FROM media WHERE id = :mediaId")
-    suspend fun deleteMediaById(mediaId: Long)
+    suspend fun deleteMediaById(mediaId: String)
 }

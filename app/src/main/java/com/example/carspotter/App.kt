@@ -2,6 +2,7 @@ package com.example.carspotter
 
 import android.app.Application
 import com.example.carspotter.database.AppDatabase
+import com.example.carspotter.database.AppwriteModule
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,12 +12,12 @@ import javax.inject.Inject
 @HiltAndroidApp
 class App : Application() {
     @Inject
-    lateinit var database: AppDatabase
+    lateinit var localDatabase: AppDatabase
 
     override fun onCreate() {
         super.onCreate()
         CoroutineScope(Dispatchers.IO).launch {
-            database.openHelper.writableDatabase
+            localDatabase.openHelper.writableDatabase
         }
     }
 }

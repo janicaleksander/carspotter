@@ -7,8 +7,8 @@ import com.example.carspotter.models.User
 @Dao
 interface UserDao {
     @Query("SELECT * FROM user WHERE id = :userId")
-    suspend fun getUserById(userId: Long): User?
+    suspend fun getUserById(userId: String): User?
 
     @Insert
-    suspend fun insertUser(user: User): Long
+    suspend fun insertUser(user: User)
 }

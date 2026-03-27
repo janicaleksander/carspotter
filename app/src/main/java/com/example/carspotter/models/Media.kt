@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity(
     tableName = "media",
@@ -23,10 +24,10 @@ import java.time.LocalDateTime
     ]
 )
 data class Media(
-@PrimaryKey(autoGenerate = true)
-    val id:Long = 0,
-    val carId:Long, // FK
-    val userId:Long, //FK
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val carId: String, // FK
+    val userId: String?, //FK null if car from top cars
     val type: MediaTypeEnum, // enum
     val filePath: String,
     val createdAt: LocalDateTime

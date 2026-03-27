@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity(
     tableName = "user_car",
@@ -27,10 +28,10 @@ import java.time.LocalDateTime
     indices = [Index("userId"), Index("carId")]
 )
 data class UserCar (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val userId:Long, //FK
-    val carId:Long, //FK
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val userId:String, //FK
+    val carId: String, //FK
     val collectionType: CollectionTypeEnum, // enum
     val notes:String,
     @Embedded

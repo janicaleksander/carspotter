@@ -15,10 +15,10 @@ interface FavouriteDao {
     suspend fun delete(favouriteDao: Favourite)
 
     @Query("DELETE FROM favourite WHERE id=:id")
-    suspend fun deleteById(id:Long)
+    suspend fun deleteById(id: String)
 
     @Query("SELECT * FROM favourite WHERE userId=:userId")
-    fun getAll(userId:Long): Flow<List<Favourite>>
+    fun getAll(userId: String): Flow<List<Favourite>>
 }
 //It's worth to add Flow to every get statements
 //because then we don't have to fetch every time we change the screen, we can just observe the data,

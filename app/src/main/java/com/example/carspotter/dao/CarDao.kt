@@ -11,13 +11,13 @@ interface CarDao {
     suspend fun insert(car: Car)
 
     @Query("SELECT * FROM car WHERE id = :id ")
-    fun getById(id:Long): Car?
+    fun getById(id: String): Car?
 
     @Delete
     fun delete(car: Car)
 
     @Query("DELETE FROM car WHERE id = :id")
-    fun deleteById(id:Long)
+    fun deleteById(id: String)
 
 
 }

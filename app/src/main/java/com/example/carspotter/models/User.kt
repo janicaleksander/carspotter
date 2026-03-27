@@ -3,12 +3,13 @@ package com.example.carspotter.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity(tableName = "user")
 data class User(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val email: String,
     val nickname: String,
     val createdAt: LocalDateTime
-
 )

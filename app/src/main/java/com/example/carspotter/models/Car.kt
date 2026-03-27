@@ -3,27 +3,28 @@ package com.example.carspotter.models
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(
     tableName = "car",
     foreignKeys = [
         ForeignKey(
             entity = Brand::class,
-            parentColumns = ["name"],
+            parentColumns = ["id"],
             childColumns = ["brand"],
             onDelete = ForeignKey.RESTRICT
         ),
         ForeignKey(
             entity = Category::class,
-            parentColumns = ["name"],
+            parentColumns = ["id"],
             childColumns = ["category"],
             onDelete = ForeignKey.RESTRICT
         )
     ]
 )
 data class Car(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
     val brand:String,// FK
     val model:String,
     val year: Int,
@@ -37,4 +38,4 @@ data class Car(
     val acceleration: Double?,
     val maxSpeed:Double?,
 
-)
+    )
