@@ -16,9 +16,14 @@ interface CarDetailsDao {
     @Upsert
     suspend fun insert(carDetails: CarDetails)
 
+    @Upsert
+    suspend fun insertAll(carDetailsList: List<CarDetails>)
+
     @Update
     suspend fun update(carDetails: CarDetails)
 
+    @Query("SELECT * FROM car_detail")
+    suspend fun getAll(): List<CarDetails>
     @Query("SELECT * FROM car_detail WHERE carId = :carId")
     suspend fun getByCarId(carId: String): CarDetails?
 

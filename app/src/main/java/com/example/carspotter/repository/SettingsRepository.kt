@@ -28,7 +28,8 @@ class SettingsRepository @Inject constructor(
                     version = row.data["version"] as String
                 )
             }
-            settingDao.insert(setting.first())
+            if (setting.isNotEmpty())
+                settingDao.insert(setting.first())
         } catch (e: Exception){
             throw e
         }
