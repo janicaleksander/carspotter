@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.carspotter.auth.AccountService
 import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.SettingsRepository
@@ -15,11 +16,17 @@ import dagger.assisted.AssistedInject
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
+    private val accountService: AccountService
 
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
+            val user = accountService.getLoggedIn()
+            if (user == null){
+                return Result.success()
+            }
+
 /*
             brandRepository.syncBrands() // -> error
             categoryRepository.syncCategories() // -> error

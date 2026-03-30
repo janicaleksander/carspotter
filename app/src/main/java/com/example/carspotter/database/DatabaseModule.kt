@@ -42,5 +42,8 @@ object DatabaseModule {
     @Provides
     fun provideFavouriteDao(db: AppDatabase) = db.favouriteDao()
 
+    @Provides
+    fun provideCarDetailDao(db: AppDatabase) = db.carDetailsDao()
+
 
 }
