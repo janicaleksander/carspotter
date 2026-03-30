@@ -34,6 +34,8 @@ class SyncWorker @AssistedInject constructor(
             }
             categoryRepository.syncCategories()
             brandRepository.syncBrands()
+
+
             userRepository.syncUser(user.id) // -> error
             carRepository.syncCar(user.id)
             settingsRepository.syncSettings()

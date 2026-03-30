@@ -1,5 +1,6 @@
 package com.example.carspotter.repository
 
+import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.CarDao
 import com.example.carspotter.dao.CarDetailsDao
@@ -50,6 +51,11 @@ class CarRepository @Inject constructor(
         return favouriteDao.getAll(userId);
     }
 
+    fun getCarCategory(carId: String): Flow<String?> {
+        return carDao.getCategoryName(carId)
+    }
+
+
 
 
     suspend fun syncCar(userId: String) {
@@ -89,7 +95,6 @@ class CarRepository @Inject constructor(
             allUserCars.addAll(userCars)
             offset += limit
         } while (userCars.size == limit)
-        userCarDao.insertAll(allUserCars)
 
         val userCarIds = allUserCars.map { it.carId }.distinct()
 
@@ -154,6 +159,8 @@ class CarRepository @Inject constructor(
         }
 
         carDao.insertAll(allCars)
+        userCarDao.insertAll(allUserCars)
+
 
         // 3. car_detail — tylko dla isTop=true, filtrujemy po ID (bezpieczne)
         val topCarIds = allCars.filter { it.isTop }.map { it.id }.distinct()
@@ -225,5 +232,39 @@ class CarRepository @Inject constructor(
         }
 
         mediaDao.insertAll(allMedia)
+
+        val allFavourites = mutableListOf<Favourite>();
+        offset = 0
+        try{
+            do {
+                val favouriteResponse = tablesDB.listRows(
+                    databaseId = BuildConfig.DATABASE_ID,
+                    tableId = "favourite",
+                    queries = listOf(
+                        Query.equal("user", userId),
+                        Query.limit(100),
+                        Query.offset(offset)
+                    )
+                )
+
+                val favourites = favouriteResponse.rows.map { row ->
+                    Favourite(
+                        row.id,
+                        resolveId(row.data["user"]),
+                        resolveId(row.data["car"])
+                    )
+                }
+                allFavourites.addAll(favourites)
+                offset += limit
+
+            } while (favourites.size==limit)
+
+            favouriteDao.insertAll(allFavourites)
+        }catch (e: Exception){
+            Log.d("SyncWorker","fav error")
+            throw e;
+        }
     }
+
+
 }

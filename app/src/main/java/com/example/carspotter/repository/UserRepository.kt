@@ -55,38 +55,6 @@ class UserRepository @Inject constructor(
         }catch(e: Exception){
             throw e;
         }
-        val allFavourites = mutableListOf<Favourite>();
-        val limit = 100
-        var offset = 0
-        try{
-            do {
-                val favouriteResponse = tablesDB.listRows(
-                    databaseId = BuildConfig.DATABASE_ID,
-                    tableId = "favourite",
-                    queries = listOf(
-                        Query.equal("user", userId),
-                        Query.limit(100),
-                        Query.offset(offset)
-                    )
-                )
-
-                val favourites = favouriteResponse.rows.map { row ->
-                    Favourite(
-                        row.id,
-                        resolveId(row.data["user"]),
-                        resolveId(row.data["car"])
-                    )
-                }
-                allFavourites.addAll(favourites)
-                offset += limit
-
-            } while (favourites.size==limit)
-
-            favouriteDao.insertAll(allFavourites)
-        }catch (e: Exception){
-            Log.d("SyncWorker","fav error")
-            throw e;
-        }
     }
     // user table
     //favourite

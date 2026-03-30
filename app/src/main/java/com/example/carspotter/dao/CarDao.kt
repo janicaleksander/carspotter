@@ -24,6 +24,9 @@ interface CarDao {
     @Query("SELECT * FROM car WHERE id = :id")
     suspend fun getById(id: String): CarWithDetails?
 
+
+    @Query("SELECT category.name FROM category INNER JOIN car ON category.id = car.categoryId WHERE car.id = :carId")
+    fun getCategoryName(carId: String): Flow<String?>
     @Transaction
     @Query("SELECT * FROM car")
     fun getAll(): Flow<List<CarWithDetails>>
