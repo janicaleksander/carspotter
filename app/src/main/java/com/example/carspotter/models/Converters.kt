@@ -19,15 +19,6 @@ class Converters {
         fun toMediaTypeEnum(value: String): MediaTypeEnum {
             return MediaTypeEnum.values().first { it.value == value }
         }
-        @TypeConverter
-        fun fromCollectionTypeEnum(collectionType: CollectionTypeEnum): String {
-            return collectionType.value
-        }
-
-        @TypeConverter
-        fun toCollectionTypeEnum(value: String): CollectionTypeEnum {
-            return CollectionTypeEnum.values().first { it.value == value }
-        }
 
 
 }

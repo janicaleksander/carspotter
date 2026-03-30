@@ -19,12 +19,6 @@ interface UserCarDao {
     @Upsert
     suspend fun insertAll(userCars: List<UserCar>)
 
-    @Query("""
-        SELECT car.* FROM car
-        INNER JOIN user_car ON car.id = user_car.carId
-        WHERE user_car.userId = :userId AND user_car.collectionType = :collectionType
-    """)
-    fun getAllCarsByCollection(userId: String, collectionType: String): Flow<List<Car>>
 
     @Query("""
         SELECT car.* FROM car

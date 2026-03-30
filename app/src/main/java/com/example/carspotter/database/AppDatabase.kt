@@ -15,6 +15,7 @@ import com.example.carspotter.dao.MediaDao
 import com.example.carspotter.dao.SettingDao
 import com.example.carspotter.dao.UserCarDao
 import com.example.carspotter.dao.UserDao
+import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.CarDetails
@@ -25,6 +26,7 @@ import com.example.carspotter.models.Media
 import com.example.carspotter.models.Settings
 import com.example.carspotter.models.User
 import com.example.carspotter.models.UserCar
+import com.example.carspotter.models.UserDream
 
 @Database(
     entities = [
@@ -36,6 +38,7 @@ import com.example.carspotter.models.UserCar
         UserCar::class,
         Media::class,
         Favourite::class,
+        UserDream::class,
         Settings::class
     ],
     version = 1 //TODO change these every time we change migrations
@@ -52,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun favouriteDao(): FavouriteDao
 
     abstract fun carDetailsDao(): CarDetailsDao
-
+    abstract fun userDreamDao(): UserDreamDao
 
     companion object {
         const val DATABASE_NAME = "carspotter_database"

@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(
-    tableName = "user_car",
+    tableName = "user_dream",
     foreignKeys = [
         ForeignKey(
             entity = User::class,
@@ -27,13 +27,9 @@ import java.util.UUID
     ],
     indices = [Index("userId"), Index("carId")]
 )
-data class UserCar (
+data class UserDream (
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val userId:String, //FK
     val carId: String, //FK
-    val notes:String,
-    @Embedded
-    val location: Location,
-    val addedAt: LocalDateTime,
 )

@@ -7,15 +7,16 @@ import com.example.carspotter.dao.CarDetailsDao
 import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.dao.MediaDao
 import com.example.carspotter.dao.UserCarDao
+import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.CarDetails
 import com.example.carspotter.models.CarWithDetails
-import com.example.carspotter.models.CollectionTypeEnum
 import com.example.carspotter.models.Favourite
 import com.example.carspotter.models.Location
 import com.example.carspotter.models.Media
 import com.example.carspotter.models.MediaTypeEnum
 import com.example.carspotter.models.UserCar
+import com.example.carspotter.models.UserDream
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,8 @@ class CarRepository @Inject constructor(
     private val carDao: CarDao,
     private val carDetailsDao: CarDetailsDao,
     private val favouriteDao: FavouriteDao,
-    private val mediaDao: MediaDao
+    private val mediaDao: MediaDao,
+    private val userDreamDao: UserDreamDao
 ) {
     private fun resolveId(value: Any?): String {
         return when (value) {
@@ -43,10 +45,13 @@ class CarRepository @Inject constructor(
         return carDao.getAllTop()
     }
 
-    fun getCarsFromCollection(userId: String, collectionId: String): Flow<List<Car>> {
-        return userCarDao.getAllCarsByCollection(userId, collectionId)
+    fun getCarsFromGarage(userId: String): Flow<List<Car>> {
+        return userCarDao.getAllUserCars(userId)
     }
 
+    fun getCarsFromDreams(userId: String): Flow<List<UserDream>> {
+        return userDreamDao.getAllUserDreams(userId)
+    }
     fun getFavouriteCars(userId: String): Flow<List<Favourite>> {
         return favouriteDao.getAll(userId);
     }
@@ -63,6 +68,29 @@ class CarRepository @Inject constructor(
         var offset: Int
 
         // 1. user_car — tylko dla danego użytkownika (potrzebujemy carId przed resztą)
+        val allUserDream = mutableListOf<UserDream>()
+        offset = 0
+        do {
+            val response = tablesDB.listRows(
+                databaseId = BuildConfig.DATABASE_ID,
+                tableId = "user_dream",
+                queries = listOf(
+                    Query.limit(limit),
+                    Query.offset(offset),
+                    Query.equal("user.\$id", userId)
+                )
+            )
+            val userDream = response.rows.map { row ->
+                UserDream(
+                    id = row.id,
+                    userId = resolveId(row.data["user"]),
+                    carId = resolveId(row.data["car"])
+                )
+            }
+            allUserDream.addAll(userDream)
+            offset += limit
+        } while (userDream.size == limit)
+
         val allUserCars = mutableListOf<UserCar>()
         offset = 0
         do {
@@ -80,7 +108,6 @@ class CarRepository @Inject constructor(
                     id = row.id,
                     userId = resolveId(row.data["user"]),
                     carId = resolveId(row.data["car"]),
-                    collectionType = CollectionTypeEnum.fromValue(row.data["collectionType"] as String),
                     notes = row.data["notes"] as String,
                     location = Location(
                         latitude = (row.data["latitude"] as Number).toDouble(),
@@ -160,6 +187,7 @@ class CarRepository @Inject constructor(
 
         carDao.insertAll(allCars)
         userCarDao.insertAll(allUserCars)
+        userDreamDao.insertAll(allUserDream)
 
 
         // 3. car_detail — tylko dla isTop=true, filtrujemy po ID (bezpieczne)

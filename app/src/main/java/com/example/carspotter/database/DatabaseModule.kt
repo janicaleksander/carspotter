@@ -46,4 +46,6 @@ object DatabaseModule {
     fun provideCarDetailDao(db: AppDatabase) = db.carDetailsDao()
 
 
+    @Provides
+    fun provideUserDreamDao(db: AppDatabase) = db.userDreamDao()
 }
