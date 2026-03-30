@@ -1,17 +1,26 @@
 package com.example.carspotter.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.example.carspotter.models.Brand
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BrandDao {
+
+    @Upsert
+    suspend fun insert(brand: Brand)
+
+    @Upsert
+    suspend fun insertAll(brands: List<Brand>)
+
     @Query("SELECT * FROM brand")
     fun getAll(): Flow<List<Brand>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(brands: List<Brand>)
+    @Delete
+    fun delete(brand: Brand)
 }

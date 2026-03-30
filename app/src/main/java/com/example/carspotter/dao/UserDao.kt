@@ -7,9 +7,11 @@ import androidx.room.Query
 import com.example.carspotter.models.User
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM user WHERE id = :userId")
-    suspend fun getUserById(userId: String): User?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(user: User)
+
+    @Query("SELECT * FROM user WHERE id = :userId")
+    suspend fun getUser(userId: String): User?
+
 }

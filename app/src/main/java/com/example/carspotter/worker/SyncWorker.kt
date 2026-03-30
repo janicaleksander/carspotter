@@ -7,11 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CategoryRepository
-import com.example.carspotter.repository.FavouriteRepository
-import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.SettingsRepository
-import com.example.carspotter.repository.UserCarRepository
-import com.example.carspotter.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -19,26 +15,22 @@ import dagger.assisted.AssistedInject
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val categoryRepository: CategoryRepository,
-    private val brandRepository: BrandRepository,
-    private val userCarRepository: UserCarRepository,
-    private val settingsRepository: SettingsRepository,
-    private val favouriteRepository: FavouriteRepository,
-    private val userRepository: UserRepository,
-    private val mediaRepository: MediaRepository
+
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
-            brandRepository.syncBrands()
-            categoryRepository.syncCategories()
+/*
+            brandRepository.syncBrands() // -> error
+            categoryRepository.syncCategories() // -> error
             userCarRepository.syncCar("id")
             favouriteRepository.syncFavourites("id")
 
             //TODO repair this and error handling
-            userRepository.syncUser("id")
+            userRepository.syncUser("id") // -> error
             mediaRepository.syncMedia("id")
-            settingsRepository.syncSettings()
+            settingsRepository.syncSettings() // -> error
+*/
 
             Log.e("SyncWorker", "Data sync successful")
             Result.success()

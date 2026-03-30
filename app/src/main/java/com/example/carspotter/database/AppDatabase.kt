@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.dao.CarDao
+import com.example.carspotter.dao.CarDetailsDao
 import com.example.carspotter.dao.CategoryDao
 import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.dao.MediaDao
@@ -16,6 +17,7 @@ import com.example.carspotter.dao.UserCarDao
 import com.example.carspotter.dao.UserDao
 import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Car
+import com.example.carspotter.models.CarDetails
 import com.example.carspotter.models.Category
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Favourite
@@ -30,6 +32,7 @@ import com.example.carspotter.models.UserCar
         Brand::class,
         Category::class,
         Car::class,
+        CarDetails::class,
         UserCar::class,
         Media::class,
         Favourite::class,
@@ -47,6 +50,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaDao(): MediaDao
     abstract fun settingDao(): SettingDao
     abstract fun favouriteDao(): FavouriteDao
+
+    abstract fun carDetailsDao(): CarDetailsDao
 
 
     companion object {

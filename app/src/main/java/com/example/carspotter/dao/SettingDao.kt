@@ -8,9 +8,11 @@ import com.example.carspotter.models.Settings
 
 @Dao
 interface SettingDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(settings: Settings)
+
     @Query("SELECT * FROM setting ORDER BY id DESC LIMIT 1")
     suspend fun getNewest(): Settings
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(settings: Settings)
 }
