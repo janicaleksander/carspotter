@@ -7,8 +7,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.carspotter.auth.AccountService
 import com.example.carspotter.repository.BrandRepository
+import com.example.carspotter.repository.CarRepository
 import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.SettingsRepository
+import com.example.carspotter.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -16,8 +18,12 @@ import dagger.assisted.AssistedInject
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val accountService: AccountService
-
+    private val accountService: AccountService,
+    private val userRepository: UserRepository,
+    private val carRepository: CarRepository,
+    private val categoryRepository: CategoryRepository,
+    private val brandRepository: BrandRepository,
+    private val settingsRepository: SettingsRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -26,18 +32,11 @@ class SyncWorker @AssistedInject constructor(
             if (user == null){
                 return Result.success()
             }
-
-/*
-            brandRepository.syncBrands() // -> error
-            categoryRepository.syncCategories() // -> error
-            userCarRepository.syncCar("id")
-            favouriteRepository.syncFavourites("id")
-
-            //TODO repair this and error handling
-            userRepository.syncUser("id") // -> error
-            mediaRepository.syncMedia("id")
-            settingsRepository.syncSettings() // -> error
-*/
+            categoryRepository.syncCategories()
+            brandRepository.syncBrands()
+            userRepository.syncUser(user.id) // -> error
+            carRepository.syncCar(user.id)
+            settingsRepository.syncSettings()
 
             Log.e("SyncWorker", "Data sync successful")
             Result.success()

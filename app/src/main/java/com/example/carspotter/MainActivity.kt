@@ -59,17 +59,29 @@ fun MainAppGate(authViewModel: AuthViewModel,context: Context){
                 is AuthState.Authenticated -> {
                     val user = currentState.user
                     LaunchedEffect(user.id) {
-                        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
+                        val workManager = WorkManager.getInstance(context)
+
+                        val immediateSync = OneTimeWorkRequestBuilder<SyncWorker>().build()
+                        workManager.enqueueUniqueWork(
+                            "sync_work_immediate",
+                            ExistingWorkPolicy.REPLACE,
+                            immediateSync
+                        )
+
+                        val periodicSync = PeriodicWorkRequestBuilder<SyncWorker>(
                             15, TimeUnit.MINUTES
                         ).build()
-
-                        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                            "sync_work",
+                        workManager.enqueueUniquePeriodicWork(
+                            "sync_work_periodic",
                             ExistingPeriodicWorkPolicy.KEEP,
-                            syncWork
+                            periodicSync
                         )
-                        Log.d("MainAppGate", "User authenticated, sync worker scheduled")
-                        navController.navigate("home_screen/${user.id}")
+
+                        Log.d("MainAppGate", "User authenticated: immediate sync started & periodic scheduled")
+
+                        navController.navigate("home_screen/${user.id}") {
+                            popUpTo("gate_screen") { inclusive = true }
+                        }
                     }
                 }
 

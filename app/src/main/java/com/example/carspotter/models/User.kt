@@ -8,7 +8,7 @@ import java.util.UUID
 @Entity(tableName = "user")
 data class User(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(),
+    val id:String,
     val nickname: String,
     val createdAt: LocalDateTime
 )

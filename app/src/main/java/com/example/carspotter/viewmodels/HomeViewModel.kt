@@ -8,7 +8,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-
     val currentUserId: String = checkNotNull(savedStateHandle["userId"]){
         //todo
     }
