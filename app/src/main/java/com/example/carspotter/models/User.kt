@@ -10,5 +10,6 @@ data class User(
     @PrimaryKey
     val id:String,
     val nickname: String,
-    val createdAt: LocalDateTime
+    val updatedAt: LocalDateTime
+
 )

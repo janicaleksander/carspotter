@@ -35,5 +35,6 @@ data class UserCar (
     val notes:String,
     @Embedded
     val location: Location,
-    val addedAt: LocalDateTime,
+    val updatedAt: LocalDateTime
+
 )

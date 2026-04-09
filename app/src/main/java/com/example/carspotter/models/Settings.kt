@@ -11,5 +11,6 @@ data class Settings(
     val id: String,
     val appName: String,
     val author: String,
-    val version: String
+    val version: String,
+    val updatedAt: LocalDateTime
 )

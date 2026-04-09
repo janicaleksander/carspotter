@@ -23,7 +23,8 @@ data class Media(
     val carId: String, // FK
     val type: MediaTypeEnum, // enum
     val filePath: String,
-    val createdAt: LocalDateTime
+    val updatedAt: LocalDateTime
+
 )
 
 

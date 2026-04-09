@@ -3,6 +3,7 @@ package com.example.carspotter.models
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(
@@ -26,5 +27,7 @@ data class Favourite(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val userId: String, // FK
-    val carId: String // FK
+    val carId: String,// FK
+    val updatedAt: LocalDateTime
+
 )
