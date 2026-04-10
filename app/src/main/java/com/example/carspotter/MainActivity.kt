@@ -79,7 +79,7 @@ fun MainAppGate(authViewModel: AuthViewModel,context: Context){
 
                         Log.d("MainAppGate", "User authenticated: immediate sync started & periodic scheduled")
 
-                        navController.navigate("home_screen/${user.id}") {
+                        navController.navigate("main_screen") {
                             popUpTo("gate_screen") { inclusive = true }
                         }
                     }
@@ -90,7 +90,7 @@ fun MainAppGate(authViewModel: AuthViewModel,context: Context){
                 }
             }
         }
-        composable("home_screen/{userId}") {
+        composable("main_screen") {
             val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(viewModel = homeViewModel)
         }
