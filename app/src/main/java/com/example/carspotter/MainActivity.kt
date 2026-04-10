@@ -19,7 +19,6 @@ import androidx.work.WorkManager
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.carspotter.auth.AuthState
-import com.example.carspotter.ui.home.HomeScreen
 import com.example.carspotter.ui.login.AuthScreen
 import com.example.carspotter.ui.theme.CarspotterTheme
 import com.example.carspotter.viewmodels.AuthViewModel
@@ -29,6 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.jetbrains.annotations.Debug
 import java.util.concurrent.TimeUnit
 import androidx.compose.runtime.collectAsState
+import com.example.carspotter.ui.components.NavHostComponent
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -91,8 +91,7 @@ fun MainAppGate(authViewModel: AuthViewModel,context: Context){
             }
         }
         composable("main_screen") {
-            val homeViewModel: HomeViewModel = hiltViewModel()
-            HomeScreen(viewModel = homeViewModel)
+            NavHostComponent()
         }
     }
 

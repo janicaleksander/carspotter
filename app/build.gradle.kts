@@ -96,6 +96,7 @@ dependencies {
     ksp("androidx.hilt:hilt-compiler:1.3.0")
 
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 // Import the BoM for the Firebase platform
 
     // Add the dependency for the Cloud Storage library
