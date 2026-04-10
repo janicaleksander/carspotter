@@ -2,8 +2,10 @@ package com.example.carspotter.repository
 
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.SettingDao
+import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Settings
 import io.appwrite.services.TablesDB
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class SettingsRepository @Inject constructor(
@@ -14,6 +16,7 @@ class SettingsRepository @Inject constructor(
         return settingDao.getNewest();
     }
     suspend fun syncSettings(){
+        val converters = Converters();
         try {
             val settingsResponse = tablesDB.listRows(
                 databaseId = BuildConfig.DATABASE_ID,
@@ -25,7 +28,8 @@ class SettingsRepository @Inject constructor(
                     id = row.id,
                     appName = row.data["appName"] as String,
                     author = row.data["author"] as String,
-                    version = row.data["version"] as String
+                    version = row.data["version"] as String,
+                    updatedAt = converters.toLocalDateTime(row.data["updatedAt"] as String) ?: LocalDateTime.now()
                 )
             }
             if (setting.isNotEmpty())
