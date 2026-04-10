@@ -11,7 +11,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.carspotter.navigation.Screen
 
-// BottomNavBar.kt
 @Composable
 fun BottomNavBar(navController: NavController) {
     val screens = listOf(

@@ -1,16 +1,19 @@
 package com.example.carspotter.repository
 
+import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.SettingDao
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Settings
+import io.appwrite.services.Storage
 import io.appwrite.services.TablesDB
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class SettingsRepository @Inject constructor(
     private val settingDao: SettingDao,
-    private val tablesDB: TablesDB
+    private val tablesDB: TablesDB,
+    private val storage: Storage
 ) {
     suspend fun getSettings(): Settings {
         return settingDao.getNewest();
@@ -37,5 +40,22 @@ class SettingsRepository @Inject constructor(
         } catch (e: Exception){
             throw e
         }
+    }
+
+    suspend fun getRandomPhoto(bucketId: String): String {
+        val files = storage.listFiles(bucketId = bucketId).files
+
+        val imageFiles = files.filter { file ->
+            file.mimeType.startsWith("image/")
+        }
+
+        if (imageFiles.isEmpty()) return ""
+
+        val randomFile = imageFiles.random()
+        return "${BuildConfig.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/$bucketId/files/${randomFile.id}/preview" +
+                "?project=${BuildConfig.APPWRITE_PROJECT_ID}" +
+                "&width=1920" +
+                "&quality=85" +
+                "&output=webp"
     }
 }

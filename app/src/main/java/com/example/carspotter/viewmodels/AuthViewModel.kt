@@ -76,8 +76,16 @@ class AuthViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            accountService.logout()
-            authState = AuthState.Unauthenticated()
+            try {
+                accountService.logout()
+                authState = AuthState.Unauthenticated()
+            }
+            catch (e: AppwriteException) {
+                Log.e("AuthViewModel", "Logout error: ${e.message}")
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "Logout error: ${e.message ?: "Unknown error"}")
+            }
+
         }
     }
 

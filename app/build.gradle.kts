@@ -30,6 +30,7 @@ android {
         buildConfigField("String", "APPWRITE_PROJECT_ID", properties.getProperty("APPWRITE_PROJECT_ID") ?: "\"\"")
         buildConfigField("String", "DATABASE_ID", properties.getProperty("DATABASE_ID") ?: "\"\"")
         buildConfigField("String", "STORAGE_ID", properties.getProperty("STORAGE_ID") ?: "\"\"")
+        buildConfigField("String", "BUCKET_ID", properties.getProperty("BUCKET_ID") ?: "\"\"")
     }
 
     buildTypes {

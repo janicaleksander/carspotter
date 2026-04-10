@@ -15,12 +15,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.carspotter.navigation.Screen
 import com.example.carspotter.ui.home.HomeScreen
 import com.example.carspotter.ui.settings.SettingsScreen
+import com.example.carspotter.viewmodels.AuthViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
 
 
 @Composable
-fun NavHostComponent() {
+fun NavHostComponent(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -52,7 +53,7 @@ fun NavHostComponent() {
             }
             composable(Screen.Settings.route) {
                 val vm: SettingsViewModel = hiltViewModel()
-                SettingsScreen(viewModel = vm)
+                SettingsScreen(viewModel = vm, authViewModel = authViewModel)
             }
         }
     }
