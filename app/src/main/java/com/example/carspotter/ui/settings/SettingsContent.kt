@@ -59,15 +59,15 @@ fun SettingsContent(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        SettingsItemRow(label = "AUTHOR", value = settings?.author?.uppercase() ?: "ALEKSANDER JANIC")
+        SettingsItemRow(label = "AUTHOR", value = settings?.author?.uppercase() ?: "Unknown")
         Spacer(modifier = Modifier.height(16.dp))
-        SettingsItemRow(label = "VERSION", value = settings?.version ?: "0.0.1")
+        SettingsItemRow(label = "VERSION", value = settings?.version ?: "Unknown")
         Spacer(modifier = Modifier.height(16.dp))
 
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         SettingsItemRow(
             label = "BUILD DATE",
-            value = settings?.updatedAt?.format(formatter) ?: "2026.06.06"
+            value = settings?.updatedAt?.format(formatter) ?: "Unknown"
         )
 
         Spacer(modifier = Modifier.height(16.dp))
