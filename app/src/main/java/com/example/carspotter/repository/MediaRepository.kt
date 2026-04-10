@@ -12,4 +12,6 @@ class MediaRepository @Inject constructor(
         fun getMediaForCar(carId: String): Flow<List<Media>>{
             return mediaDao.getMediaByCarId(carId)
         }
+
+    suspend fun syncMedia(){}
 }

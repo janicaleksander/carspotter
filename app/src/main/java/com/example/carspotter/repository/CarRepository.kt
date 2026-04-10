@@ -67,7 +67,7 @@ class CarRepository @Inject constructor(
         val limit = 100
         var offset: Int
 
-        // 1. user_car — tylko dla danego użytkownika (potrzebujemy carId przed resztą)
+        // 1. user_dream — tylko dla danego użytkownika (potrzebujemy carId przed resztą)
         val allUserDream = mutableListOf<UserDream>()
         offset = 0
         do {
