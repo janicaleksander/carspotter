@@ -41,7 +41,7 @@ import com.example.carspotter.models.UserDream
         UserDream::class,
         Settings::class
     ],
-    version = 1 //TODO change these every time we change migrations
+    version = 2 //TODO change these every time we change migrations
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
