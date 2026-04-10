@@ -36,3 +36,5 @@ lib/
 
 *.hprof
 app/.env
+todo
+todo.txt
