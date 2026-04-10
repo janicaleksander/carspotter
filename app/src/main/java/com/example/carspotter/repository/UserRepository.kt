@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.dao.UserDao
+import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Favourite
 import com.example.carspotter.models.User
 import io.appwrite.Query
@@ -23,20 +24,15 @@ class UserRepository @Inject constructor(
     suspend fun getUser(userId:String): User?{
         return userDao.getUser(userId);
     }
-    private fun resolveId(value: Any?): String {
-        return when (value) {
-            is Map<*, *> -> value["\$id"] as String
-            is String -> value
-            else -> throw IllegalArgumentException("Cannot resolve id from $value")
-        }
-    }
+
     suspend fun syncUser(userId:String){
+        val converters = Converters()
         try{
             val userResponse = tablesDB.listRows(
                 databaseId = BuildConfig.DATABASE_ID,
                 tableId = "user",
                 queries = listOf(
-                    Query.equal("\$id",userId),
+                    Query.equal($$"$id",userId),
                     Query.limit(1)
                 )
             )
@@ -44,10 +40,8 @@ class UserRepository @Inject constructor(
                 User(
                     row.id,
                     row.data["nickname"] as String,
-                    LocalDateTime.ofInstant(
-                        OffsetDateTime.parse(row.data["\$createdAt"] as String).toInstant(),
-                        ZoneId.systemDefault()
-                    ))
+                    updatedAt =converters.toLocalDateTime(row.data["updatedAt"] as String) ?: LocalDateTime.now()
+                    )
             }
             if (user.isNotEmpty()) {
                 userDao.insert(user.first())
@@ -56,6 +50,4 @@ class UserRepository @Inject constructor(
             throw e;
         }
     }
-    // user table
-    //favourite
 }
