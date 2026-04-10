@@ -3,6 +3,7 @@ package com.example.carspotter.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserDream
 import kotlinx.coroutines.flow.Flow
 @Dao
@@ -14,6 +15,8 @@ interface UserDreamDao {
     @Upsert
     suspend fun insertAll(userDreams: List<UserDream>)
 
+    @Query("SELECT * FROM user_dream WHERE syncState != :state")
+    suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<UserDream>
 
     @Query("""
         SELECT * FROM user_dream

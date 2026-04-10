@@ -40,7 +40,7 @@ class UserRepository @Inject constructor(
                 User(
                     row.id,
                     row.data["nickname"] as String,
-                    updatedAt =converters.toLocalDateTime(row.data["updatedAt"] as String) ?: LocalDateTime.now()
+                    updatedAt =converters.toLocalDateTime(row.updatedAt as String) ?: LocalDateTime.now()
                     )
             }
             if (user.isNotEmpty()) {

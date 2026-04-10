@@ -59,10 +59,31 @@ class UserDreamRepository @Inject constructor(
     }
 
     /**
-     * Inserts pre-fetched user_dream rows into Room.
+     * Inserts pre-fetched user_dream rows into Room with conflict resolution.
      * Must be called AFTER cars are synced (FK constraint).
+     *
+     * Uses Last-Write-Wins strategy:
+     * - If local record is SYNCED → always overwrite with cloud version
+     * - If local record is PENDING_UPDATE/PENDING_DELETE and cloud is newer → cloud wins
+     * - If local record is PENDING_UPDATE/PENDING_DELETE and local is newer → keep local
      */
     suspend fun saveToRoom(userDreams: List<UserDream>) {
-        userDreamDao.insertAll(userDreams)
+        val pendingRecords = userDreamDao.getPendingRecords()
+        val pendingMap = pendingRecords.associateBy { it.id }
+
+        val toUpsert = mutableListOf<UserDream>()
+
+        for (cloudRecord in userDreams) {
+            val localPending = pendingMap[cloudRecord.id]
+            if (localPending == null) {
+                toUpsert.add(cloudRecord)
+            } else if (cloudRecord.updatedAt.isAfter(localPending.updatedAt)) {
+                toUpsert.add(cloudRecord)
+            }
+        }
+
+        if (toUpsert.isNotEmpty()) {
+            userDreamDao.insertAll(toUpsert)
+        }
     }
 }

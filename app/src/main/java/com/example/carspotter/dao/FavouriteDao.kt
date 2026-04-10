@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.carspotter.models.Favourite
+import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface FavouriteDao {
@@ -14,6 +15,9 @@ interface FavouriteDao {
     suspend fun insert(favourite: Favourite)
     @Upsert
     suspend fun insertAll(favourites:List<Favourite>)
+
+    @Query("SELECT * FROM favourite WHERE syncState != :state")
+    suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<Favourite>
 
     @Query("SELECT * FROM favourite WHERE userId=:userId")
     fun getAll(userId: String): Flow<List<Favourite>>

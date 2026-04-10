@@ -67,10 +67,34 @@ class UserCarRepository @Inject constructor(
     }
 
     /**
-     * Inserts pre-fetched user_car rows into Room.
+     * Inserts pre-fetched user_car rows into Room with conflict resolution.
      * Must be called AFTER cars are synced (FK constraint).
+     *
+     * Uses Last-Write-Wins strategy:
+     * - If local record is SYNCED → always overwrite with cloud version
+     * - If local record is PENDING_UPDATE/PENDING_DELETE and cloud is newer → cloud wins
+     * - If local record is PENDING_UPDATE/PENDING_DELETE and local is newer → keep local
      */
     suspend fun saveToRoom(userCars: List<UserCar>) {
-        userCarDao.insertAll(userCars)
+        val pendingRecords = userCarDao.getPendingRecords()
+        val pendingMap = pendingRecords.associateBy { it.id }
+
+        val toUpsert = mutableListOf<UserCar>()
+
+        for (cloudRecord in userCars) {
+            val localPending = pendingMap[cloudRecord.id]
+            if (localPending == null) {
+                // No local conflict — insert/update with cloud version
+                toUpsert.add(cloudRecord)
+            } else if (cloudRecord.updatedAt.isAfter(localPending.updatedAt)) {
+                // Cloud is newer — cloud wins (Last-Write-Wins)
+                toUpsert.add(cloudRecord)
+            }
+            // else: local is newer — skip cloud version, keep local pending change
+        }
+
+        if (toUpsert.isNotEmpty()) {
+            userCarDao.insertAll(toUpsert)
+        }
     }
 }

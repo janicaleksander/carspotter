@@ -29,7 +29,7 @@ class SettingsRepository @Inject constructor(
                     appName = row.data["appName"] as String,
                     author = row.data["author"] as String,
                     version = row.data["version"] as String,
-                    updatedAt = converters.toLocalDateTime(row.data["updatedAt"] as String) ?: LocalDateTime.now()
+                    updatedAt = converters.toLocalDateTime(row.updatedAt as String) ?: LocalDateTime.now()
                 )
             }
             if (setting.isNotEmpty())

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.carspotter.models.Car
+import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserCar
 import kotlinx.coroutines.flow.Flow
 
@@ -19,6 +20,8 @@ interface UserCarDao {
     @Upsert
     suspend fun insertAll(userCars: List<UserCar>)
 
+    @Query("SELECT * FROM user_car WHERE syncState != :state")
+    suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<UserCar>
 
     @Query("""
         SELECT car.* FROM car

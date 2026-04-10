@@ -58,7 +58,24 @@ class FavouriteRepository @Inject constructor(
                 offset += limit
             } while (favourites.size == limit)
 
-            favouriteDao.insertAll(allFavourites)
+            // Conflict resolution (Last-Write-Wins)
+            val pendingRecords = favouriteDao.getPendingRecords()
+            val pendingMap = pendingRecords.associateBy { it.id }
+
+            val toUpsert = mutableListOf<Favourite>()
+
+            for (cloudRecord in allFavourites) {
+                val localPending = pendingMap[cloudRecord.id]
+                if (localPending == null) {
+                    toUpsert.add(cloudRecord)
+                } else if (cloudRecord.updatedAt.isAfter(localPending.updatedAt)) {
+                    toUpsert.add(cloudRecord)
+                }
+            }
+
+            if (toUpsert.isNotEmpty()) {
+                favouriteDao.insertAll(toUpsert)
+            }
         } catch (e: Exception) {
             Log.d("SyncWorker", "fav error")
             throw e
