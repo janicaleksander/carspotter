@@ -7,9 +7,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.carspotter.auth.AccountService
 import com.example.carspotter.repository.BrandRepository
+import com.example.carspotter.repository.CarDetailRepository
 import com.example.carspotter.repository.CarRepository
 import com.example.carspotter.repository.CategoryRepository
+import com.example.carspotter.repository.FavouriteRepository
+import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.SettingsRepository
+import com.example.carspotter.repository.UserCarRepository
+import com.example.carspotter.repository.UserDreamRepository
 import com.example.carspotter.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -23,21 +28,43 @@ class SyncWorker @AssistedInject constructor(
     private val carRepository: CarRepository,
     private val categoryRepository: CategoryRepository,
     private val brandRepository: BrandRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val userCarRepository: UserCarRepository,
+    private val userDreamRepository: UserDreamRepository,
+    private val carDetailRepository: CarDetailRepository,
+    private val mediaRepository: MediaRepository,
+    private val favouriteRepository: FavouriteRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
             val user = accountService.getLoggedIn()
-            if (user == null){
+            if (user == null) {
                 return Result.success()
             }
+
+            // 1. Global lookup tables (no FK dependencies between them)
             categoryRepository.syncCategories()
             brandRepository.syncBrands()
+            userRepository.syncUser(user.id)
 
+            // 2. Fetch user relationships from cloud (don't insert yet — cars not in Room)
+            val userCars = userCarRepository.fetchFromCloud(user.id)
+            val userDreams = userDreamRepository.fetchFromCloud(user.id)
 
-            userRepository.syncUser(user.id) // -> error
-            carRepository.syncCar(user.id)
+            // 3. Sync cars to Room (FK satisfied: brand + category exist)
+            val userCarIds = userCars.map { it.carId }.distinct()
+            val result = carRepository.syncCars(userCarIds)
+
+            // 4. Insert user relationships (cars now exist in Room)
+            userCarRepository.saveToRoom(userCars)
+            userDreamRepository.saveToRoom(userDreams)
+
+            // 5. Sync dependent data (cars exist in Room)
+            carDetailRepository.syncCarDetails(result.topCarIds)
+            mediaRepository.syncMedia(result.allCarIds)
+            favouriteRepository.syncFavourites(user.id)
+
             settingsRepository.syncSettings()
 
             Log.e("SyncWorker", "Data sync successful")

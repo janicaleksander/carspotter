@@ -1,131 +1,46 @@
 package com.example.carspotter.repository
 
-import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.CarDao
-import com.example.carspotter.dao.CarDetailsDao
-import com.example.carspotter.dao.FavouriteDao
-import com.example.carspotter.dao.MediaDao
-import com.example.carspotter.dao.UserCarDao
-import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Car
-import com.example.carspotter.models.CarDetails
 import com.example.carspotter.models.CarWithDetails
-import com.example.carspotter.models.Favourite
-import com.example.carspotter.models.Location
-import com.example.carspotter.models.Media
-import com.example.carspotter.models.MediaTypeEnum
-import com.example.carspotter.models.UserCar
-import com.example.carspotter.models.UserDream
+import com.example.carspotter.models.Converters
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CarRepository @Inject constructor(
     private val tablesDB: TablesDB,
-    private val userCarDao: UserCarDao,
-    private val carDao: CarDao,
-    private val carDetailsDao: CarDetailsDao,
-    private val favouriteDao: FavouriteDao,
-    private val mediaDao: MediaDao,
-    private val userDreamDao: UserDreamDao
+    private val carDao: CarDao
 ) {
-    private fun resolveId(value: Any?): String {
-        return when (value) {
-            is Map<*, *> -> value["\$id"] as String
-            is String -> value
-            else -> throw IllegalArgumentException("Cannot resolve id from $value")
-        }
-    }
+
+
     fun getTopCars(): Flow<List<CarWithDetails>> {
         return carDao.getAllTop()
-    }
-
-    fun getCarsFromGarage(userId: String): Flow<List<Car>> {
-        return userCarDao.getAllUserCars(userId)
-    }
-
-    fun getCarsFromDreams(userId: String): Flow<List<UserDream>> {
-        return userDreamDao.getAllUserDreams(userId)
-    }
-    fun getFavouriteCars(userId: String): Flow<List<Favourite>> {
-        return favouriteDao.getAll(userId);
     }
 
     fun getCarCategory(carId: String): Flow<String?> {
         return carDao.getCategoryName(carId)
     }
 
-
-
-
-    suspend fun syncCar(userId: String) {
+    /**
+     * Syncs cars from Appwrite to Room:
+     * - All isTop=true cars (pool for user_dream)
+     * - User's isTop=false cars (identified by userCarIds)
+     *
+     * @param userCarIds list of car IDs from user_car (user's garage)
+     * @return SyncedCarResult with allCarIds and topCarIds for downstream syncs
+     */
+    suspend fun syncCars(userCarIds: List<String>): SyncedCarResult {
+        val converters = Converters()
         val limit = 100
         var offset: Int
 
-        // 1. user_dream — tylko dla danego użytkownika (potrzebujemy carId przed resztą)
-        val allUserDream = mutableListOf<UserDream>()
-        offset = 0
-        do {
-            val response = tablesDB.listRows(
-                databaseId = BuildConfig.DATABASE_ID,
-                tableId = "user_dream",
-                queries = listOf(
-                    Query.limit(limit),
-                    Query.offset(offset),
-                    Query.equal("user.\$id", userId)
-                )
-            )
-            val userDream = response.rows.map { row ->
-                UserDream(
-                    id = row.id,
-                    userId = resolveId(row.data["user"]),
-                    carId = resolveId(row.data["car"])
-                )
-            }
-            allUserDream.addAll(userDream)
-            offset += limit
-        } while (userDream.size == limit)
-
-        val allUserCars = mutableListOf<UserCar>()
-        offset = 0
-        do {
-            val response = tablesDB.listRows(
-                databaseId = BuildConfig.DATABASE_ID,
-                tableId = "user_car",
-                queries = listOf(
-                    Query.limit(limit),
-                    Query.offset(offset),
-                    Query.equal("user.\$id", userId)
-                )
-            )
-            val userCars = response.rows.map { row ->
-                UserCar(
-                    id = row.id,
-                    userId = resolveId(row.data["user"]),
-                    carId = resolveId(row.data["car"]),
-                    notes = row.data["notes"] as String,
-                    location = Location(
-                        latitude = (row.data["latitude"] as Number).toDouble(),
-                        longitude = (row.data["longitude"] as Number).toDouble()
-                    ),
-                    addedAt = LocalDateTime.ofInstant(
-                        OffsetDateTime.parse(row.data["\$createdAt"] as String).toInstant(),
-                        ZoneId.systemDefault()
-                    )
-                )
-            }
-            allUserCars.addAll(userCars)
-            offset += limit
-        } while (userCars.size == limit)
-
-        val userCarIds = allUserCars.map { it.carId }.distinct()
-
-        // 2a. car — wszystkie isTop=true
+        // 1. car — all isTop=true
         val allCars = mutableListOf<Car>()
         offset = 0
         do {
@@ -141,19 +56,20 @@ class CarRepository @Inject constructor(
             val cars = response.rows.map { row ->
                 Car(
                     id = row.id,
-                    brandId = resolveId(row.data["brand"]),
-                    categoryId = resolveId(row.data["category"]),
+                    brandId = converters.resolveId(row.data["brand"]),
+                    categoryId = converters.resolveId(row.data["category"]),
                     model = row.data["model"] as String,
                     year = (row.data["year"] as Number).toInt(),
                     price = (row.data["price"] as Number).toDouble(),
-                    isTop = row.data["isTop"] as Boolean
+                    isTop = row.data["isTop"] as Boolean,
+                    updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
                 )
             }
             allCars.addAll(cars)
             offset += limit
         } while (cars.size == limit)
 
-        // 2b. car — auta usera z isTop=false (żeby nie duplikować isTop=true)
+        // 2. car — user's cars with isTop=false (avoid duplicating isTop=true)
         if (userCarIds.isNotEmpty()) {
             userCarIds.chunked(100).forEach { chunk ->
                 offset = 0
@@ -171,12 +87,13 @@ class CarRepository @Inject constructor(
                     val cars = response.rows.map { row ->
                         Car(
                             id = row.id,
-                            brandId = resolveId(row.data["brand"]),
-                            categoryId = resolveId(row.data["category"]),
+                            brandId = converters.resolveId(row.data["brand"]),
+                            categoryId = converters.resolveId(row.data["category"]),
                             model = row.data["model"] as String,
                             year = (row.data["year"] as Number).toInt(),
                             price = (row.data["price"] as Number).toDouble(),
-                            isTop = row.data["isTop"] as Boolean
+                            isTop = row.data["isTop"] as Boolean,
+                            updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
                         )
                     }
                     allCars.addAll(cars)
@@ -186,113 +103,10 @@ class CarRepository @Inject constructor(
         }
 
         carDao.insertAll(allCars)
-        userCarDao.insertAll(allUserCars)
-        userDreamDao.insertAll(allUserDream)
 
-
-        // 3. car_detail — tylko dla isTop=true, filtrujemy po ID (bezpieczne)
-        val topCarIds = allCars.filter { it.isTop }.map { it.id }.distinct()
-        val allDetails = mutableListOf<CarDetails>()
-
-        if (topCarIds.isNotEmpty()) {
-            topCarIds.chunked(100).forEach { chunk ->
-                offset = 0
-                do {
-                    val response = tablesDB.listRows(
-                        databaseId = BuildConfig.DATABASE_ID,
-                        tableId = "car_detail",
-                        queries = listOf(
-                            Query.limit(limit),
-                            Query.offset(offset),
-                            Query.equal("car.\$id", chunk)
-                        )
-                    )
-                    val details = response.rows.map { row ->
-                        CarDetails(
-                            carId = resolveId(row.data["car"]),
-                            description = row.data["description"] as String,
-                            powerHP = (row.data["powerHP"] as Number).toInt(),
-                            acceleration = (row.data["acceleration"] as Number).toDouble(),
-                            maxSpeed = (row.data["maxSpeed"] as Number).toDouble()
-                        )
-                    }
-                    allDetails.addAll(details)
-                    offset += limit
-                } while (details.size == limit)
-            }
-        }
-
-        carDetailsDao.insertAll(allDetails)
-
-        // 4. media — dla wszystkich samochodów w Room (isTop + auta usera)
-        val allCarIds = allCars.map { it.id }.distinct()
-        val allMedia = mutableListOf<Media>()
-
-        if (allCarIds.isNotEmpty()) {
-            allCarIds.chunked(100).forEach { chunk ->
-                offset = 0
-                do {
-                    val response = tablesDB.listRows(
-                        databaseId = BuildConfig.DATABASE_ID,
-                        tableId = "media",
-                        queries = listOf(
-                            Query.limit(limit),
-                            Query.offset(offset),
-                            Query.equal("car.\$id", chunk)
-                        )
-                    )
-                    val medias = response.rows.map { row ->
-                        Media(
-                            id = row.id,
-                            carId = resolveId(row.data["car"]),
-                            type = MediaTypeEnum.fromValue(row.data["type"] as String),
-                            filePath = row.data["filePath"] as String,
-                            createdAt = LocalDateTime.ofInstant(
-                                OffsetDateTime.parse(row.data["\$createdAt"] as String).toInstant(),
-                                ZoneId.systemDefault()
-                            )
-                        )
-                    }
-                    allMedia.addAll(medias)
-                    offset += limit
-                } while (medias.size == limit)
-            }
-        }
-
-        mediaDao.insertAll(allMedia)
-
-        val allFavourites = mutableListOf<Favourite>();
-        offset = 0
-        try{
-            do {
-                val favouriteResponse = tablesDB.listRows(
-                    databaseId = BuildConfig.DATABASE_ID,
-                    tableId = "favourite",
-                    queries = listOf(
-                        Query.equal("user", userId),
-                        Query.limit(100),
-                        Query.offset(offset)
-                    )
-                )
-
-                val favourites = favouriteResponse.rows.map { row ->
-                    Favourite(
-                        row.id,
-                        resolveId(row.data["user"]),
-                        resolveId(row.data["car"])
-                    )
-                }
-                allFavourites.addAll(favourites)
-                offset += limit
-
-            } while (favourites.size==limit)
-
-            favouriteDao.insertAll(allFavourites)
-        }catch (e: Exception){
-            Log.d("SyncWorker","fav error")
-            throw e;
-        }
+        return SyncedCarResult(
+            allCarIds = allCars.map { it.id }.distinct(),
+            topCarIds = allCars.filter { it.isTop }.map { it.id }.distinct()
+        )
     }
-
-
 }

@@ -20,7 +20,7 @@ class Converters {
             return MediaTypeEnum.values().first { it.value == value }
         }
 
-        private fun resolveId(value: Any?): String {
+        fun resolveId(value: Any?): String {
                 return when (value) {
                         is Map<*, *> -> value["\$id"] as String
                         is String -> value
