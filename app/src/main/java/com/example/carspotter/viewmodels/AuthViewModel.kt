@@ -5,12 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.carspotter.auth.AccountService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.appwrite.Client
-import io.appwrite.models.User
-import io.appwrite.services.Account
-import kotlinx.coroutines.Dispatchers
+import io.appwrite.exceptions.AppwriteException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -42,22 +38,38 @@ class AuthViewModel @Inject constructor(
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            val user = accountService.login(email, password)
-            authState = if (user!=null){
-                AuthState.Authenticated(user)
-            }else{
-                AuthState.Unauthenticated("Invalid email or password")
+            try {
+                val user = accountService.login(email, password)
+                authState = if (user!=null){
+                    AuthState.Authenticated(user)
+                }else{
+                    AuthState.Unauthenticated("Invalid email or password")
+                }
+            } catch (e: AppwriteException) {
+                authState = AuthState.Unauthenticated("Login failed: ${e.message}")
+                Log.e("AuthViewModel", "Login error: ${e.message}")
+            } catch (e: Exception) {
+                authState = AuthState.Unauthenticated("Login failed: ${e.message ?: "Unknown error"}")
+                Log.e("AuthViewModel", "Login error: ${e.message}")
             }
         }
     }
 
-    fun register(email: String, password: String) {
+    fun register(nickname: String, email: String, password: String) {
         viewModelScope.launch {
-            val user = accountService.register(email, password)
-            authState = if (user!=null){
-                AuthState.Authenticated(user)
-            }else{
-                AuthState.Unauthenticated("Registration failed. Email may already be in use.")
+            try {
+                val user = accountService.register(nickname,email, password)
+                authState = if (user!=null){
+                    AuthState.Authenticated(user)
+                }else{
+                    AuthState.Unauthenticated("Registration failed. Email may already be in use.")
+                }
+            } catch (e: AppwriteException) {
+                authState = AuthState.Unauthenticated("Registration failed: ${e.message}")
+                Log.e("AuthViewModel", "Register error: ${e.message}")
+            } catch (e: Exception) {
+                authState = AuthState.Unauthenticated("Registration failed: ${e.message ?: "Unknown error"}")
+                Log.e("AuthViewModel", "Register error: ${e.message}")
             }
         }
     }

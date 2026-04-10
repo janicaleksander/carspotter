@@ -19,7 +19,7 @@ class AccountService @Inject constructor(
         return try {
             account.get()
         } catch (e: AppwriteException) {
-            null
+            return null
         }
     }
 
@@ -31,11 +31,11 @@ class AccountService @Inject constructor(
             )
             getLoggedIn()
         } catch (e: AppwriteException) {
-            null
+            throw e;
         }
     }
 
-    suspend fun register(email: String, password: String): User<Map<String, Any>>? {
+    suspend fun register(nickname:String,email: String, password: String): User<Map<String, Any>>? {
         val sharedUserID = ID.unique()
 
         return try {
@@ -50,16 +50,15 @@ class AccountService @Inject constructor(
                 tableId = "user",
                 rowId = sharedUserID,
                 data = mapOf(
-                    "nickname" to "TODO NICKNAME"
+                    "nickname" to nickname
                 )
             )
 
             login(email, password)
 
         } catch (e: AppwriteException) {
-            //TODO
             Log.d("AccountService", "Registration error: ${e.message}")
-            null
+            throw e;
         }
     }
 
@@ -67,7 +66,7 @@ class AccountService @Inject constructor(
         try {
             account.deleteSession("current")
         } catch (e: AppwriteException) {
-            // Ignorujemy lub logujemy błąd wylogowania
+           throw e;
         }
     }
 }
