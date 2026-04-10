@@ -3,6 +3,7 @@ package com.example.carspotter.repository
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Converters
+import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserDream
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
@@ -46,7 +47,8 @@ class UserDreamRepository @Inject constructor(
                     id = row.id,
                     userId = converters.resolveId(row.data["user"]),
                     carId = converters.resolveId(row.data["car"]),
-                    updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
+                    updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now(),
+                    syncState = SyncState.SYNCED
                 )
             }
             allUserDreams.addAll(userDreams)

@@ -5,6 +5,7 @@ import com.example.carspotter.dao.UserCarDao
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Location
+import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserCar
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
@@ -54,7 +55,8 @@ class UserCarRepository @Inject constructor(
                         latitude = (row.data["latitude"] as Number).toDouble(),
                         longitude = (row.data["longitude"] as Number).toDouble()
                     ),
-                    updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
+                    updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now(),
+                    syncState = SyncState.SYNCED
                 )
             }
             allUserCars.addAll(userCars)

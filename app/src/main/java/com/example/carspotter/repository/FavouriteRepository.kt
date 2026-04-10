@@ -5,6 +5,7 @@ import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Favourite
+import com.example.carspotter.models.SyncState
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +50,8 @@ class FavouriteRepository @Inject constructor(
                         id = row.id,
                         userId = converters.resolveId(row.data["user"]),
                         carId = converters.resolveId(row.data["car"]),
-                        updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
+                        updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now(),
+                        syncState = SyncState.SYNCED
                     )
                 }
                 allFavourites.addAll(favourites)
