@@ -30,5 +30,9 @@ interface UserCarDao {
     """)
     fun getAllUserCars(userId: String): Flow<List<Car>>
 
+    @Query("UPDATE user_car SET syncState = 'SYNCED' WHERE id = :id")
+    suspend fun markAsSynced(id: String)
 
+    @Query("DELETE FROM user_car WHERE id = :id")
+    suspend fun hardDelete(id: String)
 }

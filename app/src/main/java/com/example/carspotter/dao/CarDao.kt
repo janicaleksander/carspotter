@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.CarWithDetails
 import com.example.carspotter.models.Category
+import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -40,4 +41,14 @@ interface CarDao {
 
     @Query("DELETE FROM car WHERE id = :id")
     suspend fun deleteById(id: String)
+
+
+    @Query("SELECT * FROM car WHERE syncState != :state AND isTop = 0")
+    suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<Car>
+
+    @Query("UPDATE car SET syncState = 'SYNCED' WHERE id = :id")
+    suspend fun markAsSynced(id: String)
+
+    @Query("DELETE FROM car WHERE id = :id")
+    suspend fun hardDelete(id: String)
 }

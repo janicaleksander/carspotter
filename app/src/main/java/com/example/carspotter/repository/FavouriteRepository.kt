@@ -81,4 +81,41 @@ class FavouriteRepository @Inject constructor(
             throw e
         }
     }
+
+    suspend fun pushPending() {
+        val pending = favouriteDao.getPendingRecords()
+        for (record in pending) {
+            when (record.syncState) {
+                SyncState.PENDING_CREATE -> {
+                    try{
+                        tablesDB.createRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "favourite",
+                            rowId = record.id,
+                            data = mapOf(
+                                "user" to record.userId,
+                                "car" to record.carId
+                            )
+                        )
+                        favouriteDao.markAsSynced(record.id)
+                    }catch (e : Exception){
+                        //todo
+                    }
+                }
+                SyncState.PENDING_DELETE -> {
+                    try{
+                        tablesDB.deleteRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "favourite",
+                            rowId = record.id
+                        )
+                        favouriteDao.hardDelete(record.id)
+                    } catch (e : Exception){
+                        //todo
+                    }
+                }
+                else -> { /* nic */ }
+            }
+        }
+    }
 }

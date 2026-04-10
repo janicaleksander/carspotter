@@ -42,7 +42,10 @@ class SyncWorker @AssistedInject constructor(
             if (user == null) {
                 return Result.success()
             }
-
+            carRepository.pushPending() // ← dodajesz
+            userCarRepository.pushPending()
+            favouriteRepository.pushPending()
+            userDreamRepository.pushPending()
             // 1. Global lookup tables (no FK dependencies between them)
             categoryRepository.syncCategories()
             brandRepository.syncBrands()

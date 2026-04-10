@@ -23,4 +23,10 @@ interface UserDreamDao {
         WHERE userId = :userId
     """)
     fun getAllUserDreams(userId: String): Flow<List<UserDream>>
+
+    @Query("UPDATE user_dream SET syncState = 'SYNCED' WHERE id = :id")
+    suspend fun markAsSynced(id: String)
+
+    @Query("DELETE FROM user_dream WHERE id = :id")
+    suspend fun hardDelete(id: String)
 }

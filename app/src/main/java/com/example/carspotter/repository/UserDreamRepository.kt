@@ -86,4 +86,44 @@ class UserDreamRepository @Inject constructor(
             userDreamDao.insertAll(toUpsert)
         }
     }
+
+    suspend fun pushPending(){
+        val pending = userDreamDao.getPendingRecords()
+        for(record in pending) {
+            when (record.syncState) {
+                SyncState.PENDING_CREATE -> {
+                    try{
+                        tablesDB.createRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "user_dream",
+                            rowId = record.id,
+                            data = mapOf(
+                                "user" to record.userId,
+                                "car" to record.carId
+                            )
+                        )
+                        userDreamDao.markAsSynced(record.id)
+                    }catch (e : Exception){
+                        //todo
+                    }
+                }
+                SyncState.PENDING_DELETE -> {
+                    try {
+                        tablesDB.deleteRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "user_dream",
+                            rowId = record.id
+                        )
+                        userDreamDao.hardDelete(record.id)
+                    } catch (e: Exception) {
+                        // Handle error (e.g., log it, retry later, etc.)
+                    }
+                }
+
+                else -> { /* nic */
+                }
+            }
+        }
+
+    }
 }

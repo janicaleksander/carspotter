@@ -97,4 +97,45 @@ class UserCarRepository @Inject constructor(
             userCarDao.insertAll(toUpsert)
         }
     }
+
+    suspend fun pushPending() {
+        val pending = userCarDao.getPendingRecords()
+        for (record in pending) {
+            when (record.syncState) {
+                SyncState.PENDING_UPDATE -> {
+                    try {
+                        tablesDB.updateRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "user_car",
+                            rowId = record.id,
+                            data = mapOf(
+                                "notes" to record.notes,
+                                "latitude" to record.location.latitude,
+                                "longitude" to record.location.longitude
+                            )
+                        )
+                        userCarDao.markAsSynced(record.id)
+                    } catch (e: Exception) {
+                        // Handle error (e.g., log it, retry later)
+                    }
+                }
+
+                SyncState.PENDING_DELETE -> {
+                    try {
+                        tablesDB.deleteRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "user_car",
+                            rowId = record.id
+                        )
+                        userCarDao.hardDelete(record.id)
+                    } catch (e: Exception) {
+                        // Handle error (e.g., log it, retry later)
+                    }
+                }
+
+                else -> { /* No action needed for PENDING_CREATE here, as creation is handled separately */
+                }
+            }
+        }
+    }
 }

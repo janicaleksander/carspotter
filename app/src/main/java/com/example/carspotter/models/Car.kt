@@ -23,6 +23,7 @@ data class Car(
     val year: Int,
     val price: Double,
     val isTop: Boolean,
+    val syncState: SyncState = SyncState.SYNCED,
     val updatedAt: LocalDateTime
 
 )

@@ -29,7 +29,11 @@ interface FavouriteDao {
     suspend fun deleteById(id: String)
 
 
+    @Query("UPDATE favourite SET syncState = 'SYNCED' WHERE id = :id")
+    suspend fun markAsSynced(id: String)
 
+    @Query("DELETE FROM favourite WHERE id = :id")
+    suspend fun hardDelete(id: String)
 
 
 }

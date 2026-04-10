@@ -5,6 +5,7 @@ import com.example.carspotter.dao.CarDao
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.CarWithDetails
 import com.example.carspotter.models.Converters
+import com.example.carspotter.models.SyncState
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -102,11 +103,54 @@ class CarRepository @Inject constructor(
             }
         }
 
-        carDao.insertAll(allCars)
+
+        val topCars = allCars.filter { it.isTop }
+        val userCars = allCars.filter { !it.isTop }
+
+        carDao.insertAll(topCars)
+
+        val pending = carDao.getPendingRecords().associateBy { it.id }
+        val toUpsert = userCars.filter { cloud ->
+            val local = pending[cloud.id]
+            local == null || cloud.updatedAt.isAfter(local.updatedAt)
+        }
+        carDao.insertAll(toUpsert)
 
         return SyncedCarResult(
             allCarIds = allCars.map { it.id }.distinct(),
             topCarIds = allCars.filter { it.isTop }.map { it.id }.distinct()
         )
     }
+
+    suspend fun pushPending() {
+        val pending = carDao.getPendingRecords()
+
+        for (car in pending) {
+            when (car.syncState) {
+                SyncState.PENDING_UPDATE -> {
+                    tablesDB.updateRow(
+                        databaseId = BuildConfig.DATABASE_ID,
+                        tableId = "car",
+                        rowId = car.id,
+                        data = mapOf(
+                            "model" to car.model,
+                            "year" to car.year,
+                            "price" to car.price
+                        )
+                    )
+                    carDao.markAsSynced(car.id)
+                }
+                SyncState.PENDING_DELETE -> {
+                    tablesDB.deleteRow(
+                        databaseId = BuildConfig.DATABASE_ID,
+                        tableId = "car",
+                        rowId = car.id
+                    )
+                    carDao.hardDelete(car.id)
+                }
+                else -> {}
+            }
+        }
+    }
 }
+/*TODO ciekawe trzeba uwazac na usuwanie kaskadowe offline*/
