@@ -4,10 +4,14 @@ import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.models.Brand
+import com.example.carspotter.models.Converters
 import io.appwrite.Query
 import io.appwrite.services.Databases
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,6 +26,7 @@ class BrandRepository @Inject constructor(
     }
     // BrandRepository
     suspend fun syncBrands() {
+        val converters = Converters()
         val allBrands = mutableListOf<Brand>()
         var offset = 0
         val limit = 25
@@ -36,7 +41,11 @@ class BrandRepository @Inject constructor(
                     )
                 )
                 val brands = response.rows.map { row ->
-                    Brand(id = row.id, name = row.data["name"]?.toString() ?: "Unknown")
+                    Brand(
+                        id = row.id,
+                        name = row.data["name"].toString(),
+                        updatedAt = converters.toLocalDateTime(row.updatedAt) ?: LocalDateTime.now()
+                    )
                 }
                 allBrands.addAll(brands)
                 offset += limit
