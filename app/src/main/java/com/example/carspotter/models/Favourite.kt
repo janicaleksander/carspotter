@@ -28,6 +28,7 @@ data class Favourite(
     val id: String = UUID.randomUUID().toString(),
     val userId: String, // FK
     val carId: String,// FK
+    val syncState: SyncState = SyncState.SYNCED,
     val updatedAt: LocalDateTime
 
 )

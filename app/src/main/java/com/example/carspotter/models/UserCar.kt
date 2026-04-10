@@ -35,6 +35,8 @@ data class UserCar (
     val notes:String,
     @Embedded
     val location: Location,
+    val syncState: SyncState = SyncState.SYNCED,
+
     val updatedAt: LocalDateTime
 
 )
