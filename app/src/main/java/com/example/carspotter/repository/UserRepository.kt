@@ -32,7 +32,7 @@ class UserRepository @Inject constructor(
                 databaseId = BuildConfig.DATABASE_ID,
                 tableId = "user",
                 queries = listOf(
-                    Query.equal($$"$id",userId),
+                    Query.equal("\$id",userId),
                     Query.limit(1)
                 )
             )

@@ -25,6 +25,13 @@ class AccountService @Inject constructor(
 
     suspend fun login(email: String, password: String): User<Map<String, Any>>? {
         return try {
+            // Ensure there is no stale current session before creating a new one.
+            try {
+                account.deleteSession("current")
+            } catch (_: AppwriteException) {
+                // Ignore if there is no current session.
+            }
+
             account.createEmailPasswordSession(
                 email = email,
                 password = password
@@ -64,7 +71,7 @@ class AccountService @Inject constructor(
 
     suspend fun logout() {
         try {
-            account.deleteSession("current")
+            account.deleteSessions()
         } catch (e: AppwriteException) {
            throw e;
         }
