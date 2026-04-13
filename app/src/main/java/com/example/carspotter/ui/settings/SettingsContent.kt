@@ -26,6 +26,8 @@ import com.example.carspotter.models.Settings
 import com.example.carspotter.ui.theme.CarRed
 import java.time.format.DateTimeFormatter
 
+// ─── Root screen composable ───────────────────────────────────────────────────
+
 @Composable
 fun SettingsContent(
     settings: Settings?,
@@ -45,160 +47,197 @@ fun SettingsContent(
     ) {
         Spacer(modifier = Modifier.height(80.dp))
 
-        // Icon — tak samo jak AuthScreen
-        Icon(
-            imageVector = Icons.Default.DirectionsCar,
-            contentDescription = null,
-            modifier = Modifier.size(56.dp),
-            tint = CarRed,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = settings?.appName?.uppercase() ?: "CARSPOTTER",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.ExtraBold,
-            color = CarRed,
-            letterSpacing = MaterialTheme.typography.headlineSmall.letterSpacing * 1.5,
-        )
+        SettingsHeader(appName = settings?.appName)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "About",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "App info and preferences",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        SettingsAboutSection()
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Info rows
-        SettingsItemRow(
-            label = "Author",
-            value = settings?.author ?: "Unknown",
-            icon = Icons.Default.Person
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SettingsItemRow(
-            label = "Version",
-            value = settings?.version ?: "Unknown",
-            icon = Icons.Default.DirectionsCar
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-        SettingsItemRow(
-            label = "Build Date",
-            value = settings?.updatedAt?.format(formatter) ?: "Unknown",
-            icon = Icons.Default.DirectionsCar
-        )
+        SettingsInfoRows(settings = settings)
 
         Spacer(modifier = Modifier.height(36.dp))
 
-        // Permissions button
-        Button(
-            onClick = onPermissionsClick,
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.Security,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "PERMISSIONS",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = MaterialTheme.typography.titleMedium.letterSpacing * 1.4,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Logout button
-        Button(
-            onClick = onLogoutClick,
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CarRed,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Logout,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "LOGOUT",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = MaterialTheme.typography.titleMedium.letterSpacing * 1.4,
-            )
-        }
+        SettingsActions(
+            onPermissionsClick = onPermissionsClick,
+            onLogoutClick = onLogoutClick,
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .crossfade(500)
-                    .size(coil.size.Size.ORIGINAL)
-                    .build(),
-                contentDescription = "Car image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-                filterQuality = FilterQuality.Medium
-            )
-        }
+        SettingsCarImage(imageUrl = imageUrl)
 
         Spacer(modifier = Modifier.height(96.dp))
     }
 }
 
+// ─── Extracted composables ────────────────────────────────────────────────────
+
+@Composable
+fun SettingsHeader(appName: String?) {
+    Icon(
+        imageVector = Icons.Default.DirectionsCar,
+        contentDescription = null,
+        modifier = Modifier.size(56.dp),
+        tint = CarRed,
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        text = appName?.uppercase() ?: "CARSPOTTER",
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.ExtraBold,
+        color = CarRed,
+        letterSpacing = MaterialTheme.typography.headlineSmall.letterSpacing * 1.5,
+    )
+}
+
+@Composable
+fun SettingsAboutSection() {
+    Text(
+        text = "About",
+        style = MaterialTheme.typography.headlineLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    Text(
+        text = "App info and preferences",
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+fun SettingsInfoRows(settings: Settings?) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+
+    SettingsItemRow(
+        label = "Author",
+        value = settings?.author ?: "Unknown",
+        icon = Icons.Default.Person,
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    SettingsItemRow(
+        label = "Version",
+        value = settings?.version ?: "Unknown",
+        icon = Icons.Default.DirectionsCar,
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    SettingsItemRow(
+        label = "Build Date",
+        value = settings?.updatedAt?.format(formatter) ?: "Unknown",
+        icon = Icons.Default.DirectionsCar,
+    )
+}
+
+@Composable
+fun SettingsActions(
+    onPermissionsClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+) {
+    Button(
+        onClick = onPermissionsClick,
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Security,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "PERMISSIONS",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = MaterialTheme.typography.titleMedium.letterSpacing * 1.4,
+        )
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Button(
+        onClick = onLogoutClick,
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = CarRed,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp),
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.Logout,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "LOGOUT",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = MaterialTheme.typography.titleMedium.letterSpacing * 1.4,
+        )
+    }
+}
+
+@Composable
+fun SettingsCarImage(imageUrl: String) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        shape = RoundedCornerShape(
+            topStart = 24.dp,
+            topEnd = 24.dp,
+            bottomStart = 8.dp,
+            bottomEnd = 8.dp,
+        ),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .crossfade(500)
+                .size(coil.size.Size.ORIGINAL)
+                .build(),
+            contentDescription = "Car image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+            filterQuality = FilterQuality.Medium,
+        )
+    }
+}
+
+// ─── Shared primitive ─────────────────────────────────────────────────────────
+
 @Composable
 fun SettingsItemRow(
     label: String,
     value: String,
-    icon: ImageVector
+    icon: ImageVector,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-        tonalElevation = 0.dp
+        tonalElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier
@@ -210,7 +249,7 @@ fun SettingsItemRow(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
@@ -218,7 +257,7 @@ fun SettingsItemRow(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = value,
