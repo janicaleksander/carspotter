@@ -95,11 +95,11 @@ class TopsDetailViewModel @Inject constructor(
 
     val uiState: StateFlow<DetailTopCarState> = carRepository.getTopCarById(carId)
         .filterNotNull() // KLUCZ 1: Przepuszcza tylko, gdy auto istnieje. Poniżej car_details na pewno NIE JEST nullem.
-        .flatMapLatest { car_details ->
+        .flatMapLatest { carDetails ->
             combine(
-                brandRepository.getBrandById(car_details.car.brandId)
+                brandRepository.getBrandById(carDetails.car.brandId)
                     .filterNotNull(), // Odfiltrowujemy null
-                categoryRepository.getCategoryById(car_details.car.categoryId)
+                categoryRepository.getCategoryById(carDetails.car.categoryId)
                     .filterNotNull(), // Odfiltrowujemy null
                 mediaRepository.getMediaForCar(carId)
             ) { brand, category, media ->
@@ -108,14 +108,14 @@ class TopsDetailViewModel @Inject constructor(
                         carId = carId,
                         brandName = brand.name,
                         category = category.name,
-                        year = car_details.car.year,
-                        model = car_details.car.model,
-                        powerHP = car_details.details?.powerHP ?: 0, // Bezpieczna wartość domyślna
-                        acceleration = car_details.details?.acceleration
+                        year = carDetails.car.year,
+                        model = carDetails.car.model,
+                        powerHP = carDetails.details?.powerHP ?: 0, // Bezpieczna wartość domyślna
+                        acceleration = carDetails.details?.acceleration
                             ?: 0.0, // Bezpieczna wartość domyślna
-                        description = car_details.details?.description
+                        description = carDetails.details?.description
                             ?: "", // Bezpieczna wartość domyślna,
-                        maxSpeed = car_details.details?.maxSpeed ?: 0.0,
+                        maxSpeed = carDetails.details?.maxSpeed ?: 0.0,
                         allMediaURLs = media
                     ),
                     isLoading = false

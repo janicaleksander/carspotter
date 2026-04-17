@@ -68,7 +68,8 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
             ){
                 val vm : TopsDetailViewModel = hiltViewModel()
                 TopsDetailScreen(
-                    viewModel = vm
+                    viewModel = vm,
+                    onNavigateBack = { navController.popBackStack() },
                 )
             }
             composable(Screen.Settings.route) {
