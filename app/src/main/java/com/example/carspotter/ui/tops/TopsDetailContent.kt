@@ -122,7 +122,10 @@ fun TopsDetailContent(
                     }
                 }.filterNotNull()
                 if (mediaItems.isNotEmpty()) {
-                    Carousel(items = mediaItems)
+                    Carousel(
+                        items = mediaItems,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
 
@@ -253,20 +256,22 @@ private fun InfoGrid2x2(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            InfoChip(label = "CATEGORY", value = category)
-            InfoChip(label = "YEAR", value = year)
+            InfoChip(label = "CATEGORY", value = category, modifier = Modifier.weight(1f))
+            InfoChip(label = "YEAR", value = year, modifier = Modifier.weight(1f))
         }
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            InfoChip(label = "POWER", value = power)
-            InfoChip(label = "0-100", value = acceleration)
+            InfoChip(label = "POWER", value = power, modifier = Modifier.weight(1f))
+            InfoChip(label = "0-100", value = acceleration, modifier = Modifier.weight(1f))
         }
     }
 }
