@@ -22,6 +22,17 @@ class MediaRepository @Inject constructor(
         return mediaDao.getMediaByCarId(carId)
     }
 
+    fun getAllMedia(): Flow<List<Media>> {
+        return mediaDao.getAllMedia()
+    }
+    fun getMediasForTopCar(): Flow<List<Media>> {
+        return mediaDao.getMediasForTopCar()
+    }
+
+    fun getAllPhotos(): Flow<List<Media>> {
+        return mediaDao.getAllPhotos()
+    }
+
     /**
      * Syncs media from Appwrite for all synced cars (both isTop=true and user's isTop=false).
      * Must be called AFTER cars are synced (FK constraint).

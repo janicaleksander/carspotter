@@ -36,6 +36,10 @@ interface CarDao {
     @Query("SELECT * FROM car WHERE isTop = 1")
     fun getAllTop(): Flow<List<CarWithDetails>>
 
+    @Transaction
+    @Query("SELECT * FROM car WHERE isTop = 1 AND categoryId = :categoryId")
+    fun getTopByCategory(categoryId: String): Flow<List<CarWithDetails>>
+
     @Delete
     suspend fun delete(car: Car)
 

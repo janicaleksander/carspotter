@@ -15,9 +15,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.carspotter.navigation.Screen
 import com.example.carspotter.ui.home.HomeScreen
 import com.example.carspotter.ui.settings.SettingsScreen
+import com.example.carspotter.ui.tops.TopsScreen
 import com.example.carspotter.viewmodels.AuthViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
+import com.example.carspotter.viewmodels.TopsViewModel
 
 
 @Composable
@@ -47,9 +49,8 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 }
             }
             composable(Screen.Tops.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Tops")
-                }
+                val vm: TopsViewModel = hiltViewModel()
+                TopsScreen(viewModel = vm)
             }
             composable(Screen.Settings.route) {
                 val vm: SettingsViewModel = hiltViewModel()

@@ -45,7 +45,7 @@ class SyncWorker @AssistedInject constructor(
             carRepository.pushPending() // ← dodajesz
             userCarRepository.pushPending()
             favouriteRepository.pushPending()
-            userDreamRepository.pushPending()
+            userDreamRepository.pushPending()//TODO to!!!! ->dodaje do rom i push pedning
             // 1. Global lookup tables (no FK dependencies between them)
             categoryRepository.syncCategories()
             brandRepository.syncBrands()

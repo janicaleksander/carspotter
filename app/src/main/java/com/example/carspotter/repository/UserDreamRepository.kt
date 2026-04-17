@@ -22,6 +22,10 @@ class UserDreamRepository @Inject constructor(
         return userDreamDao.getAllUserDreams(userId)
     }
 
+    fun ifUserDreamExists(userID: String,carID :String): Boolean {
+        return userDreamDao.ifUserDreamExists(userID,carID)
+    }
+
     /**
      * Fetches user_dream rows from Appwrite cloud, filtered by userId.
      * Does NOT insert into Room — call saveToRoom() after cars are synced.

@@ -24,6 +24,10 @@ class CarRepository @Inject constructor(
         return carDao.getAllTop()
     }
 
+    fun getTopCarsByCategory(categoryId: String): Flow<List<CarWithDetails>> {
+        return carDao.getTopByCategory(categoryId)
+    }
+
     fun getCarCategory(carId: String): Flow<String?> {
         return carDao.getCategoryName(carId)
     }

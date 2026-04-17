@@ -22,4 +22,24 @@ interface MediaDao {
     @Query("DELETE FROM media WHERE id = :mediaId")
     suspend fun deleteMediaById(mediaId: String)
 
+    @Query("SELECT * FROM media")
+    fun getAllMedia(): Flow<List<Media>>
+
+
+    @Query("SELECT * FROM media WHERE type = 'photo'")
+    fun getAllPhotos(): Flow<List<Media>>
+
+
+    @Query("""
+        SELECT m.* FROM media m
+        INNER JOIN car c ON m.carId = c.id
+        WHERE c.id = :carId
+    """)
+    fun getAllPhotosForCar(carId: String): Flow<List<Media>>
+    @Query("""
+        SELECT m.* FROM media m
+        INNER JOIN car c ON m.carId = c.id
+        WHERE c.isTop = 1
+    """)
+    fun getMediasForTopCar(): Flow<List<Media>>
 }

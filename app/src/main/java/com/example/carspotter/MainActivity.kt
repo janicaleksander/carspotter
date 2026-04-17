@@ -45,7 +45,11 @@ class MainActivity : ComponentActivity() {
 ///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
 ///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
 ///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
-///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
+///TODO/ UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
+//TODO co jesli ktos dodal tylko film a nie obraz co wwtedy na miniaturke - wymys zdjecie edodanie
+//todo max tlyko jedno audio moze byc dla auta
+//userDreamRepository.pushPending()//TODO to!!!! ->dodaje do rom i push pedning
+
 @Composable
 fun MainAppGate( authViewModel: AuthViewModel, context: Context){
     val navController = rememberNavController()

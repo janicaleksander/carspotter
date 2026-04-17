@@ -24,6 +24,14 @@ interface UserDreamDao {
     """)
     fun getAllUserDreams(userId: String): Flow<List<UserDream>>
 
+    @Query("""
+        SELECT EXISTS(
+            SELECT 1 FROM user_dream
+            WHERE userId = :userID AND carId = :carID
+        )
+    """)
+    fun ifUserDreamExists(userID: String,carID :String): Boolean
+
     @Query("UPDATE user_dream SET syncState = 'SYNCED' WHERE id = :id")
     suspend fun markAsSynced(id: String)
 

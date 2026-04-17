@@ -23,6 +23,11 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getAll();
     }
 
+
+    fun getCategoryById(categoryId: String): Flow<Category?> {
+        return categoryDao.getById(categoryId)
+    }
+
     suspend fun syncCategories() {
         val converters = Converters()
         val allCategories = mutableListOf<Category>()
