@@ -22,14 +22,11 @@ import javax.inject.Inject
 data class TopCarUiModel(
     val carId: String,
     val brandName: String,
-    val category: String,
-    val year:Int,
     val model: String,
     val powerHP: Int,
     val acceleration: Double,
     val maxSpeed: Double,
     val imageUrl: String?,
-    val allMediaURLs:  Map<String, List<Media>>
 )
 
 data class TopsUiState(
@@ -62,7 +59,7 @@ class TopsViewModel @Inject constructor(
     ) { categories, cars, brands, medias ->
         val brandMap = brands.associateBy({ it.id }, { it.name })
         val photosByCarId = medias.groupBy { it.carId }.mapValues { (_,mediaList) ->  mediaList.firstOrNull{it.type == MediaTypeEnum.PHOTO }?.filePath}
-        val carMedia = medias.groupBy { it.carId }.mapValues { (_, mediaList) -> mediaList }
+        //val carMedia = medias.groupBy { it.carId }.mapValues { (_, mediaList) -> mediaList }
 
         TopsUiState(
             categories = categories,
@@ -71,14 +68,11 @@ class TopsViewModel @Inject constructor(
                 TopCarUiModel(
                     carId = cwd.car.id,
                     brandName = brandMap[cwd.car.brandId] ?: "",
-                    category = categoryRepository.getCategoryById(cwd.car.categoryId).toString(),
-                    year = cwd.car.year,
                     model = cwd.car.model,
                     powerHP = cwd.details?.powerHP ?: 0,
                     acceleration = cwd.details?.acceleration ?: 0.0,
                     maxSpeed = cwd.details?.maxSpeed ?: 0.0,
                     imageUrl = photosByCarId[cwd.car.id],
-                    allMediaURLs = carMedia
                 )
             },
             isLoading = false
@@ -90,3 +84,25 @@ class TopsViewModel @Inject constructor(
             if (_selectedCategoryId.value == categoryId) null else categoryId
     }
 }
+
+/*
+*
+* Bez stateIn:
+kotlin// ViewModel
+val state: Flow<TopsUiState> = repo.getItems()
+kotlin// UI
+val uiState by viewModel.state.collectAsStateWithLifecycle()
+collectAsStateWithLifecycle zatrzymuje kolekcję gdy ekran schodzi w tło. Gdy wraca — zaczyna od nowa. Flow nie pamięta ostatniej wartości, UI przez chwilę nie ma stanu (migotanie, loading).
+
+Z stateIn:
+kotlinval state: StateFlow<TopsUiState> = repo.getItems()
+    .stateIn(viewModelScope, WhileSubscribed(5000), TopsUiState())
+StateFlow zawsze trzyma ostatnią wartość. Gdy UI wraca — dostaje ją natychmiast, zero migotania.
+
+Obrazowo:
+Flow       = rura z wodą — odkręcasz, leci; zakręcasz, stop; odkręcasz znowu — czekasz
+StateFlow  = zbiornik     — zawsze pełny, odkręcasz i masz wodę od razu
+
+Wielu odbiorców to edge case (np. dwa ekrany obserwują ten sam stan). W praktyce stateIn używasz głównie dla natychmiastowej wartości przy powrocie na ekran.
+*
+* */

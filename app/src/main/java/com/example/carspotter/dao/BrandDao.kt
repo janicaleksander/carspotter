@@ -21,6 +21,9 @@ interface BrandDao {
     @Query("SELECT * FROM brand")
     fun getAll(): Flow<List<Brand>>
 
+    @Query("SELECT * FROM brand WHERE id = :brandId")
+    fun getById(brandId: String): Flow<Brand?>
+
     @Delete
     fun delete(brand: Brand)
 }

@@ -24,6 +24,10 @@ class BrandRepository @Inject constructor(
     fun getBrands(): Flow<List<Brand>> {
         return brandDao.getAll()
     }
+
+    fun getBrandById(brandId: String): Flow<Brand?> {
+        return brandDao.getById(brandId)
+    }
     // BrandRepository
     suspend fun syncBrands() {
         val converters = Converters()

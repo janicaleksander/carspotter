@@ -23,6 +23,15 @@ class AccountService @Inject constructor(
         }
     }
 
+    suspend fun getUserID(): String? {
+        return try {
+            val user = getLoggedIn();
+            user?.id
+        } catch (e: AppwriteException) {
+            null
+        }
+    }
+
     suspend fun login(email: String, password: String): User<Map<String, Any>>? {
         return try {
             // Ensure there is no stale current session before creating a new one.

@@ -22,8 +22,23 @@ class UserDreamRepository @Inject constructor(
         return userDreamDao.getAllUserDreams(userId)
     }
 
-    fun ifUserDreamExists(userID: String,carID :String): Boolean {
-        return userDreamDao.ifUserDreamExists(userID,carID)
+    fun observeIsDream(userId: String, carId: String): Flow<Boolean> {
+        return userDreamDao.observeIsDream(userId, carId)
+    }
+
+    suspend fun addUserDream(userId:String, carId:String){
+        userDreamDao.insertUserDream(
+            UserDream(
+                userId = userId,
+                carId = carId,
+                updatedAt = LocalDateTime.now(),
+                syncState = SyncState.PENDING_CREATE
+            )
+        )
+    }
+
+    suspend fun deleteUserDream(userId: String, carId: String){
+        userDreamDao.softDeleUserDream(userId,carId)
     }
 
     /**

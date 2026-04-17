@@ -25,13 +25,8 @@ class MediaRepository @Inject constructor(
     fun getAllMedia(): Flow<List<Media>> {
         return mediaDao.getAllMedia()
     }
-    fun getMediasForTopCar(): Flow<List<Media>> {
-        return mediaDao.getMediasForTopCar()
-    }
 
-    fun getAllPhotos(): Flow<List<Media>> {
-        return mediaDao.getAllPhotos()
-    }
+
 
     /**
      * Syncs media from Appwrite for all synced cars (both isTop=true and user's isTop=false).
