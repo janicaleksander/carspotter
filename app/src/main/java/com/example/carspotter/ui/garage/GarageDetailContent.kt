@@ -41,7 +41,7 @@ import com.example.carspotter.ui.components.AudioPlayer
 import com.example.carspotter.ui.components.CarInfoGrid
 import com.example.carspotter.ui.components.Carousel
 import com.example.carspotter.ui.components.CarouselItem
-import com.example.carspotter.ui.components.MapPlaceholder
+import com.example.carspotter.ui.components.OsmMapView
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.GarageCarDetails
@@ -132,9 +132,10 @@ fun GarageDetailContent(
             }
 
             item(key = "map") {
-                MapPlaceholder(
+                OsmMapView(
                     latitude = details.location?.latitude,
                     longitude = details.location?.longitude,
+                    markerTitle = "${details.brandName} ${details.model}".trim(),
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 )
             }
