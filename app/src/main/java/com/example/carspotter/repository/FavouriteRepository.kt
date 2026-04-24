@@ -25,9 +25,39 @@ class FavouriteRepository @Inject constructor(
     }
 
     fun observeIsFavourite(userId: String, carId: String): Flow<Boolean> {
-        return favouriteDao.observeIsDream(userId, carId)
+        return favouriteDao.observeIsFavourite(userId, carId)
     }
-//do toogle func
+
+    /**
+     * Toggles favourite status for a given user+car pair. Handles all
+     * sync-state transitions so a subsequent [SyncWorker] push is correct:
+     *  - no row                      → insert as PENDING_CREATE
+     *  - PENDING_CREATE (never sent) → hard delete (nothing to remove in cloud)
+     *  - SYNCED / PENDING_UPDATE     → mark as PENDING_DELETE
+     *  - PENDING_DELETE              → resurrect as SYNCED (cloud row still there)
+     */
+    suspend fun toggleFavourite(userId: String, carId: String) {
+        val now = LocalDateTime.now()
+        val existing = favouriteDao.findByUserAndCar(userId, carId)
+        if (existing == null) {
+            favouriteDao.insert(
+                Favourite(
+                    userId = userId,
+                    carId = carId,
+                    syncState = SyncState.PENDING_CREATE,
+                    updatedAt = now,
+                )
+            )
+            return
+        }
+        when (existing.syncState) {
+            SyncState.PENDING_CREATE -> favouriteDao.hardDelete(existing.id)
+            SyncState.SYNCED,
+            SyncState.PENDING_UPDATE -> favouriteDao.markAsPendingDelete(existing.id, now)
+            SyncState.PENDING_DELETE -> favouriteDao.markAsSynced(existing.id)
+        }
+    }
+
     /**
      * Syncs favourite rows from Appwrite, filtered by userId.
      * Must be called AFTER cars are synced (FK constraint).

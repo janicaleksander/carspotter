@@ -5,12 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.carspotter.viewmodels.GarageViewModel
 
-//sort by car price also
 @Composable
 fun GarageScreen(
     viewModel: GarageViewModel,
-    onCarClick : (String) -> Unit,
-    onHeartClick : (String) -> Unit
+    onCarClick: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -18,8 +16,9 @@ fun GarageScreen(
         uiState = uiState,
         onCategorySelected = viewModel::selectCategory,
         onBrandSelected = viewModel::selectBrand,
-        isSelectedFavourite = viewModel::isSelectedFavourite,
+        onFilterModeSelected = viewModel::selectFilterMode,
+        onSortSelected = viewModel::selectSort,
         onCarClick = onCarClick,
-        onHeartClick = onHeartClick
+        onHeartClick = viewModel::onHeartClick,
     )
 }

@@ -1,15 +1,17 @@
 package com.example.carspotter.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -31,14 +34,10 @@ fun DropDown(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
+    Box {
         FilterChip(
-            modifier=Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true),
             selected = isSelected,
-            onClick = { expanded = !expanded },
+            onClick = { expanded = true },
             label = {
                 Text(
                     text = label,
@@ -47,7 +46,13 @@ fun DropDown(
                 )
             },
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.graphicsLayer {
+                        rotationZ = if (expanded) 180f else 0f
+                    },
+                )
             },
             shape = RoundedCornerShape(50),
             colors = FilterChipDefaults.filterChipColors(
@@ -62,7 +67,7 @@ fun DropDown(
             ),
         )
 
-        ExposedDropdownMenu(
+        DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
@@ -71,8 +76,7 @@ fun DropDown(
                     text = {
                         Text(
                             text = name,
-                            fontWeight = if (id == null && !isSelected || /* aktywna opcja */ false)
-                                FontWeight.Bold else FontWeight.Normal
+                            fontWeight = FontWeight.Normal,
                         )
                     },
                     onClick = {
