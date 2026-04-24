@@ -27,7 +27,7 @@ class FavouriteRepository @Inject constructor(
     fun observeIsFavourite(userId: String, carId: String): Flow<Boolean> {
         return favouriteDao.observeIsDream(userId, carId)
     }
-
+//do toogle func
     /**
      * Syncs favourite rows from Appwrite, filtered by userId.
      * Must be called AFTER cars are synced (FK constraint).

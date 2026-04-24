@@ -7,6 +7,7 @@ import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Location
 import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserCar
+import com.example.carspotter.models.UserCarInfo
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,7 @@ class UserCarRepository @Inject constructor(
 ) {
 
 
-    fun getCarsFromGarage(userId: String): Flow<List<Car>> {
+    fun getUserCars(userId: String): Flow<List<UserCarInfo>> {
         return userCarDao.getAllUserCars(userId)
     }
 

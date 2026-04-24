@@ -15,11 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.carspotter.navigation.Screen
+import com.example.carspotter.ui.garage.GarageScreen
 import com.example.carspotter.ui.home.HomeScreen
 import com.example.carspotter.ui.settings.SettingsScreen
 import com.example.carspotter.ui.tops.TopsDetailScreen
 import com.example.carspotter.ui.tops.TopsScreen
 import com.example.carspotter.viewmodels.AuthViewModel
+import com.example.carspotter.viewmodels.GarageViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
 import com.example.carspotter.viewmodels.TopsDetailViewModel
@@ -44,9 +46,12 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 HomeScreen(viewModel = vm)
             }
             composable(Screen.Garage.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Garage")
-                }
+                val vm: GarageViewModel = hiltViewModel()
+                GarageScreen(
+                    viewModel = vm,
+                    onCarClick = {carId -> navController.navigate("dream_car_detail/$carId")},
+                    onHeartClick = {carId -> vm.onHeartClick(carId)}
+                )
             }
             composable(Screen.New.route) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

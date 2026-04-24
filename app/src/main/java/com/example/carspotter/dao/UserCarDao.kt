@@ -8,6 +8,7 @@ import androidx.room.Upsert
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserCar
+import com.example.carspotter.models.UserCarInfo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -28,7 +29,7 @@ interface UserCarDao {
         INNER JOIN user_car ON car.id = user_car.carId
         WHERE user_car.userId = :userId
     """)
-    fun getAllUserCars(userId: String): Flow<List<Car>>
+    fun getAllUserCars(userId: String): Flow<List<UserCarInfo>>
 
     @Query("UPDATE user_car SET syncState = 'SYNCED' WHERE id = :id")
     suspend fun markAsSynced(id: String)

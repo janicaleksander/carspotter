@@ -108,7 +108,7 @@ fun TopsContent(
 fun CategoryFilterRow(
     categories: List<Category>,
     selectedCategoryId: String?,
-    onCategorySelected: (String?) -> Unit,
+        onCategorySelected: (String?) -> Unit,
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 20.dp),
