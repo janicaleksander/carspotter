@@ -94,7 +94,7 @@ class GarageViewModel @Inject constructor(
         val uiState:StateFlow<GarageUiState> = combine(
             categoryRepository.getCategories(),
             brandRepository.getBrands(),
-            mediaRepository.getMediaForCar(userId.value ?: ""),
+            mediaRepository.getMediaForCar(userId.value ?: ""),//TOOD REPAIR BECAUSE NOW THIS IS NOW IT IS USER ID BUT WE HAVE TO GET HERE CAR ID
             userId.flatMapLatest { id ->
                 if (id == null) flowOf()
                 else userCarRepository.getUserCars(id)

@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.carspotter.models.Category
+import com.example.carspotter.ui.components.CarCoverImage
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.viewmodels.TopCarUiModel
 import com.example.carspotter.viewmodels.TopsUiState
@@ -176,50 +177,15 @@ fun TopCarCard(
                 imageUrl = car.imageUrl,
                 contentDescription = "${car.brandName} ${car.model}",
             )
-            CarInfoOverlay(car = car)
+            DreamCarInfoOverlay(car = car)
         }
     }
 }
 
-@Composable
-fun CarCoverImage(
-    imageUrl: String?,
-    contentDescription: String,
-) {
-    if (imageUrl == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(210.dp)
-                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                .background(Color.Gray.copy(alpha = 0.3f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = "No Image",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray,
-            )
-        }
-        return
-    }
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imageUrl)
-            .crossfade(400)
-            .build(),
-        contentDescription = contentDescription,
-        contentScale = ContentScale.Crop,
-        filterQuality = FilterQuality.Medium,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(210.dp)
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-    )
-}
+
 
 @Composable
-fun CarInfoOverlay(car: TopCarUiModel) {
+fun DreamCarInfoOverlay(car: TopCarUiModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

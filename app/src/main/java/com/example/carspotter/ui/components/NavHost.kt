@@ -48,7 +48,7 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
             composable(Screen.Garage.route) {
                 val vm: GarageViewModel = hiltViewModel()
                 GarageScreen(
-                    viewModel = vm,
+                    viewModel = vm,//OFC CHANGE THIS THIS HAS TO HAVE OWN GAGRAGE CAR DETAIL VIEW no dream car
                     onCarClick = {carId -> navController.navigate("dream_car_detail/$carId")},
                     onHeartClick = {carId -> vm.onHeartClick(carId)}
                 )
