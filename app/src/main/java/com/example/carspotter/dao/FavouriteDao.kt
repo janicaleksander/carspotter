@@ -35,5 +35,8 @@ interface FavouriteDao {
     @Query("DELETE FROM favourite WHERE id = :id")
     suspend fun hardDelete(id: String)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM favourite WHERE userId = :userId AND carId = :carId AND syncState != 'DELETED')")
+    fun observeIsDream(userId: String, carId: String): Flow<Boolean>
+
 
 }

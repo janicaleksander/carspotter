@@ -20,9 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,12 +35,13 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.WindowInsets
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.carspotter.models.Category
+import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.viewmodels.TopCarUiModel
 import com.example.carspotter.viewmodels.TopsUiState
 import java.util.Locale
@@ -47,63 +50,56 @@ private val TopsOrange = Color(0xFFE8975A)
 
 // ─── Root screen composable ─────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopsContent(
     uiState: TopsUiState,
     onCategorySelected: (String?) -> Unit,
     onCarClick: (String) -> Unit,
 ) {
-    if (uiState.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    Scaffold(
+        topBar = { TabHeader(title = "DISCOVER TOP CARS") },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
         }
-        return
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item(key = "filters") {
+                CategoryFilterRow(
+                    categories = uiState.categories,
+                    selectedCategoryId = uiState.selectedCategoryId,
+                    onCategorySelected = onCategorySelected,
+                )
+            }
+
+            items(
+                items = uiState.topCars,
+                key = { it.carId }
+            ) { car ->
+                TopCarCard(
+                    car = car,
+                    onClick = { onCarClick(car.carId) },
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+            }
+        }
     }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item(key = "header") {
-            TopsHeader()
-        }
-
-        item(key = "filters") {
-            CategoryFilterRow(
-                categories = uiState.categories,
-                selectedCategoryId = uiState.selectedCategoryId,
-                onCategorySelected = onCategorySelected,
-            )
-        }
-
-        items(
-            items = uiState.topCars,
-            key = { it.carId }
-        ) { car ->
-            TopCarCard(
-                car = car,
-                onClick = { onCarClick(car.carId) },
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-        }
-    }
-}
-
-// ─── Header ──────────────────────────────────────────────────────────────────────
-
-@Composable
-fun TopsHeader() {
-    Text(
-        text = "DISCOVER TOP CARS",
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.ExtraBold,
-        color = MaterialTheme.colorScheme.onBackground,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 28.dp, bottom = 4.dp),
-    )
 }
 
 // ─── Category filter row (horizontal slider) ────────────────────────────────────
