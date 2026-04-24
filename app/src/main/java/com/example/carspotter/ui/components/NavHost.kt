@@ -21,6 +21,7 @@ import com.example.carspotter.ui.settings.SettingsScreen
 import com.example.carspotter.ui.tops.TopsDetailScreen
 import com.example.carspotter.ui.tops.TopsScreen
 import com.example.carspotter.viewmodels.AuthViewModel
+import com.example.carspotter.viewmodels.GarageCarViewModel
 import com.example.carspotter.viewmodels.GarageViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
@@ -49,9 +50,22 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 val vm: GarageViewModel = hiltViewModel()
                 GarageScreen(
                     viewModel = vm,
-                    onCarClick = { carId -> navController.navigate("dream_car_detail/$carId") },
+                    onCarClick = { carId -> navController.navigate("garage_car_detail/$carId") },
                 )
             }
+            composable(
+                route = "garage_car_detail/{carId}",
+                arguments = listOf(
+                    navArgument("carId"){type = NavType.StringType}
+                )
+            ){
+                val vm : GarageCarViewModel = hiltViewModel()
+                TopsDetailScreen(
+                    viewModel = vm,
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+
             composable(Screen.New.route) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("New")
