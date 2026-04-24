@@ -11,6 +11,7 @@ import com.example.carspotter.models.CarWithDetails
 import com.example.carspotter.models.Category
 import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface CarDao {
@@ -28,6 +29,10 @@ interface CarDao {
     @Transaction
     @Query("SELECT * FROM car WHERE id = :carId AND isTop = 1")
     fun getTopCarById(carId: String): Flow<CarWithDetails?>
+
+    @Transaction
+    @Query("SELECT * FROM car WHERE id = :carId")
+    fun getCarWithDetailsById(carId: String): Flow<Car?>
     @Query("SELECT category.name FROM category INNER JOIN car ON category.id = car.categoryId WHERE car.id = :carId")
     fun getCategoryName(carId: String): Flow<String?>
     @Transaction
@@ -54,6 +59,15 @@ interface CarDao {
 
     @Query("UPDATE car SET syncState = 'SYNCED' WHERE id = :id")
     suspend fun markAsSynced(id: String)
+
+    @Query(
+        """
+        UPDATE car
+        SET syncState = 'PENDING_DELETE', updatedAt = :updatedAt
+        WHERE id = :id AND isTop = 0
+        """
+    )
+    suspend fun softDeleteUserCar(id: String, updatedAt: LocalDateTime)
 
     @Query("DELETE FROM car WHERE id = :id")
     suspend fun hardDelete(id: String)

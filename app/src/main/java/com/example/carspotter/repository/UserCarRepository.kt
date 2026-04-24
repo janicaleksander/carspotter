@@ -26,6 +26,18 @@ class UserCarRepository @Inject constructor(
         return userCarDao.getAllUserCars(userId)
     }
 
+    fun observeUserCar(userId: String, carId: String): Flow<UserCar?> {
+        return userCarDao.observeUserCar(userId, carId)
+    }
+
+    /**
+     * Soft-deletes the user_car relation; it will be picked up by
+     * [pushPending] and removed from Appwrite on the next sync pass.
+     */
+    suspend fun softDeleteUserCar(userId: String, carId: String) {
+        userCarDao.softDeleteUserCar(userId, carId, LocalDateTime.now())
+    }
+
     /**
      * Fetches user_car rows from Appwrite cloud, filtered by userId.
      * Does NOT insert into Room — call saveToRoom() after cars are synced.

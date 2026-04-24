@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,12 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,23 +25,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
 import com.example.carspotter.models.MediaTypeEnum
+import com.example.carspotter.ui.components.AudioPlayer
+import com.example.carspotter.ui.components.CarInfoGrid
 import com.example.carspotter.ui.components.Carousel
 import com.example.carspotter.ui.components.CarouselItem
 import com.example.carspotter.ui.components.TabHeader
@@ -95,13 +83,13 @@ fun TopsDetailContent(
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             item(key = "media_carousel") {
-                val mediaItems = uiState.details.allMediaURLs.map {
+                val mediaItems = uiState.details.allMediaURLs.mapNotNull {
                     when (it.type) {
                         MediaTypeEnum.PHOTO -> CarouselItem.Image(it.filePath)
                         MediaTypeEnum.VIDEO -> CarouselItem.Video(it.filePath)
                         else -> null
                     }
-                }.filterNotNull()
+                }
                 if (mediaItems.isNotEmpty()) {
                     Carousel(
                         items = mediaItems,
@@ -185,153 +173,14 @@ private fun DescriptionSection(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        InfoGrid2x2(
-            category = category,
-            year = year,
-            power = power,
-            acceleration = acceleration,
+        CarInfoGrid(
+            items = listOf(
+                "CATEGORY" to category,
+                "YEAR" to year,
+                "POWER" to power,
+                "0-100" to acceleration,
+            ),
         )
-    }
-}
-
-// ─── Info chips grid ────────────────────────────────────────────────────────────
-
-@Composable
-private fun InfoChip(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        tonalElevation = 2.dp,
-        modifier = modifier,
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
-private fun InfoGrid2x2(
-    category: String,
-    year: String,
-    power: String,
-    acceleration: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            InfoChip(label = "CATEGORY", value = category, modifier = Modifier.weight(1f))
-            InfoChip(label = "YEAR", value = year, modifier = Modifier.weight(1f))
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            InfoChip(label = "POWER", value = power, modifier = Modifier.weight(1f))
-            InfoChip(label = "0-100", value = acceleration, modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-// ─── Audio player ───────────────────────────────────────────────────────────────
-
-@Composable
-private fun AudioPlayer(
-    url: String?,
-    modifier: Modifier = Modifier,
-) {
-    if (url == null) return
-
-    val ctx = LocalContext.current
-
-    val player = remember {
-        ExoPlayer.Builder(ctx).build().apply {
-            setMediaItem(MediaItem.fromUri(url))
-            prepare()
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { player.release() }
-    }
-
-    var isPlaying by remember { mutableStateOf(false) }
-
-    PlaySoundButton(
-        isPlaying = isPlaying,
-        onClick = {
-            if (isPlaying) player.pause() else player.play()
-            isPlaying = !isPlaying
-        },
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun PlaySoundButton(
-    isPlaying: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = CarRed,
-                modifier = Modifier.size(40.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause engine sound" else "Play engine sound",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = if (isPlaying) "Pause Engine Sound" else "Play Engine Sound",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
     }
 }
 
@@ -350,15 +199,11 @@ private fun DreamActions(
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
-
-        // "Remove from dream" button — shown only when already in dream
         if (isDream) {
             OutlinedButton(
                 onClick = onRemoveFromDream,
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = CarRed,
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = CarRed),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
@@ -375,16 +220,13 @@ private fun DreamActions(
                     fontWeight = FontWeight.SemiBold,
                 )
             }
-        }else{
+        } else {
             Button(
                 onClick = onAddToDream,
-                enabled = !isDream,
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -402,7 +244,6 @@ private fun DreamActions(
                     fontWeight = FontWeight.SemiBold,
                 )
             }
-
         }
     }
 }

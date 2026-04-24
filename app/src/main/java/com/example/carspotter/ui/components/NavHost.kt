@@ -15,13 +15,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.carspotter.navigation.Screen
+import com.example.carspotter.ui.garage.GarageDetailScreen
 import com.example.carspotter.ui.garage.GarageScreen
 import com.example.carspotter.ui.home.HomeScreen
 import com.example.carspotter.ui.settings.SettingsScreen
 import com.example.carspotter.ui.tops.TopsDetailScreen
 import com.example.carspotter.ui.tops.TopsScreen
 import com.example.carspotter.viewmodels.AuthViewModel
-import com.example.carspotter.viewmodels.GarageCarViewModel
+import com.example.carspotter.viewmodels.GarageDetailViewModel
 import com.example.carspotter.viewmodels.GarageViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
@@ -59,8 +60,8 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                     navArgument("carId"){type = NavType.StringType}
                 )
             ){
-                val vm : GarageCarViewModel = hiltViewModel()
-                TopsDetailScreen(
+                val vm : GarageDetailViewModel = hiltViewModel()
+                GarageDetailScreen(
                     viewModel = vm,
                     onNavigateBack = { navController.popBackStack() },
                 )

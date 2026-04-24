@@ -27,6 +27,18 @@ class CarRepository @Inject constructor(
     fun getTopCarById(carId: String): Flow<CarWithDetails?> {
         return carDao.getTopCarById(carId)
     }
+
+    fun getCarById(carId: String): Flow<Car?> {
+        return carDao.getCarWithDetailsById(carId)
+    }
+
+    /**
+     * Soft-deletes a user-owned car (isTop=false only).
+     * No-op for shared top cars. Picked up by [pushPending] on next sync.
+     */
+    suspend fun softDeleteUserCar(carId: String) {
+        carDao.softDeleteUserCar(carId, LocalDateTime.now())
+    }
     fun getTopCarsByCategory(categoryId: String): Flow<List<CarWithDetails>> {
         return carDao.getTopByCategory(categoryId)
     }
