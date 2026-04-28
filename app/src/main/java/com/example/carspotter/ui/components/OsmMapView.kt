@@ -36,9 +36,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.ScaleBarOverlay
-import org.osmdroid.views.overlay.compass.CompassOverlay
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 
 /**
  * Renders an OpenStreetMap centered on the given coordinates with a marker
@@ -98,6 +95,10 @@ fun OsmMapView(
                         setMultiTouchControls(true)
                         setHorizontalMapRepetitionEnabled(false)
                         setVerticalMapRepetitionEnabled(false)
+                        // Hide the default +/- zoom buttons; pinch-to-zoom stays.
+                        zoomController.setVisibility(
+                            org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER,
+                        )
 
                         val point = GeoPoint(latitude, longitude)
                         controller.setZoom(zoom)
@@ -110,22 +111,7 @@ fun OsmMapView(
                                 title = markerTitle
                             },
                         )
-
-                        val dm = ctx.resources.displayMetrics
-                        overlays.add(
-                            ScaleBarOverlay(this).apply {
-                                setCentred(true)
-                                setScaleBarOffset(dm.widthPixels / 2, 20)
-                            },
-                        )
                         overlays.add(CopyrightOverlay(ctx))
-                        overlays.add(
-                            CompassOverlay(
-                                ctx,
-                                InternalCompassOrientationProvider(ctx),
-                                this,
-                            ).apply { enableCompass() },
-                        )
                     }
                 },
                 update = { map ->
