@@ -28,9 +28,6 @@ interface MediaDao {
     @Query("SELECT * FROM media")
     fun getAllMedia(): Flow<List<Media>>
 
-
-
-
-
-
+    @Query("SELECT * FROM media")
+    suspend fun getAllMediaSnapshot(): List<Media>
 }

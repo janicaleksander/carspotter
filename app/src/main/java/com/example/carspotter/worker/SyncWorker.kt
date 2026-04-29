@@ -47,8 +47,8 @@ class SyncWorker @AssistedInject constructor(
             favouriteRepository.pushPending()
             userDreamRepository.pushPending()//TODO to!!!! ->dodaje do rom i push pedning
             // 1. Global lookup tables (no FK dependencies between them)
-            categoryRepository.syncCategories()
-            brandRepository.syncBrands()
+            val categoryIds = categoryRepository.syncCategories()
+            val brandIds = brandRepository.syncBrands()
             userRepository.syncUser(user.id)
 
             // 2. Fetch user relationships from cloud (don't insert yet — cars not in Room)
@@ -58,6 +58,8 @@ class SyncWorker @AssistedInject constructor(
             // 3. Sync cars to Room (FK satisfied: brand + category exist)
             val userCarIds = userCars.map { it.carId }.distinct()
             val result = carRepository.syncCars(userCarIds)
+            categoryRepository.pruneRemovedCategories(categoryIds)
+            brandRepository.pruneRemovedBrands(brandIds)
 
             // 4. Insert user relationships (cars now exist in Room)
             userCarRepository.saveToRoom(user.id, userCars)

@@ -1,6 +1,5 @@
 package com.example.carspotter.repository
 
-import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.CategoryDao
 import com.example.carspotter.models.Category
@@ -28,13 +27,13 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getById(categoryId)
     }
 
-    suspend fun syncCategories() {
+    suspend fun syncCategories(): Set<String> {
         val converters = Converters()
         val allCategories = mutableListOf<Category>()
         var offset = 0
         val limit = 100
 
-        try {
+        return try {
             do {
                 val response = tablesDB.listRows(
                     databaseId = BuildConfig.DATABASE_ID,
@@ -59,10 +58,16 @@ class CategoryRepository @Inject constructor(
             } while (categories.size == limit)
 
             categoryDao.insertAll(allCategories)
-
+            allCategories.map { it.id }.toSet()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
         }
+    }
+
+    suspend fun pruneRemovedCategories(cloudIds: Set<String>) {
+        categoryDao.getAllSnapshot()
+            .filter { it.id !in cloudIds }
+            .forEach { categoryDao.hardDeleteIfUnused(it.id) }
     }
 }

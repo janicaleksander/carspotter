@@ -25,8 +25,18 @@ interface CategoryDao {
     @Query("SELECT * FROM category WHERE id = :categoryId")
     fun getById(categoryId: String): Flow<Category?>
 
+    @Query("SELECT * FROM category")
+    suspend fun getAllSnapshot(): List<Category>
+
+    @Query(
+        """
+        DELETE FROM category
+        WHERE id = :id
+          AND NOT EXISTS (SELECT 1 FROM car WHERE car.categoryId = :id)
+        """
+    )
+    suspend fun hardDeleteIfUnused(id: String)
+
     @Delete
     suspend fun delete(category: Category)
-
-
 }

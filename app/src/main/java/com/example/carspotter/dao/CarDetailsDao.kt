@@ -24,8 +24,12 @@ interface CarDetailsDao {
 
     @Query("SELECT * FROM car_detail")
     suspend fun getAll(): List<CarDetails>
+
     @Query("SELECT * FROM car_detail WHERE carId = :carId")
     suspend fun getByCarId(carId: String): CarDetails?
+
+    @Query("DELETE FROM car_detail WHERE carId = :carId")
+    suspend fun deleteByCarId(carId: String)
 
     @Delete
     suspend fun delete(carDetails: CarDetails)

@@ -10,9 +10,14 @@ import com.example.carspotter.models.Settings
 interface SettingDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(settings: Settings)
+    suspend fun insert(settings: Settings)
 
     @Query("SELECT * FROM setting ORDER BY id DESC LIMIT 1")
-    suspend fun getNewest(): Settings
+    suspend fun getNewest(): Settings?
 
+    @Query("DELETE FROM setting")
+    suspend fun deleteAll()
+
+    @Query("DELETE FROM setting WHERE id != :id")
+    suspend fun deleteAllExcept(id: String)
 }

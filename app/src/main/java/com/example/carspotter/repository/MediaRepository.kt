@@ -71,6 +71,11 @@ class MediaRepository @Inject constructor(
             }
         }
 
+        val cloudIds = allMedia.map { it.id }.toSet()
+        mediaDao.getAllMediaSnapshot()
+            .filter { it.carId in carIds && it.id !in cloudIds }
+            .forEach { mediaDao.deleteMediaById(it.id) }
+
         mediaDao.insertAll(allMedia)
     }
 

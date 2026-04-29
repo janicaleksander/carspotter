@@ -137,9 +137,13 @@ class CarRepository @Inject constructor(
             }
         }
 
-
         val topCars = allCars.filter { it.isTop }
         val userCars = allCars.filter { !it.isTop }
+        val cloudIds = allCars.map { it.id }.toSet()
+
+        carDao.getSyncedRecords()
+            .filter { it.id !in cloudIds }
+            .forEach { carDao.hardDelete(it.id) }
 
         carDao.insertAll(topCars)
 

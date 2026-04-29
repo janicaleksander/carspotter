@@ -6,9 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.example.carspotter.models.Car
 import com.example.carspotter.models.CarWithDetails
-import com.example.carspotter.models.Category
 import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
@@ -19,7 +19,7 @@ interface CarDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(car: Car)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Upsert
     suspend fun insertAll(cars: List<Car>)
 
     @Transaction
@@ -56,6 +56,9 @@ interface CarDao {
 
     @Query("SELECT * FROM car WHERE syncState != :state AND isTop = 0")
     suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<Car>
+
+    @Query("SELECT * FROM car WHERE syncState = :state")
+    suspend fun getSyncedRecords(state: SyncState = SyncState.SYNCED): List<Car>
 
     @Query("UPDATE car SET syncState = 'SYNCED' WHERE id = :id")
     suspend fun markAsSynced(id: String)

@@ -59,6 +59,11 @@ class CarDetailRepository @Inject constructor(
             }
         }
 
+        val cloudCarIds = allDetails.map { it.carId }.toSet()
+        carDetailsDao.getAll()
+            .filter { it.carId in topCarIds && it.carId !in cloudCarIds }
+            .forEach { carDetailsDao.deleteByCarId(it.carId) }
+
         carDetailsDao.insertAll(allDetails)
     }
 }

@@ -1,6 +1,5 @@
 package com.example.carspotter.repository
 
-import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.SettingDao
 import com.example.carspotter.models.Converters
@@ -15,18 +14,19 @@ class SettingsRepository @Inject constructor(
     private val tablesDB: TablesDB,
     private val storage: Storage
 ) {
-    suspend fun getSettings(): Settings {
-        return settingDao.getNewest();
+    suspend fun getSettings(): Settings? {
+        return settingDao.getNewest()
     }
-    suspend fun syncSettings(){
-        val converters = Converters();
+
+    suspend fun syncSettings() {
+        val converters = Converters()
         try {
             val settingsResponse = tablesDB.listRows(
                 databaseId = BuildConfig.DATABASE_ID,
                 tableId = "setting"
             )
 
-            val setting = settingsResponse.rows.map { row ->
+            val settings = settingsResponse.rows.map { row ->
                 Settings(
                     id = row.id,
                     appName = row.data["appName"] as String,
@@ -35,9 +35,15 @@ class SettingsRepository @Inject constructor(
                     updatedAt = converters.toLocalDateTime(row.updatedAt as String) ?: LocalDateTime.now()
                 )
             }
-            if (setting.isNotEmpty())
-                settingDao.insert(setting.first())
-        } catch (e: Exception){
+
+            val newest = settings.maxByOrNull { it.updatedAt }
+            if (newest != null) {
+                settingDao.insert(newest)
+                settingDao.deleteAllExcept(newest.id)
+            } else {
+                settingDao.deleteAll()
+            }
+        } catch (e: Exception) {
             throw e
         }
     }

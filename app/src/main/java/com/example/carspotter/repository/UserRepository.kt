@@ -1,24 +1,16 @@
 package com.example.carspotter.repository
 
-import android.util.Log
 import com.example.carspotter.BuildConfig
-import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.dao.UserDao
 import com.example.carspotter.models.Converters
-import com.example.carspotter.models.Favourite
 import com.example.carspotter.models.User
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val userDao: UserDao,
-    private val favouriteDao: FavouriteDao,
     private val tablesDB: TablesDB
 ){
     suspend fun getUser(userId:String): User?{
@@ -27,7 +19,7 @@ class UserRepository @Inject constructor(
 
     suspend fun syncUser(userId:String){
         val converters = Converters()
-        try{
+        try {
             val userResponse = tablesDB.listRows(
                 databaseId = BuildConfig.DATABASE_ID,
                 tableId = "user",
@@ -40,14 +32,16 @@ class UserRepository @Inject constructor(
                 User(
                     row.id,
                     row.data["nickname"] as String,
-                    updatedAt =converters.toLocalDateTime(row.updatedAt as String) ?: LocalDateTime.now()
-                    )
+                    updatedAt = converters.toLocalDateTime(row.updatedAt as String) ?: LocalDateTime.now()
+                )
             }
             if (user.isNotEmpty()) {
                 userDao.insert(user.first())
+            } else {
+                userDao.deleteById(userId)
             }
-        }catch(e: Exception){
-            throw e;
+        } catch (e: Exception) {
+            throw e
         }
     }
 }

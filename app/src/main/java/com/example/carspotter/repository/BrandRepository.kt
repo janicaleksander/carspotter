@@ -1,17 +1,13 @@
 package com.example.carspotter.repository
 
-import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.BrandDao
 import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Converters
 import io.appwrite.Query
-import io.appwrite.services.Databases
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,13 +24,14 @@ class BrandRepository @Inject constructor(
     fun getBrandById(brandId: String): Flow<Brand?> {
         return brandDao.getById(brandId)
     }
-    // BrandRepository
-    suspend fun syncBrands() {
+
+    suspend fun syncBrands(): Set<String> {
         val converters = Converters()
         val allBrands = mutableListOf<Brand>()
         var offset = 0
         val limit = 25
-        try {
+
+        return try {
             do {
                 val response = tablesDB.listRows(
                     databaseId = BuildConfig.DATABASE_ID,
@@ -56,8 +53,15 @@ class BrandRepository @Inject constructor(
             } while (brands.size == limit)
 
             brandDao.insertAll(allBrands)
-        }catch (e: Exception){
+            allBrands.map { it.id }.toSet()
+        } catch (e: Exception) {
             throw e
         }
+    }
+
+    suspend fun pruneRemovedBrands(cloudIds: Set<String>) {
+        brandDao.getAllSnapshot()
+            .filter { it.id !in cloudIds }
+            .forEach { brandDao.hardDeleteIfUnused(it.id) }
     }
 }
