@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface UserDreamDao {
 
     @Upsert
-    suspend fun insertUserDream(userDream: UserDream)
+    suspend fun insert(userDream: UserDream)
 
     @Upsert
     suspend fun insertAll(userDreams: List<UserDream>)

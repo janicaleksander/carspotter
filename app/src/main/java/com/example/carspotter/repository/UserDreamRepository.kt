@@ -29,7 +29,7 @@ class UserDreamRepository @Inject constructor(
     }
 
     suspend fun addUserDream(userId:String, carId:String){
-        userDreamDao.insertUserDream(
+        userDreamDao.insert(
             UserDream(
                 id = ID.unique(),
                 userId = userId,
