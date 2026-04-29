@@ -14,13 +14,7 @@ import com.example.carspotter.models.CarDetails
 interface CarDetailsDao {
 
     @Upsert
-    suspend fun insert(carDetails: CarDetails)
-
-    @Upsert
     suspend fun insertAll(carDetailsList: List<CarDetails>)
-
-    @Update
-    suspend fun update(carDetails: CarDetails)
 
     @Query("SELECT * FROM car_detail")
     suspend fun getAll(): List<CarDetails>
@@ -31,6 +25,4 @@ interface CarDetailsDao {
     @Query("DELETE FROM car_detail WHERE carId = :carId")
     suspend fun deleteByCarId(carId: String)
 
-    @Delete
-    suspend fun delete(carDetails: CarDetails)
 }

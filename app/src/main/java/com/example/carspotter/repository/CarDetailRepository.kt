@@ -16,11 +16,6 @@ class CarDetailRepository @Inject constructor(
     private val tablesDB: TablesDB
 ) {
 
-
-    suspend fun getByCarId(carId: String): CarDetails? {
-        return carDetailsDao.getByCarId(carId)
-    }
-
     /**
      * Syncs car_detail from Appwrite for isTop=true cars only.
      * Each top car has exactly one car_detail (1:1 relationship).
