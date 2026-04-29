@@ -13,9 +13,7 @@ class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val tablesDB: TablesDB
 ){
-    suspend fun getUser(userId:String): User?{
-        return userDao.getUser(userId);
-    }
+
 
     suspend fun syncUser(userId:String){
         val converters = Converters()
