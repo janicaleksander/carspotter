@@ -38,7 +38,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.carspotter.ui.theme.CarRed
-import com.example.carspotter.worker.NominatimReverseGeocoder
+import com.example.carspotter.services.NominatimReverseGeocoder
 import java.util.Locale
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver

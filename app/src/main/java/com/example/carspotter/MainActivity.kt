@@ -21,7 +21,7 @@ import com.example.carspotter.auth.AuthState
 import com.example.carspotter.ui.login.AuthScreen
 import com.example.carspotter.ui.theme.CarspotterTheme
 import com.example.carspotter.viewmodels.AuthViewModel
-import com.example.carspotter.worker.SyncWorker
+import com.example.carspotter.services.SyncWorker
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 import com.example.carspotter.ui.components.NavHostComponent
