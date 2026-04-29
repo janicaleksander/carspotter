@@ -1,6 +1,5 @@
 package com.example.carspotter.ui.new_spot
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,10 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,8 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,7 +49,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.carspotter.models.MediaTypeEnum
-import com.example.carspotter.ui.components.DropDown
+import com.example.carspotter.ui.components.AppDropdownField
+import com.example.carspotter.ui.components.AppTextField
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.NewSpotUiState
@@ -80,13 +78,13 @@ fun NewSpotContent(
 ) {
     Scaffold(
         topBar = { TabHeader(title = "ADD NEW SPOT", onNavigateBack = onNavigateBack) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier,
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .imePadding(),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 22.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
@@ -104,65 +102,87 @@ fun NewSpotContent(
             item("details") {
                 Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
                     Text(
-                        "VEHICLE DETAILS",
+                        text = "VEHICLE DETAILS",
                         fontWeight = FontWeight.ExtraBold,
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    Spacer(Modifier.height(2.dp))
-                    LabeledField("Brand", uiState.errors.brand) {
-                        DropDown(
-                            label = uiState.brands.firstOrNull { it.id == uiState.brandId }?.name
-                                ?: "Select brand",
-                            isSelected = uiState.brandId != null,
-                            options = uiState.brands.map { it.id as String? to it.name },
-                            onOptionSelected = onBrandSelected,
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(2.dp))
 
-                    LabeledField("Model", uiState.errors.model) {
-                        Input(uiState.model, onModelChange, "e.g. 911 GT3", error = uiState.errors.model)
-                    }
+                    AppDropdownField(
+                        label = "Brand",
+                        selectedLabel = uiState.brands.firstOrNull { it.id == uiState.brandId }?.name.orEmpty(),
+                        options = uiState.brands.map { it.id as String? to it.name },
+                        onOptionSelected = onBrandSelected,
+                        placeholder = "Select brand",
+                        errorText = uiState.errors.brand,
+                    )
 
-                    LabeledField("Category", uiState.errors.category) {
-                        DropDown(
-                            label = uiState.categories.firstOrNull { it.id == uiState.categoryId }?.name
-                                ?: "Select category",
-                            isSelected = uiState.categoryId != null,
-                            options = uiState.categories.map { it.id as String? to it.name },
-                            onOptionSelected = onCategorySelected,
-                        )
-                    }
+                    AppTextField(
+                        label = "Model",
+                        value = uiState.model,
+                        onValueChange = onModelChange,
+                        placeholder = "e.g. 911 GT3",
+                        errorText = uiState.errors.model,
+                    )
 
-                    LabeledField("Year", uiState.errors.year) {
-                        Input(uiState.year, onYearChange, "e.g. 2023", KeyboardType.Number, error = uiState.errors.year)
-                    }
+                    AppDropdownField(
+                        label = "Category",
+                        selectedLabel = uiState.categories.firstOrNull { it.id == uiState.categoryId }?.name.orEmpty(),
+                        options = uiState.categories.map { it.id as String? to it.name },
+                        onOptionSelected = onCategorySelected,
+                        placeholder = "Select category",
+                        errorText = uiState.errors.category,
+                    )
 
-                    LabeledField("Price", uiState.errors.price) {
-                        Input(uiState.price, onPriceChange, "e.g. 2,000.00", KeyboardType.Decimal, error = uiState.errors.price)
-                    }
+                    AppTextField(
+                        label = "Year",
+                        value = uiState.year,
+                        onValueChange = onYearChange,
+                        placeholder = "e.g. 2023",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        errorText = uiState.errors.year,
+                    )
+
+                    AppTextField(
+                        label = "Price",
+                        value = uiState.price,
+                        onValueChange = onPriceChange,
+                        placeholder = "e.g. 2,000.00",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        errorText = uiState.errors.price,
+                    )
                 }
             }
             item("location") {
-                LabeledField("Location", uiState.errors.location) {
-                    LocationRow(
-                        label = uiState.locationLabel,
-                        isError = uiState.errors.location != null,
-                        onClick = onOpenMapPicker,
-                    )
-                }
+                AppTextField(
+                    label = "Location",
+                    value = uiState.locationLabel.orEmpty(),
+                    onValueChange = {},
+                    placeholder = "Tap to pick on map",
+                    readOnly = true,
+                    onClick = onOpenMapPicker,
+                    errorText = uiState.errors.location,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = CarRed,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    },
+                )
             }
             item("notes") {
-                LabeledField("Spotter Notes", error = uiState.errors.notes) {
-                    Input(
-                        value = uiState.notes,
-                        onValueChange = onNotesChange,
-                        placeholder = "Mention specific modifications, rarity, or how you found it…",
-                        singleLine = false,
-                        error = uiState.errors.notes,
-                    )
-                }
+                AppTextField(
+                    label = "Spotter Notes",
+                    value = uiState.notes,
+                    onValueChange = onNotesChange,
+                    placeholder = "Mention specific modifications, rarity, or how you found it...",
+                    singleLine = false,
+                    errorText = uiState.errors.notes,
+                )
             }
             item("save") {
                 Column(
@@ -181,8 +201,6 @@ fun NewSpotContent(
     }
 }
 
-// ─── Media ──────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun MediaSection(
     media: List<PickedMedia>,
@@ -198,13 +216,12 @@ private fun MediaSection(
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "MEDIA & FILES",
+                text = "MEDIA & FILES",
                 fontWeight = FontWeight.ExtraBold,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
             )
-            // Hint by default (subdued); flips to a red error only when [error] is set.
             Text(
                 text = error ?: "Required: 1 photo",
                 style = MaterialTheme.typography.bodySmall,
@@ -227,7 +244,9 @@ private fun MediaSection(
         }
         if (media.isNotEmpty()) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(media, key = { it.localPath }) { Thumbnail(it) { onRemoveMedia(it.localPath) } }
+                items(media, key = { it.localPath }) { item ->
+                    Thumbnail(item) { onRemoveMedia(item.localPath) }
+                }
             }
         }
     }
@@ -244,7 +263,7 @@ private fun MediaTile(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
         modifier = modifier.height(104.dp),
     ) {
         Column(
@@ -253,8 +272,8 @@ private fun MediaTile(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(icon, null, tint = CarRed, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.height(8.dp))
-            Text(label, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = label, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -265,7 +284,7 @@ private fun Thumbnail(item: PickedMedia, onRemove: () -> Unit) {
         modifier = Modifier
             .size(width = 130.dp, height = 110.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f)),
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
     ) {
         when (item.type) {
             MediaTypeEnum.PHOTO -> AsyncImage(
@@ -275,12 +294,18 @@ private fun Thumbnail(item: PickedMedia, onRemove: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
             )
             MediaTypeEnum.VIDEO -> Icon(
-                Icons.Default.Videocam, null,
-                modifier = Modifier.size(36.dp).align(Alignment.Center),
+                imageVector = Icons.Default.Videocam,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(36.dp)
+                    .align(Alignment.Center),
             )
             MediaTypeEnum.AUDIO -> Icon(
-                Icons.Default.Audiotrack, null,
-                modifier = Modifier.size(36.dp).align(Alignment.Center),
+                imageVector = Icons.Default.Audiotrack,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(36.dp)
+                    .align(Alignment.Center),
             )
         }
         IconButton(
@@ -290,95 +315,17 @@ private fun Thumbnail(item: PickedMedia, onRemove: () -> Unit) {
                 .padding(4.dp)
                 .size(26.dp)
                 .clip(RoundedCornerShape(50))
-                .background(Color.Black.copy(alpha = .6f)),
+                .background(Color.Black.copy(alpha = 0.6f)),
         ) {
-            Icon(Icons.Default.Close, "Remove", tint = Color.White, modifier = Modifier.size(16.dp))
-        }
-    }
-}
-
-// ─── Form input ─────────────────────────────────────────────────────────────────
-
-/**
- * Form row with a label on top and an optional small red error caption below
- * the field. Errors are only set after the user attempts to save (handled in
- * the ViewModel).
- */
-@Composable
-private fun LabeledField(
-    label: String,
-    error: String?,
-    content: @Composable () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(label, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleSmall)
-        content()
-        if (error != null) {
-            Text(
-                text = error,
-                color = CarRed,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 4.dp),
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Remove",
+                tint = Color.White,
+                modifier = Modifier.size(16.dp),
             )
         }
     }
 }
-
-@Composable
-private fun Input(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    singleLine: Boolean = true,
-    error: String? = null,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
-        isError = error != null,
-        singleLine = singleLine,
-        minLines = if (singleLine) 1 else 5,
-        maxLines = if (singleLine) 1 else 10,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .2f),
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun LocationRow(
-    label: String?,
-    isError: Boolean,
-    onClick: () -> Unit,
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-        border = if (isError) BorderStroke(1.dp, CarRed) else null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(62.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Default.LocationOn, null, tint = CarRed, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(10.dp))
-            Text(label ?: "Tap to pick on map")
-        }
-    }
-}
-
-// ─── Save ───────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun SaveSection(
@@ -387,8 +334,6 @@ private fun SaveSection(
     hasErrors: Boolean,
     onSave: () -> Unit,
 ) {
-    // Inline field errors carry the same info, so suppress the duplicate
-    // generic "fix the highlighted fields" message once they're on screen.
     val isFieldErrorRedundant = saveState is SaveSpotState.Error && hasErrors
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -412,15 +357,17 @@ private fun SaveSection(
                     strokeWidth = 2.dp,
                 )
             } else {
-                Text("Save Spot", fontWeight = FontWeight.Bold)
+                Text(text = "Save Spot", fontWeight = FontWeight.Bold)
             }
         }
+
         val errorText = when {
             !isOnline -> "You're offline. New spots can't be saved without internet."
             isFieldErrorRedundant -> null
             saveState is SaveSpotState.Error -> saveState.message
             else -> null
         }
+
         if (errorText != null) {
             Text(
                 text = errorText,

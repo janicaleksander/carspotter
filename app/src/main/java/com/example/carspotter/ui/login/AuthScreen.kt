@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -28,8 +29,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -51,9 +50,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.carspotter.auth.AuthState
+import com.example.carspotter.ui.components.AppTextField
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.AuthViewModel
 
@@ -109,7 +108,6 @@ fun AuthScreen(viewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            //Welcome text
             Text(
                 text = if (isLoginMode) "Welcome Back" else "Create Account",
                 style = MaterialTheme.typography.headlineLarge,
@@ -121,37 +119,25 @@ fun AuthScreen(viewModel: AuthViewModel) {
 
             Text(
                 text = if (isLoginMode) "Log in to track your garage"
-                       else "Sign up to start spotting",
+                else "Sign up to start spotting",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
-
-            // Nickname field
-            if (!isLoginMode){
-                Text(
-                    text = "Nickname",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 6.dp),
-                )
-
-                OutlinedTextField(
+            if (!isLoginMode) {
+                AppTextField(
+                    label = "Nickname",
                     value = nickname,
                     onValueChange = { nickname = it },
-                    placeholder = { Text("john") },
+                    placeholder = "john",
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Email,
+                            imageVector = Icons.Default.Person,
                             contentDescription = null,
                         )
                     },
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next,
@@ -159,37 +145,23 @@ fun AuthScreen(viewModel: AuthViewModel) {
                     keyboardActions = KeyboardActions(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) },
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .2f),
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading,
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            // Email field
-            Text(
-                text = "Email Address",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp),
-            )
 
-            OutlinedTextField(
+            AppTextField(
+                label = "Email Address",
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("name@example.com") },
+                placeholder = "name@example.com",
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = null,
                     )
                 },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
@@ -197,29 +169,16 @@ fun AuthScreen(viewModel: AuthViewModel) {
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) },
                 ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .2f),
-                ),
-                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            //Password field
-            Text(
-                text = "Password",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp),
-            )
-
-            OutlinedTextField(
+            AppTextField(
+                label = "Password",
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("••••••••") },
+                placeholder = "Enter password",
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
@@ -230,16 +189,14 @@ fun AuthScreen(viewModel: AuthViewModel) {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.VisibilityOff
-                                          else Icons.Default.Visibility,
+                            else Icons.Default.Visibility,
                             contentDescription = if (passwordVisible) "Hide password"
-                                                 else "Show password",
+                            else "Show password",
                         )
                     }
                 },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
                 visualTransformation = if (passwordVisible) VisualTransformation.None
-                                       else PasswordVisualTransformation(),
+                else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
@@ -249,25 +206,20 @@ fun AuthScreen(viewModel: AuthViewModel) {
                         focusManager.clearFocus()
                         if (isLoginMode) {
                             viewModel.login(email, password)
-                        }else{
-                            viewModel.register(nickname,email,password)
+                        } else {
+                            viewModel.register(nickname, email, password)
                         }
                     },
                 ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .2f),
-                ),
-                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
             )
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            // Primary action button
             Button(
                 onClick = {
                     if (isLoginMode) viewModel.login(email, password)
-                    else viewModel.register(nickname,email, password)
+                    else viewModel.register(nickname, email, password)
                 },
                 enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
                 shape = RoundedCornerShape(14.dp),
@@ -297,7 +249,6 @@ fun AuthScreen(viewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Divider + switch mode
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 16.dp),
                 color = MaterialTheme.colorScheme.outlineVariant,
