@@ -1,4 +1,4 @@
-package com.example.carspotter.ui.components
+package com.example.carspotter.worker
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,7 +13,7 @@ import java.util.Locale
  * Nominatim's usage policy requires a descriptive User-Agent and limits
  * callers to ~1 request/second, which is fine for the "show current car
  * address" use-case. No extra dependency is needed — the response is plain
- * JSON parsed with [JSONObject].
+ * JSON parsed with [org.json.JSONObject].
  */
 internal object NominatimReverseGeocoder {
 
@@ -25,9 +25,9 @@ internal object NominatimReverseGeocoder {
         runCatching {
             val url = URL(
                 "https://nominatim.openstreetmap.org/reverse?format=jsonv2" +
-                    "&lat=${"%.6f".format(Locale.US, latitude)}" +
-                    "&lon=${"%.6f".format(Locale.US, longitude)}" +
-                    "&zoom=14&addressdetails=1&accept-language=en",
+                        "&lat=${"%.6f".format(Locale.US, latitude)}" +
+                        "&lon=${"%.6f".format(Locale.US, longitude)}" +
+                        "&zoom=14&addressdetails=1&accept-language=en",
             )
             (url.openConnection() as HttpURLConnection).run {
                 requestMethod = "GET"
