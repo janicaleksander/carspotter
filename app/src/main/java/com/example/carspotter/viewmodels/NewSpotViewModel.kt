@@ -43,7 +43,6 @@ sealed interface SaveSpotState {
     data class Error(val message: String) : SaveSpotState
 }
 
-/** Editable form fields. Numbers stay as strings until validated on save. */
 private data class NewSpotForm(
     val brandId: String? = null,
     val categoryId: String? = null,
