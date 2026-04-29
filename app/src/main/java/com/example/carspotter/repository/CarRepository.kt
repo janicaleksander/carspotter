@@ -47,6 +47,20 @@ class CarRepository @Inject constructor(
         return carDao.getCategoryName(carId)
     }
 
+    suspend fun insertCar(car: Car) {
+        carDao.insert(Car(
+            id = car.id,
+            brandId = car.brandId,
+            categoryId = car.categoryId,
+            model = car.model,
+            year = car.year,
+            price = car.price,
+            isTop = car.isTop,
+            updatedAt = LocalDateTime.now(),
+            syncState = SyncState.PENDING_CREATE
+        ))
+    }
+
     /**
      * Syncs cars from Appwrite to Room:
      * - All isTop=true cars (pool for user_dream)
@@ -145,29 +159,49 @@ class CarRepository @Inject constructor(
         val pending = carDao.getPendingRecords()
 
         for (car in pending) {
-            when (car.syncState) {
-                SyncState.PENDING_UPDATE -> {
-                    tablesDB.updateRow(
-                        databaseId = BuildConfig.DATABASE_ID,
-                        tableId = "car",
-                        rowId = car.id,
-                        data = mapOf(
-                            "model" to car.model,
-                            "year" to car.year,
-                            "price" to car.price
+            try {
+                when (car.syncState) {
+                    SyncState.PENDING_CREATE -> {
+                        tablesDB.createRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "car",
+                            rowId = car.id,
+                            data = mapOf(
+                                "brand" to car.brandId,
+                                "category" to car.categoryId,
+                                "model" to car.model,
+                                "year" to car.year,
+                                "price" to car.price,
+                                "isTop" to car.isTop
+                            )
                         )
-                    )
-                    carDao.markAsSynced(car.id)
+                        carDao.markAsSynced(car.id)
+                    }
+                    SyncState.PENDING_UPDATE -> {
+                        tablesDB.updateRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "car",
+                            rowId = car.id,
+                            data = mapOf(
+                                "model" to car.model,
+                                "year" to car.year,
+                                "price" to car.price
+                            )
+                        )
+                        carDao.markAsSynced(car.id)
+                    }
+                    SyncState.PENDING_DELETE -> {
+                        tablesDB.deleteRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "car",
+                            rowId = car.id
+                        )
+                        carDao.hardDelete(car.id)
+                    }
+                    else -> {}
                 }
-                SyncState.PENDING_DELETE -> {
-                    tablesDB.deleteRow(
-                        databaseId = BuildConfig.DATABASE_ID,
-                        tableId = "car",
-                        rowId = car.id
-                    )
-                    carDao.hardDelete(car.id)
-                }
-                else -> {}
+            } catch (e: Exception) {
+                // Skip this record; SyncWorker will retry on the next pass.
             }
         }
     }

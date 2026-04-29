@@ -38,6 +38,13 @@ class UserCarRepository @Inject constructor(
         userCarDao.softDeleteUserCar(userId, carId, LocalDateTime.now())
     }
 
+    suspend fun insertUserCar(userCar: UserCar) {
+        userCarDao.insert(userCar.copy(
+            updatedAt = LocalDateTime.now(),
+            syncState = SyncState.PENDING_CREATE
+        ))
+    }
+
     /**
      * Fetches user_car rows from Appwrite cloud, filtered by userId.
      * Does NOT insert into Room — call saveToRoom() after cars are synced.
@@ -115,6 +122,25 @@ class UserCarRepository @Inject constructor(
         val pending = userCarDao.getPendingRecords()
         for (record in pending) {
             when (record.syncState) {
+                SyncState.PENDING_CREATE -> {
+                    try {
+                        tablesDB.createRow(
+                            databaseId = BuildConfig.DATABASE_ID,
+                            tableId = "user_car",
+                            rowId = record.id,
+                            data = mapOf(
+                                "user" to record.userId,
+                                "car" to record.carId,
+                                "notes" to record.notes,
+                                "latitude" to record.location.latitude,
+                                "longitude" to record.location.longitude
+                            )
+                        )
+                        userCarDao.markAsSynced(record.id)
+                    } catch (e: Exception) {
+                        // Handle error (e.g., log it, retry later)
+                    }
+                }
                 SyncState.PENDING_UPDATE -> {
                     try {
                         tablesDB.updateRow(
