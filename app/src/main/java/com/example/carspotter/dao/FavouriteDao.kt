@@ -29,8 +29,7 @@ interface FavouriteDao {
     @Query("SELECT * FROM favourite WHERE userId = :userId AND carId = :carId LIMIT 1")
     suspend fun findByUserAndCar(userId: String, carId: String): Favourite?
 
-    @Delete
-    suspend fun delete(favourite: Favourite)
+
 
     @Query("DELETE FROM favourite WHERE id = :id")
     suspend fun hardDelete(id: String)
