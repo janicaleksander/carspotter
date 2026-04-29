@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -89,27 +90,27 @@ fun HomeContent(
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
 
-            item(key = "branding") {
-                AppBranding(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    isCompact = true
-                )
-            }
-
-            item(key = "search") {
-                CustomizableSearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = onSearchQueryChange,
-                    onSearch = onSearchQueryChange,
-                    searchResults = uiState.homeCars
-                        .map { it.brandName }
-                        .distinct(),
-                    onResultClick = onSearchQueryChange,
-                    modifier = Modifier.statusBarsPadding(),
-                    placeholder = { Text("FIND SPOT") },
-                )
+            item(key = "branding_search") {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    AppBranding(
+                        modifier = Modifier.fillMaxWidth(),
+                        isCompact = true,
+                    )
+                    CustomizableSearchBar(
+                        query = uiState.searchQuery,
+                        onQueryChange = onSearchQueryChange,
+                        onSearch = onSearchQueryChange,
+                        searchResults = uiState.homeCars
+                            .map { it.brandName }
+                            .distinct(),
+                        onResultClick = onSearchQueryChange,
+                        modifier = Modifier.statusBarsPadding(),
+                        placeholder = { Text("FIND SPOT") },
+                    )
+                }
             }
 
             item(key = "filters") {
@@ -298,7 +299,7 @@ private fun HomeSpotCard(
                 if (onHeartClick != null) {
                     Surface(
                         shape = CircleShape,
-                        color = Color.Black.copy(alpha = 0.35f),
+                        color = Color.White,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(12.dp)
@@ -308,7 +309,7 @@ private fun HomeSpotCard(
                             Icon(
                                 imageVector = if (car.isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = if (car.isFavourite) "Remove from favourites" else "Add to favourites",
-                                tint = Color.White,
+                                tint = if (car.isFavourite) CarRed else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             )
                         }
                     }

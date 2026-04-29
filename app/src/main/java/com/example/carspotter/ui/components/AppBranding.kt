@@ -37,7 +37,7 @@ fun AppBranding(
             tint = CarRed,
         )
 
-        Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 8.dp))
+        Spacer(modifier = Modifier.height(if (isCompact) 2.dp else 8.dp))
 
         Text(
             text = appName?.uppercase() ?: "CARSPOTTER",
