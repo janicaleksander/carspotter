@@ -18,6 +18,7 @@ import com.example.carspotter.navigation.Screen
 import com.example.carspotter.ui.garage.GarageDetailScreen
 import com.example.carspotter.ui.garage.GarageScreen
 import com.example.carspotter.ui.home.HomeScreen
+import com.example.carspotter.ui.new_spot.NewSpotScreen
 import com.example.carspotter.ui.settings.SettingsScreen
 import com.example.carspotter.ui.tops.TopsDetailScreen
 import com.example.carspotter.ui.tops.TopsScreen
@@ -25,6 +26,7 @@ import com.example.carspotter.viewmodels.AuthViewModel
 import com.example.carspotter.viewmodels.GarageDetailViewModel
 import com.example.carspotter.viewmodels.GarageViewModel
 import com.example.carspotter.viewmodels.HomeViewModel
+import com.example.carspotter.viewmodels.NewSpotViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
 import com.example.carspotter.viewmodels.TopsDetailViewModel
 import com.example.carspotter.viewmodels.TopsUiState
@@ -43,10 +45,15 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(paddingValues)
         ) {
+
+            //home
             composable(Screen.Home.route) {
                 val vm: HomeViewModel = hiltViewModel()
                 HomeScreen(viewModel = vm)
             }
+
+
+            //garage
             composable(Screen.Garage.route) {
                 val vm: GarageViewModel = hiltViewModel()
                 GarageScreen(
@@ -67,11 +74,19 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 )
             }
 
+
+
+            //new
             composable(Screen.New.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("New")
-                }
+                val vm: NewSpotViewModel = hiltViewModel()
+                NewSpotScreen(
+                    viewModel = vm,
+                    onNavigateBack = { navController.popBackStack() },
+                )
             }
+
+
+            //top cars
             composable(Screen.Tops.route) {
                 val vm: TopsViewModel = hiltViewModel()
                 TopsScreen(
@@ -90,6 +105,10 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                     onNavigateBack = { navController.popBackStack() },
                 )
             }
+
+
+
+            //settings
             composable(Screen.Settings.route) {
                 val vm: SettingsViewModel = hiltViewModel()
                 SettingsScreen(viewModel = vm, authViewModel = authViewModel)

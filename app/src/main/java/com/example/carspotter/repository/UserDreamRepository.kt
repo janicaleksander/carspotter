@@ -5,6 +5,7 @@ import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.SyncState
 import com.example.carspotter.models.UserDream
+import io.appwrite.ID
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +30,7 @@ class UserDreamRepository @Inject constructor(
     suspend fun addUserDream(userId:String, carId:String){
         userDreamDao.insertUserDream(
             UserDream(
+                id = ID.unique(),
                 userId = userId,
                 carId = carId,
                 updatedAt = LocalDateTime.now(),

@@ -16,7 +16,8 @@ import javax.inject.Singleton
 @Singleton
 class CarRepository @Inject constructor(
     private val tablesDB: TablesDB,
-    private val carDao: CarDao
+    private val carDao: CarDao,
+    private val mediaRepository: MediaRepository,
 ) {
 
 
@@ -191,6 +192,11 @@ class CarRepository @Inject constructor(
                         carDao.markAsSynced(car.id)
                     }
                     SyncState.PENDING_DELETE -> {
+                        // Clean up media (Storage files + media rows) BEFORE the
+                        // local cascade wipes the rows we need to read fileIds from,
+                        // and BEFORE deleting the parent car row in Appwrite so we
+                        // don't leave dangling references on the cloud side.
+                        mediaRepository.deleteAllForCar(car.id)
                         tablesDB.deleteRow(
                             databaseId = BuildConfig.DATABASE_ID,
                             tableId = "car",

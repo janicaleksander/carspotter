@@ -6,6 +6,7 @@ import com.example.carspotter.dao.FavouriteDao
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Favourite
 import com.example.carspotter.models.SyncState
+import io.appwrite.ID
 import io.appwrite.Query
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +43,7 @@ class FavouriteRepository @Inject constructor(
         if (existing == null) {
             favouriteDao.insert(
                 Favourite(
+                    id = ID.unique(),
                     userId = userId,
                     carId = carId,
                     syncState = SyncState.PENDING_CREATE,

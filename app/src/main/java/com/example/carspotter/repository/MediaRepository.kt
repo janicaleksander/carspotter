@@ -117,6 +117,44 @@ class MediaRepository @Inject constructor(
         mediaDao.insertAll(savedMedia)
     }
 
+    /**
+     * Hard-deletes every media that belongs to [carId] from Appwrite — both the
+     * file in Storage and the row in the `media` table. Best-effort: any single
+     * failure is swallowed so one orphan does not block the rest of the cleanup.
+     *
+     * Must be called BEFORE the parent car row is hard-deleted from Room,
+     * otherwise the FK cascade wipes the local rows we need to read fileIds from.
+     */
+    suspend fun deleteAllForCar(carId: String) {
+        val medias = mediaDao.getMediaByCarIdSnapshot(carId)
+        if (medias.isEmpty()) return
+
+        medias.forEach { media ->
+            extractFileId(media.filePath)?.let { fileId ->
+                runCatching {
+                    storage.deleteFile(
+                        bucketId = BuildConfig.BUCKET_ID,
+                        fileId = fileId,
+                    )
+                }
+            }
+            runCatching {
+                tablesDB.deleteRow(
+                    databaseId = BuildConfig.DATABASE_ID,
+                    tableId = "media",
+                    rowId = media.id,
+                )
+            }
+        }
+    }
+
     private fun buildFileUrl(fileId: String): String =
         "${BuildConfig.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${BuildConfig.BUCKET_ID}/files/$fileId/view?project=${BuildConfig.APPWRITE_PROJECT_ID}"
+
+    private fun extractFileId(url: String): String? =
+        FILE_ID_REGEX.find(url)?.groupValues?.getOrNull(1)
+
+    companion object {
+        private val FILE_ID_REGEX = Regex("""/files/([^/]+)/(?:view|preview|download)""")
+    }
 }
