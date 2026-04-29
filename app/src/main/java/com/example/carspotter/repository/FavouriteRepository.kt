@@ -140,7 +140,7 @@ class FavouriteRepository @Inject constructor(
                         )
                         favouriteDao.markAsSynced(record.id)
                     }catch (e : Exception){
-                        //todo
+                        Log.e("FavouriteRepository", "Failed to push PENDING_CREATE for favourite ${record.id}", e)
                     }
                 }
                 SyncState.PENDING_DELETE -> {
@@ -152,7 +152,7 @@ class FavouriteRepository @Inject constructor(
                         )
                         favouriteDao.hardDelete(record.id)
                     } catch (e : Exception){
-                        //todo
+                        Log.e("FavouriteRepository", "Failed to push PENDING_DELETE for favourite ${record.id}", e)
                     }
                 }
                 else -> { /* nic */ }

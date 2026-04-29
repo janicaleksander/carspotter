@@ -1,5 +1,6 @@
 package com.example.carspotter.repository
 
+import android.util.Log
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.UserDreamDao
 import com.example.carspotter.models.Converters
@@ -126,7 +127,7 @@ class UserDreamRepository @Inject constructor(
                         )
                         userDreamDao.markAsSynced(record.id)
                     }catch (e : Exception){
-                        //todo
+                        Log.e("UserDreamRepository", "Failed to push PENDING_CREATE for user dream ${record.id}", e)
                     }
                 }
                 SyncState.PENDING_DELETE -> {
@@ -138,7 +139,7 @@ class UserDreamRepository @Inject constructor(
                         )
                         userDreamDao.hardDelete(record.id)
                     } catch (e: Exception) {
-                        // Handle error (e.g., log it, retry later, etc.)
+                        Log.e("UserDreamRepository", "Failed to push PENDING_DELETE for user dream ${record.id}", e)
                     }
                 }
 

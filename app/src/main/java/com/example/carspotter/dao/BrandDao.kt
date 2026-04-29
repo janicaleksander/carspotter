@@ -37,5 +37,5 @@ interface BrandDao {
     suspend fun hardDeleteIfUnused(id: String)
 
     @Delete
-    fun delete(brand: Brand)
+    suspend fun delete(brand: Brand)
 }
