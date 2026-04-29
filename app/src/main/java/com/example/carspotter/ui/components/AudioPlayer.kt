@@ -34,12 +34,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.carspotter.ui.theme.CarRed
 
 /**
  * Renders a play/pause button wired to an ExoPlayer instance.
  * No-op when [url] is null (car has no audio sample).
+ *
+ * After playback [finishes][Player.STATE_ENDED], the next tap seeks to the start so audio can
+ * play again (otherwise ExoPlayer stays at the end and appears "stuck").
  */
 @Composable
 fun AudioPlayer(
@@ -57,17 +61,38 @@ fun AudioPlayer(
         }
     }
 
-    DisposableEffect(player) {
-        onDispose { player.release() }
-    }
+    var isPlaying by remember(url) { mutableStateOf(player.isPlaying) }
 
-    var isPlaying by remember(url) { mutableStateOf(false) }
+    DisposableEffect(player) {
+        val listener = object : Player.Listener {
+            override fun onIsPlayingChanged(playing: Boolean) {
+                isPlaying = playing
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    isPlaying = false
+                }
+            }
+        }
+        player.addListener(listener)
+        onDispose {
+            player.removeListener(listener)
+            player.release()
+        }
+    }
 
     PlaySoundButton(
         isPlaying = isPlaying,
         onClick = {
-            if (isPlaying) player.pause() else player.play()
-            isPlaying = !isPlaying
+            if (player.isPlaying) {
+                player.pause()
+            } else {
+                if (player.playbackState == Player.STATE_ENDED) {
+                    player.seekTo(0)
+                }
+                player.play()
+            }
         },
         modifier = modifier,
     )
