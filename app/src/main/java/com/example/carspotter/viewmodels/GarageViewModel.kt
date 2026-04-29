@@ -48,6 +48,8 @@ data class GarageUiState(
     val categories: List<Category> = emptyList(),
     val brands: List<Brand> = emptyList(),
     val userCars: List<GarageCarUiModel> = emptyList(),
+    /** Cars in garage before category/brand/favourites filters (sort not applied). */
+    val totalGarageCarCount: Int = 0,
     val selectedCategoryId: String? = null,
     val selectedBrandId: String? = null,
     val filterMode: GarageFilterMode = GarageFilterMode.ALL,
@@ -191,6 +193,7 @@ class GarageViewModel @Inject constructor(
             categories = data.categories,
             brands = data.brands,
             userCars = uiCars,
+            totalGarageCarCount = data.userCars.size,
             selectedCategoryId = filters.categoryId,
             selectedBrandId = filters.brandId,
             filterMode = filters.mode,

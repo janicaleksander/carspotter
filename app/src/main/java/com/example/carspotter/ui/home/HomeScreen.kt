@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.viewmodels.HomeViewModel
 
 @Composable
@@ -27,8 +28,17 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 modifier = Modifier.padding(16.dp)
             )
         }
-        items(cars) { car ->
-            Text(text = "Car: ${car.car.model}")
+        if (cars.isEmpty()) {
+            item {
+                EmptyListHint(
+                    primary = "No cars on this list",
+                    secondary = null,
+                )
+            }
+        } else {
+            items(cars) { car ->
+                Text(text = "Car: ${car.car.model}")
+            }
         }
     }
 }

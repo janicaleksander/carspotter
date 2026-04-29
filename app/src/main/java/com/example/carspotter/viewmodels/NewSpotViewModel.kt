@@ -63,9 +63,10 @@ data class NewSpotErrors(
     val year: String? = null,
     val price: String? = null,
     val location: String? = null,
+    val notes: String? = null,
 ) {
-    val hasAny: Boolean get() = listOf(media, brand, category, model, year, price, location)
-        .any { it != null }
+    val hasAny: Boolean get() =
+        listOf(media, brand, category, model, year, price, location, notes).any { it != null }
 }
 
 data class NewSpotUiState(
@@ -197,14 +198,16 @@ class NewSpotViewModel @Inject constructor(
             priceVal == null || priceVal < 0.0 -> "Enter a valid price"
             else -> null
         }
+        val notesErr = if (form.notes.isBlank()) "Notes are required" else null
         return NewSpotErrors(
             media = mediaErr,
             brand = if (form.brandId.isNullOrBlank()) "Pick a brand" else null,
             category = if (form.categoryId.isNullOrBlank()) "Pick a category" else null,
-            model = if (form.model.isBlank()) "Model is required" else null,
+            model = if (form.model.trim().isEmpty()) "Model is required" else null,
             year = yearErr,
             price = priceErr,
             location = if (form.location == null) "Pick a location on the map" else null,
+            notes = notesErr,
         )
     }
 

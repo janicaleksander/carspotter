@@ -48,6 +48,7 @@ import coil.request.ImageRequest
 import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Category
 import com.example.carspotter.ui.components.DropDown
+import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.GarageCarUiModel
@@ -106,16 +107,37 @@ fun GarageContent(
                 )
             }
 
-            items(items = uiState.userCars, key = { it.carId }) { car ->
-                GarageCarCard(
-                    car = car,
-                    onClick = { onCarClick(car.carId) },
-                    onHeartClick = { onHeartClick(car.carId) },
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                )
+            if (uiState.userCars.isEmpty()) {
+                item(key = "empty_garage") {
+                    GarageEmptyHint(uiState = uiState)
+                }
+            } else {
+                items(items = uiState.userCars, key = { it.carId }) { car ->
+                    GarageCarCard(
+                        car = car,
+                        onClick = { onCarClick(car.carId) },
+                        onHeartClick = { onHeartClick(car.carId) },
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun GarageEmptyHint(uiState: GarageUiState) {
+    val (primary, secondary) = when {
+        uiState.filterMode == GarageFilterMode.FAVOURITES && uiState.totalGarageCarCount == 0 ->
+            "No favourite cars yet" to "Add spots to your garage first, then tap the heart."
+        uiState.filterMode == GarageFilterMode.FAVOURITES ->
+            "No favourite cars yet" to "Tap the heart on a car card to save it here."
+        uiState.totalGarageCarCount == 0 ->
+            "Your garage is empty" to "Add a new spot from the New tab."
+        else ->
+            "No cars match these filters" to "Try All, or change category or brand."
+    }
+    EmptyListHint(primary = primary, secondary = secondary)
 }
 
 // ─── Filter row ─────────────────────────────────────────────────────────────────

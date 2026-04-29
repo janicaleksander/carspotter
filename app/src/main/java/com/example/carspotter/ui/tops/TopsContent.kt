@@ -42,6 +42,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.carspotter.models.Category
 import com.example.carspotter.ui.components.CarCoverImage
+import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.viewmodels.TopCarUiModel
 import com.example.carspotter.viewmodels.TopsUiState
@@ -89,15 +90,30 @@ fun TopsContent(
                 )
             }
 
-            items(
-                items = uiState.topCars,
-                key = { it.carId }
-            ) { car ->
-                TopCarCard(
-                    car = car,
-                    onClick = { onCarClick(car.carId) },
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                )
+            if (uiState.topCars.isEmpty()) {
+                item(key = "empty_tops") {
+                    val primary: String
+                    val secondary: String?
+                    if (uiState.selectedCategoryId != null) {
+                        primary = "No top cars in this category"
+                        secondary = "Try another category above."
+                    } else {
+                        primary = "No top cars to show yet"
+                        secondary = null
+                    }
+                    EmptyListHint(primary = primary, secondary = secondary)
+                }
+            } else {
+                items(
+                    items = uiState.topCars,
+                    key = { it.carId }
+                ) { car ->
+                    TopCarCard(
+                        car = car,
+                        onClick = { onCarClick(car.carId) },
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                    )
+                }
             }
         }
     }

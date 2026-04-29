@@ -148,12 +148,13 @@ fun NewSpotContent(
                 }
             }
             item("notes") {
-                LabeledField("Spotter Notes", error = null) {
+                LabeledField("Spotter Notes", error = uiState.errors.notes) {
                     Input(
                         value = uiState.notes,
                         onValueChange = onNotesChange,
                         placeholder = "Mention specific modifications, rarity, or how you found it…",
                         singleLine = false,
+                        error = uiState.errors.notes,
                     )
                 }
             }

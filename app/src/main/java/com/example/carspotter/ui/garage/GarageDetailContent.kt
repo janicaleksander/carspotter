@@ -41,6 +41,7 @@ import com.example.carspotter.ui.components.AudioPlayer
 import com.example.carspotter.ui.components.CarInfoGrid
 import com.example.carspotter.ui.components.Carousel
 import com.example.carspotter.ui.components.CarouselItem
+import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.ui.components.OsmMapView
 import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.ui.theme.CarRed
@@ -112,6 +113,11 @@ fun GarageDetailContent(
                     Carousel(
                         items = mediaItems,
                         modifier = Modifier.fillMaxWidth(),
+                    )
+                } else {
+                    EmptyListHint(
+                        primary = "No photos or videos",
+                        modifier = Modifier.padding(horizontal = 20.dp),
                     )
                 }
             }
