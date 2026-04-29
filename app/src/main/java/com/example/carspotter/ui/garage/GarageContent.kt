@@ -35,18 +35,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Category
+import com.example.carspotter.ui.components.CarCoverImage
 import com.example.carspotter.ui.components.DropDown
 import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.ui.components.TabHeader
@@ -55,6 +50,8 @@ import com.example.carspotter.viewmodels.GarageCarUiModel
 import com.example.carspotter.viewmodels.GarageFilterMode
 import com.example.carspotter.viewmodels.GarageUiState
 import com.example.carspotter.viewmodels.SortOption
+
+private val GarageCardShape = RoundedCornerShape(16.dp)
 
 // ─── Root screen composable ─────────────────────────────────────────────────────
 
@@ -233,9 +230,9 @@ fun GarageCarCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = GarageCardShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Column {
             GarageCarCoverImage(
@@ -256,59 +253,33 @@ private fun GarageCarCoverImage(
     isFavourite: Boolean,
     onHeartClick: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(260.dp)
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-    ) {
-        if (imageUrl == null) {
-            Box(
+    CarCoverImage(
+        imageUrl = imageUrl,
+        contentDescription = contentDescription,
+        height = 260.dp,
+        overlay = {
+            Surface(
+                shape = CircleShape,
+                color = Color.White,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Gray.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center,
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+                    .size(40.dp),
             ) {
-                Text(
-                    text = "No Image",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.Gray,
-                )
+                IconButton(onClick = onHeartClick) {
+                    Icon(
+                        imageVector = if (isFavourite) Icons.Default.Favorite
+                        else Icons.Default.FavoriteBorder,
+                        contentDescription = if (isFavourite) "Remove from favourites"
+                        else "Add to favourites",
+                        tint = if (isFavourite) CarRed
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
             }
-        } else {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .crossfade(400)
-                    .build(),
-                contentDescription = contentDescription,
-                contentScale = ContentScale.Crop,
-                filterQuality = FilterQuality.Medium,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-
-        Surface(
-            shape = CircleShape,
-            color = Color.White.copy(alpha = 0.9f),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(12.dp)
-                .size(40.dp),
-        ) {
-            IconButton(onClick = onHeartClick) {
-                Icon(
-                    imageVector = if (isFavourite) Icons.Default.Favorite
-                    else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isFavourite) "Remove from favourites"
-                    else "Add to favourites",
-                    tint = if (isFavourite) CarRed
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-        }
-    }
+        },
+    )
 }
 
 @Composable

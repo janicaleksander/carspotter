@@ -49,6 +49,7 @@ import com.example.carspotter.viewmodels.TopsUiState
 import java.util.Locale
 
 private val TopsOrange = Color(0xFFE8975A)
+private val TopsCardShape = RoundedCornerShape(16.dp)
 
 // ─── Root screen composable ─────────────────────────────────────────────────────
 
@@ -184,9 +185,9 @@ fun TopCarCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = TopsCardShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Column {
             CarCoverImage(

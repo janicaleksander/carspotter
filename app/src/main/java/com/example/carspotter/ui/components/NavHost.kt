@@ -49,9 +49,12 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
             //home
             composable(Screen.Home.route) {
                 val vm: HomeViewModel = hiltViewModel()
-                HomeScreen(viewModel = vm)
+                HomeScreen(
+                    viewModel = vm,
+                    onUserCarClick = { carId -> navController.navigate("garage_car_detail/$carId") },
+                    onDreamCarClick = { carId -> navController.navigate("dream_car_detail/$carId") },
+                )
             }
-
 
             //garage
             composable(Screen.Garage.route) {

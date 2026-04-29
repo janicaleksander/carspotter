@@ -56,7 +56,8 @@ fun DropDown(
             },
             shape = RoundedCornerShape(50),
             colors = FilterChipDefaults.filterChipColors(
-                selectedLabelColor = Color.White,
+                selectedContainerColor = Color.Transparent,
+                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
                 containerColor = Color.Transparent,
                 labelColor = MaterialTheme.colorScheme.onSurface,
             ),
