@@ -24,6 +24,7 @@ import com.example.carspotter.ui.theme.CarRed
 fun AppBranding(
     appName: String? = null,
     modifier: Modifier = Modifier,
+    isCompact: Boolean = false,
 ) {
     Column(
         modifier = modifier,
@@ -32,15 +33,15 @@ fun AppBranding(
         Icon(
             imageVector = Icons.Default.DirectionsCar,
             contentDescription = null,
-            modifier = Modifier.size(56.dp),
+            modifier = Modifier.size(if (isCompact) 40.dp else 56.dp),
             tint = CarRed,
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 8.dp))
 
         Text(
             text = appName?.uppercase() ?: "CARSPOTTER",
-            style = MaterialTheme.typography.headlineSmall,
+            style = if (isCompact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
             color = CarRed,
             letterSpacing = MaterialTheme.typography.headlineSmall.letterSpacing * 1.5,

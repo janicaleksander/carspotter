@@ -91,7 +91,10 @@ fun HomeContent(
 
             item(key = "branding") {
                 AppBranding(
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    isCompact = true
                 )
             }
 
