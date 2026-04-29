@@ -118,7 +118,6 @@ fun NewSpotScreen(
     if (showSuccessOverlay) {
         SaveSuccessOverlay(
             onComplete = {
-                showSuccessOverlay = false
                 viewModel.consumeSaveResult()
                 onNavigateBack()
             },

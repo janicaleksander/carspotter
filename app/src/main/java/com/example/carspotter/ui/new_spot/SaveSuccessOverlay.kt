@@ -1,6 +1,7 @@
 package com.example.carspotter.ui.new_spot
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -25,42 +26,53 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.carspotter.ui.theme.CarRed
-import com.example.carspotter.ui.theme.Neutral10
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun SaveSuccessOverlay(onComplete: () -> Unit) {
-    val curtain   = remember { Animatable(0f) }
-    val flagIn    = remember { Animatable(0f) }
+    val curtain    = remember { Animatable(0f) }
+    val needleAngle = remember { Animatable(NEEDLE_MIN) }
+    val speedKmh   = remember { Animatable(0f) }
     val titleScale = remember { Animatable(0f) }
-    val streaks   = remember { Animatable(0f) }
+    val streaks    = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
         // 1 – curtain in
         curtain.animateTo(1f, tween(280))
 
-        // 2 – flag, title, streaks in parallel
+        // 2 – needle sweep + counter
         coroutineScope {
             launch {
-                flagIn.animateTo(
-                    1f,
+                needleAngle.animateTo(NEEDLE_MAX, tween(900, easing = FastOutSlowInEasing))
+                needleAngle.animateTo(
+                    NEEDLE_MAX - 8f,
                     spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness    = Spring.StiffnessLow,
+                        stiffness    = Spring.StiffnessMedium,
                     ),
                 )
             }
             launch {
-                delay(150)
+                speedKmh.animateTo(MAX_KMH.toFloat(), tween(900, easing = FastOutSlowInEasing))
+            }
+        }
+
+        // 3 – title + streaks
+        coroutineScope {
+            launch {
                 titleScale.animateTo(
                     1f,
                     spring(
@@ -72,9 +84,8 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
             launch { streaks.animateTo(1f, tween(700, easing = LinearEasing)) }
         }
 
-        // 3 – hold, then out
+        // 4 – hold, then finish (no curtain fade-out — it revealed the form underneath)
         delay(550)
-        curtain.animateTo(0f, tween(250))
         onComplete()
     }
 
@@ -85,8 +96,8 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
             .background(
                 Brush.radialGradient(
                     colors = listOf(
-                        Neutral10.copy(alpha = 0.94f),
-                        Color.Black.copy(alpha = 0.98f),
+                        Color.White.copy(alpha = 0.97f),
+                        Color(0xFFF0F0F0).copy(alpha = 0.99f),
                     ),
                 ),
             )
@@ -96,24 +107,19 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
         SpeedStreaks(progress = streaks.value, modifier = Modifier.fillMaxSize())
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CheckeredFlag(
-                modifier = Modifier
-                    .size(200.dp)
-                    .graphicsLayer {
-                        alpha      = flagIn.value
-                        scaleX     = flagIn.value
-                        scaleY     = flagIn.value
-                        rotationZ  = (1f - flagIn.value) * -25f
-                    },
+            Speedometer(
+                needleAngle = needleAngle.value,
+                speed       = speedKmh.value.toInt(),
+                modifier    = Modifier.size(240.dp),
             )
             Spacer(Modifier.height(28.dp))
             Text(
-                text       = "SPOT SAVED!",
-                color      = Color.White,
-                fontSize   = 32.sp,
-                fontWeight = FontWeight.Black,
+                text          = "SPOT SAVED!",
+                color         = CarRed,
+                fontSize      = 32.sp,
+                fontWeight    = FontWeight.Black,
                 letterSpacing = 4.sp,
-                modifier   = Modifier.graphicsLayer {
+                modifier      = Modifier.graphicsLayer {
                     scaleX = titleScale.value
                     scaleY = titleScale.value
                     alpha  = titleScale.value.coerceIn(0f, 1f)
@@ -122,7 +128,7 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             Text(
                 text          = "RACING TO YOUR GARAGE",
-                color         = Color.White.copy(alpha = 0.55f),
+                color         = CarRed.copy(alpha = 0.55f),
                 fontSize      = 12.sp,
                 letterSpacing = 3.sp,
                 modifier      = Modifier.alpha(titleScale.value.coerceIn(0f, 1f)),
@@ -132,36 +138,86 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
 }
 
 @Composable
-private fun CheckeredFlag(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val w     = size.width
-        val h     = size.height
-        val flagW = w * 0.72f
-        val flagH = h * 0.50f
-        val flagX = (w - flagW) / 2f
-        val flagY = (h - flagH) / 2f
-        val cols  = 8
-        val rows  = 5
-        val cellW = flagW / cols
-        val cellH = flagH / rows
+private fun Speedometer(
+    needleAngle: Float,
+    speed: Int,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val cx       = size.width / 2f
+            val cy       = size.height / 2f
+            val radius   = size.minDimension / 2f - 18.dp.toPx()
+            val arcStroke = 10.dp.toPx()
 
-        for (r in 0 until rows) {
-            for (c in 0 until cols) {
-                drawRect(
-                    color   = if ((r + c) % 2 == 0) Color.White else Color.Black,
-                    topLeft = Offset(flagX + c * cellW, flagY + r * cellH),
-                    size    = Size(cellW, cellH),
+            // Track arc – szary (jasny, widoczny na białym)
+            drawArc(
+                color      = Color(0xFFCCCCCC),
+                startAngle = NEEDLE_MIN,
+                sweepAngle = NEEDLE_MAX - NEEDLE_MIN,
+                useCenter  = false,
+                style      = Stroke(width = arcStroke, cap = StrokeCap.Round),
+                topLeft    = Offset(cx - radius, cy - radius),
+                size       = Size(radius * 2, radius * 2),
+            )
+
+            // Wypełniony łuk – CarRed
+            val sweep = (needleAngle - NEEDLE_MIN).coerceIn(0f, NEEDLE_MAX - NEEDLE_MIN)
+            drawArc(
+                color      = CarRed,
+                startAngle = NEEDLE_MIN,
+                sweepAngle = sweep,
+                useCenter  = false,
+                style      = Stroke(width = arcStroke, cap = StrokeCap.Round),
+                topLeft    = Offset(cx - radius, cy - radius),
+                size       = Size(radius * 2, radius * 2),
+            )
+
+            // Ticki
+            val ticks      = 11
+            val tickStep   = (NEEDLE_MAX - NEEDLE_MIN) / (ticks - 1)
+            val innerRadius = radius - 14.dp.toPx()
+            for (i in 0 until ticks) {
+                val angleRad = (NEEDLE_MIN + i * tickStep) * PI.toFloat() / 180f
+                drawLine(
+                    color       = Color(0xFF999999),
+                    start       = Offset(cx + innerRadius * cos(angleRad), cy + innerRadius * sin(angleRad)),
+                    end         = Offset(cx + radius * cos(angleRad), cy + radius * sin(angleRad)),
+                    strokeWidth = 2.dp.toPx(),
                 )
             }
+
+            // Igła
+            val needleRad = needleAngle * PI.toFloat() / 180f
+            val needleLen = radius - 22.dp.toPx()
+            drawLine(
+                color       = CarRed,
+                start       = Offset(cx, cy),
+                end         = Offset(cx + needleLen * cos(needleRad), cy + needleLen * sin(needleRad)),
+                strokeWidth = 4.dp.toPx(),
+                cap         = StrokeCap.Round,
+            )
+
+            // Centrum
+            drawCircle(Color(0xFFDDDDDD), radius = 10.dp.toPx(), center = Offset(cx, cy))
+            drawCircle(CarRed,            radius = 5.dp.toPx(),  center = Offset(cx, cy))
         }
 
-        drawLine(
-            color       = Color.White.copy(alpha = 0.85f),
-            start       = Offset(flagX - 6.dp.toPx(), flagY - 6.dp.toPx()),
-            end         = Offset(flagX - 6.dp.toPx(), flagY + flagH + 28.dp.toPx()),
-            strokeWidth = 4.dp.toPx(),
-            cap         = StrokeCap.Round,
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text          = "%03d".format(speed),
+                color         = CarRed,
+                fontSize      = 38.sp,
+                fontWeight    = FontWeight.Black,
+                letterSpacing = 1.sp,
+            )
+            Text(
+                text          = "KM/H",
+                color         = CarRed.copy(alpha = 0.6f),
+                fontSize      = 11.sp,
+                letterSpacing = 4.sp,
+            )
+        }
     }
 }
 
@@ -177,7 +233,7 @@ private fun SpeedStreaks(progress: Float, modifier: Modifier = Modifier) {
         repeat(14) { i ->
             val y     = ((i * 8973L) % 100L) / 100f * h
             val phase = (progress + i / 14f) % 1f
-            val alpha = (1f - abs(phase - 0.5f) * 2f) * 0.55f
+            val alpha = (1f - abs(phase - 0.5f) * 2f) * 0.40f
             drawLine(
                 color       = CarRed.copy(alpha = alpha),
                 start       = Offset(-len + travel * phase, y),
@@ -188,3 +244,7 @@ private fun SpeedStreaks(progress: Float, modifier: Modifier = Modifier) {
         }
     }
 }
+
+private const val NEEDLE_MIN = 135f
+private const val NEEDLE_MAX = 405f
+private const val MAX_KMH    = 260
