@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BrandDao {
 
-    @Upsert
-    suspend fun insert(brand: Brand)
+
 
     @Upsert
     suspend fun insertAll(brands: List<Brand>)
@@ -36,6 +35,5 @@ interface BrandDao {
     )
     suspend fun hardDeleteIfUnused(id: String)
 
-    @Delete
-    suspend fun delete(brand: Brand)
+
 }
