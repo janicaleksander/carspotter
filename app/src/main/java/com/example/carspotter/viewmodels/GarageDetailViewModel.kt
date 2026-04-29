@@ -41,6 +41,8 @@ data class GarageDetailState(
     val details: GarageCarDetails,
     val isLoading: Boolean = false,
     val isDeleted: Boolean = false,
+    /** True while remove-from-garage is in progress — UI should hide details and show progress. */
+    val isRemoving: Boolean = false,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -67,6 +69,7 @@ class GarageDetailViewModel @Inject constructor(
     private val carId: String = checkNotNull(savedStateHandle["carId"])
 
     private val _isDeleted = MutableStateFlow(false)
+    private val _isRemoving = MutableStateFlow(false)
 
     val isFavourite: StateFlow<Boolean> = userId
         .filterNotNull()
@@ -82,15 +85,22 @@ class GarageDetailViewModel @Inject constructor(
     }
 
     fun removeFromGarage() {
+        val uid = userId.value ?: return
+        _isRemoving.value = true
         viewModelScope.launch {
-            val uid = userId.value ?: return@launch
-            // Order matters: delete the user_car join row first so Appwrite's
-            // car delete doesn't trip over a dangling reference on push.
-            userCarRepository.softDeleteUserCar(uid, carId)
-            carRepository.softDeleteUserCar(carId)
-            userCarRepository.pushPending()
-            carRepository.pushPending()
-            _isDeleted.value = true
+            var removed = false
+            try {
+                // Order matters: delete the user_car join row first so Appwrite's
+                // car delete doesn't trip over a dangling reference on push.
+                userCarRepository.softDeleteUserCar(uid, carId)
+                carRepository.softDeleteUserCar(carId)
+                userCarRepository.pushPending()
+                carRepository.pushPending()
+                _isDeleted.value = true
+                removed = true
+            } finally {
+                if (!removed) _isRemoving.value = false
+            }
         }
     }
 
@@ -124,6 +134,7 @@ class GarageDetailViewModel @Inject constructor(
                 }
         }
         .combine(_isDeleted) { state, deleted -> state.copy(isDeleted = deleted) }
+        .combine(_isRemoving) { state, removing -> state.copy(isRemoving = removing) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), defaultLoadingState())
 
     private fun defaultLoadingState() = GarageDetailState(

@@ -87,8 +87,8 @@ fun NewSpotContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 22.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
             item("media") {
                 MediaSection(
@@ -102,9 +102,15 @@ fun NewSpotContent(
                 )
             }
             item("details") {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("VEHICLE DETAILS", fontWeight = FontWeight.ExtraBold)
+                Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                    Text(
+                        "VEHICLE DETAILS",
+                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
 
+                    Spacer(Modifier.height(2.dp))
                     LabeledField("Brand", uiState.errors.brand) {
                         DropDown(
                             label = uiState.brands.firstOrNull { it.id == uiState.brandId }?.name
@@ -159,12 +165,17 @@ fun NewSpotContent(
                 }
             }
             item("save") {
-                SaveSection(
-                    isOnline = uiState.isOnline,
-                    saveState = uiState.saveState,
-                    hasErrors = uiState.errors.hasAny,
-                    onSave = onSave,
-                )
+                Column(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    SaveSection(
+                        isOnline = uiState.isOnline,
+                        saveState = uiState.saveState,
+                        hasErrors = uiState.errors.hasAny,
+                        onSave = onSave,
+                    )
+                }
             }
         }
     }
@@ -184,9 +195,15 @@ private fun MediaSection(
 ) {
     val hasAudio = media.any { it.type == MediaTypeEnum.AUDIO }
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("MEDIA & FILES", fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            Text(
+                "MEDIA & FILES",
+                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
             // Hint by default (subdued); flips to a red error only when [error] is set.
             Text(
                 text = error ?: "Required: 1 photo",
@@ -195,11 +212,11 @@ private fun MediaSection(
                 color = if (error != null) CarRed else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MediaTile("Photo", Icons.Default.PhotoCamera, onTakePhoto, Modifier.weight(1f))
             MediaTile("Gallery", Icons.Default.PhotoLibrary, onPickFromGallery, Modifier.weight(1f))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MediaTile(
                 label = if (hasAudio) "Replace Sound" else "Engine Sound",
                 icon = Icons.Default.Mic,
@@ -228,7 +245,7 @@ private fun MediaTile(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f),
-        modifier = modifier.height(96.dp),
+        modifier = modifier.height(104.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -236,7 +253,7 @@ private fun MediaTile(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(icon, null, tint = CarRed, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Text(label, fontWeight = FontWeight.SemiBold)
         }
     }
@@ -293,8 +310,8 @@ private fun LabeledField(
     error: String?,
     content: @Composable () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, fontWeight = FontWeight.SemiBold)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(label, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleSmall)
         content()
         if (error != null) {
             Text(
@@ -322,8 +339,8 @@ private fun Input(
         placeholder = { Text(placeholder) },
         isError = error != null,
         singleLine = singleLine,
-        minLines = if (singleLine) 1 else 4,
-        maxLines = if (singleLine) 1 else 8,
+        minLines = if (singleLine) 1 else 5,
+        maxLines = if (singleLine) 1 else 10,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
@@ -348,10 +365,10 @@ private fun LocationRow(
         border = if (isError) BorderStroke(1.dp, CarRed) else null,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(62.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.Default.LocationOn, null, tint = CarRed, modifier = Modifier.size(20.dp))
@@ -374,7 +391,7 @@ private fun SaveSection(
     // generic "fix the highlighted fields" message once they're on screen.
     val isFieldErrorRedundant = saveState is SaveSpotState.Error && hasErrors
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Button(
             onClick = onSave,
             // Always clickable while not saving — pressing the button is what
@@ -384,7 +401,7 @@ private fun SaveSection(
             colors = ButtonDefaults.buttonColors(containerColor = CarRed),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(58.dp),
         ) {
             if (saveState is SaveSpotState.Saving) {
                 CircularProgressIndicator(

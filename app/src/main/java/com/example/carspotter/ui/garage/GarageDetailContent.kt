@@ -71,7 +71,10 @@ fun GarageDetailContent(
     Scaffold(
         topBar = {
             TabHeader(
-                title = "${uiState.details.brandName} ${uiState.details.model}".trim(),
+                title = when {
+                    uiState.isRemoving -> "Removing…"
+                    else -> "${uiState.details.brandName} ${uiState.details.model}".trim()
+                },
                 onNavigateBack = onNavigateBack,
                 onFavouriteClick = onToggleFavourite,
                 isFavourite = isFavourite,
@@ -89,6 +92,28 @@ fun GarageDetailContent(
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        if (uiState.isRemoving) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Removing from garage…",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    )
+                }
             }
             return@Scaffold
         }
