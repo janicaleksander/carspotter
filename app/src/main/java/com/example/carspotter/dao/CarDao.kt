@@ -12,7 +12,9 @@ import com.example.carspotter.models.CarWithDetails
 import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
-
+//TODO czemu jest transactional a raz nie ma
+//TODO czemu jest transactional a raz nie ma
+//TODO czemu jest transactional a raz nie ma
 @Dao
 interface CarDao {
 
@@ -23,21 +25,13 @@ interface CarDao {
     suspend fun insertAll(cars: List<Car>)
 
     @Transaction
-    @Query("SELECT * FROM car WHERE id = :id")
-    suspend fun getById(id: String): Car?
-
-    @Transaction
     @Query("SELECT * FROM car WHERE id = :carId AND isTop = 1")
     fun getTopCarById(carId: String): Flow<CarWithDetails?>
 
     @Transaction
     @Query("SELECT * FROM car WHERE id = :carId")
     fun getCarWithDetailsById(carId: String): Flow<Car?>
-    @Query("SELECT category.name FROM category INNER JOIN car ON category.id = car.categoryId WHERE car.id = :carId")
-    fun getCategoryName(carId: String): Flow<String?>
-    @Transaction
-    @Query("SELECT * FROM car")
-    fun getAll(): Flow<List<Car>>
+
 
     @Transaction
     @Query("SELECT * FROM car WHERE isTop = 1")
@@ -46,13 +40,6 @@ interface CarDao {
     @Transaction
     @Query("SELECT * FROM car WHERE isTop = 1 AND categoryId = :categoryId")
     fun getTopByCategory(categoryId: String): Flow<List<CarWithDetails>>
-
-    @Delete
-    suspend fun delete(car: Car)
-
-    @Query("DELETE FROM car WHERE id = :id")
-    suspend fun deleteById(id: String)
-
 
     @Query("SELECT * FROM car WHERE syncState != :state AND isTop = 0")
     suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<Car>

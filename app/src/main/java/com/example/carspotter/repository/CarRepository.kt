@@ -44,9 +44,6 @@ class CarRepository @Inject constructor(
         return carDao.getTopByCategory(categoryId)
     }
 
-    fun getCarCategory(carId: String): Flow<String?> {
-        return carDao.getCategoryName(carId)
-    }
 
     suspend fun insertCar(car: Car) {
         carDao.insert(Car(
