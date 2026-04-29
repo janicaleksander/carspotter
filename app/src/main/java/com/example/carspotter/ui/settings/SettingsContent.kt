@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.carspotter.models.Settings
+import com.example.carspotter.ui.components.AppBranding
 import com.example.carspotter.ui.theme.CarRed
 import java.time.format.DateTimeFormatter
 
@@ -48,7 +49,7 @@ fun SettingsContent(
     ) {
         Spacer(modifier = Modifier.height(80.dp))
 
-        SettingsHeader(appName = settings?.appName)
+        AppBranding(appName = settings?.appName)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -75,25 +76,6 @@ fun SettingsContent(
 
 // ─── Extracted composables ────────────────────────────────────────────────────
 
-@Composable
-fun SettingsHeader(appName: String?) {
-    Icon(
-        imageVector = Icons.Default.DirectionsCar,
-        contentDescription = null,
-        modifier = Modifier.size(56.dp),
-        tint = CarRed,
-    )
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Text(
-        text = appName?.uppercase() ?: "CARSPOTTER",
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.ExtraBold,
-        color = CarRed,
-        letterSpacing = MaterialTheme.typography.headlineSmall.letterSpacing * 1.5,
-    )
-}
 
 @Composable
 fun SettingsAboutSection() {

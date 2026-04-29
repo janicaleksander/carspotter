@@ -45,6 +45,7 @@ import com.example.carspotter.ui.components.CarCoverImage
 import com.example.carspotter.ui.components.CustomizableSearchBar
 import com.example.carspotter.ui.components.DropDown
 import com.example.carspotter.ui.components.EmptyListHint
+import com.example.carspotter.ui.components.AppBranding
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.HomeFilterMode
 import com.example.carspotter.viewmodels.HomeBrowseMode
@@ -87,6 +88,13 @@ fun HomeContent(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
+
+            item(key = "branding") {
+                AppBranding(
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             item(key = "search") {
                 CustomizableSearchBar(
                     query = uiState.searchQuery,
@@ -176,7 +184,7 @@ private fun HomeFilterRow(
 
         item(key = "category") {
             DropDown(
-                label = uiState.categories.firstOrNull { it.id == uiState.selectedCategoryId }?.name ?: "All",
+                label = uiState.categories.firstOrNull { it.id == uiState.selectedCategoryId }?.name ?: "Category",
                 isSelected = uiState.selectedCategoryId != null,
                 options = categoryOptions.map { id ->
                     id to (uiState.categories.firstOrNull { it.id == id }?.name ?: "All")
