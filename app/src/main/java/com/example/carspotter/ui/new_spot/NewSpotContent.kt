@@ -394,11 +394,13 @@ private fun SaveSection(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Button(
             onClick = onSave,
-            // Always clickable while not saving — pressing the button is what
-            // reveals the inline field errors on the first attempt.
-            enabled = saveState !is SaveSpotState.Saving,
+            enabled = isOnline && saveState !is SaveSpotState.Saving,
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = CarRed),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = CarRed,
+                disabledContainerColor = CarRed.copy(alpha = 0.45f),
+                disabledContentColor = Color.White.copy(alpha = 0.75f),
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(58.dp),
@@ -419,6 +421,12 @@ private fun SaveSection(
             saveState is SaveSpotState.Error -> saveState.message
             else -> null
         }
-        if (errorText != null) Text(errorText, color = CarRed)
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                color = CarRed,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
