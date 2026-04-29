@@ -4,6 +4,7 @@ import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.SettingDao
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.Settings
+import io.appwrite.Query
 import io.appwrite.services.Storage
 import io.appwrite.services.TablesDB
 import java.time.LocalDateTime
@@ -49,7 +50,10 @@ class SettingsRepository @Inject constructor(
     }
 
     suspend fun getRandomPhoto(bucketId: String): String {
-        val files = storage.listFiles(bucketId = bucketId).files
+        val files = storage.listFiles(
+            bucketId = bucketId,
+            queries = listOf(Query.limit(5))
+        ).files
 
         val imageFiles = files.filter { file ->
             file.mimeType.startsWith("image/")

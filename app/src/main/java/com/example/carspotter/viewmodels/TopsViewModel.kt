@@ -3,8 +3,6 @@ package com.example.carspotter.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.carspotter.models.Category
-import com.example.carspotter.models.Media
-import com.example.carspotter.models.MediaTypeEnum
 import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CarRepository
 import com.example.carspotter.repository.CategoryRepository
@@ -16,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -55,28 +54,33 @@ class TopsViewModel @Inject constructor(
             else carRepository.getTopCarsByCategory(id)
         },
         brandRepository.getBrands(),
-        mediaRepository.getAllMedia()
-    ) { categories, cars, brands, medias ->
-        val brandMap = brands.associateBy({ it.id }, { it.name })
-        val photosByCarId = medias.groupBy { it.carId }.mapValues { (_,mediaList) ->  mediaList.firstOrNull{it.type == MediaTypeEnum.PHOTO }?.filePath}
-        //val carMedia = medias.groupBy { it.carId }.mapValues { (_, mediaList) -> mediaList }
+    ) { categories, cars, brands ->
+        Triple(categories, cars, brands)
+    }.flatMapLatest { (categories, cars, brands) ->
+        val carIds = cars.map { it.car.id }.distinct()
+        mediaRepository.getPhotoMediaForCars(carIds).map { medias ->
+            val brandMap = brands.associateBy({ it.id }, { it.name })
+            val photosByCarId = medias
+                .groupBy { it.carId }
+                .mapValues { (_, mediaList) -> mediaList.firstOrNull()?.filePath }
 
-        TopsUiState(
-            categories = categories,
-            selectedCategoryId = _selectedCategoryId.value,
-            topCars = cars.map { cwd ->
-                TopCarUiModel(
-                    carId = cwd.car.id,
-                    brandName = brandMap[cwd.car.brandId] ?: "",
-                    model = cwd.car.model,
-                    powerHP = cwd.details?.powerHP ?: 0,
-                    acceleration = cwd.details?.acceleration ?: 0.0,
-                    maxSpeed = cwd.details?.maxSpeed ?: 0.0,
-                    imageUrl = photosByCarId[cwd.car.id],
-                )
-            },
-            isLoading = false
-        )
+            TopsUiState(
+                categories = categories,
+                selectedCategoryId = _selectedCategoryId.value,
+                topCars = cars.map { cwd ->
+                    TopCarUiModel(
+                        carId = cwd.car.id,
+                        brandName = brandMap[cwd.car.brandId] ?: "",
+                        model = cwd.car.model,
+                        powerHP = cwd.details?.powerHP ?: 0,
+                        acceleration = cwd.details?.acceleration ?: 0.0,
+                        maxSpeed = cwd.details?.maxSpeed ?: 0.0,
+                        imageUrl = photosByCarId[cwd.car.id],
+                    )
+                },
+                isLoading = false
+            )
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TopsUiState())
 
     fun selectCategory(categoryId: String?) {

@@ -11,6 +11,7 @@ import io.appwrite.models.InputFile
 import io.appwrite.services.Storage
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,8 +27,9 @@ class MediaRepository @Inject constructor(
         return mediaDao.getMediaByCarId(carId)
     }
 
-    fun getAllMedia(): Flow<List<Media>> {
-        return mediaDao.getAllMedia()
+    fun getPhotoMediaForCars(carIds: List<String>): Flow<List<Media>> {
+        if (carIds.isEmpty()) return flowOf(emptyList())
+        return mediaDao.getMediaByCarIdsAndType(carIds.distinct(), MediaTypeEnum.PHOTO.value)
     }
 
 

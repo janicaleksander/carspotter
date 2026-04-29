@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -61,8 +61,8 @@ private data class GarageData(
     val categories: List<Category>,
     val brands: List<Brand>,
     val userCars: List<UserCarInfo>,
-    val medias: List<Media>,
     val favourites: List<Favourite>,
+    val medias: List<Media>,
 )
 
 private data class GarageFilters(
@@ -126,10 +126,20 @@ class GarageViewModel @Inject constructor(
             categoryRepository.getCategories(),
             brandRepository.getBrands(),
             userCarRepository.getUserCars(uid),
-            mediaRepository.getAllMedia(),
             favouriteRepository.getFavourites(uid),
-        ) { categories, brands, userCars, medias, favourites ->
-            GarageData(categories, brands, userCars, medias, favourites)
+        ) { categories, brands, userCars, favourites ->
+            GarageData(
+                categories = categories,
+                brands = brands,
+                userCars = userCars,
+                favourites = favourites,
+                medias = emptyList(),
+            )
+        }.flatMapLatest { base ->
+            val carIds = base.userCars.map { it.car.id }.distinct()
+            mediaRepository.getPhotoMediaForCars(carIds).map { medias ->
+                base.copy(medias = medias)
+            }
         }
     }
 
@@ -155,9 +165,7 @@ class GarageViewModel @Inject constructor(
         val categoryMap = data.categories.associateBy({ it.id }, { it.name })
         val photoByCarId: Map<String, String?> = data.medias
             .groupBy { it.carId }
-            .mapValues { (_, list) ->
-                list.firstOrNull { it.type == MediaTypeEnum.PHOTO }?.filePath
-            }
+            .mapValues { (_, list) -> list.firstOrNull()?.filePath }
         val favouriteCarIds: Set<String> = data.favourites
             .filter { it.syncState != SyncState.PENDING_DELETE }
             .map { it.carId }
