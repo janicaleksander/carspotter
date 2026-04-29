@@ -19,6 +19,9 @@ interface UserDreamDao {
     @Query("SELECT * FROM user_dream WHERE syncState != :state")
     suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<UserDream>
 
+    @Query("SELECT * FROM user_dream WHERE userId = :userId AND syncState = 'SYNCED'")
+    suspend fun getSyncedForUser(userId: String): List<UserDream>
+
     @Query("""
         SELECT * FROM user_dream
         WHERE userId = :userId

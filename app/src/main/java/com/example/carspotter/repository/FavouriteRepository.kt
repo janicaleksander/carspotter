@@ -94,6 +94,11 @@ class FavouriteRepository @Inject constructor(
                 offset += limit
             } while (favourites.size == limit)
 
+            val cloudIds = allFavourites.map { it.id }.toSet()
+            favouriteDao.getSyncedForUser(userId)
+                .filter { it.id !in cloudIds }
+                .forEach { favouriteDao.hardDelete(it.id) }
+
             // Conflict resolution (Last-Write-Wins)
             val pendingRecords = favouriteDao.getPendingRecords()
             val pendingMap = pendingRecords.associateBy { it.id }

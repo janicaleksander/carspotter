@@ -82,7 +82,6 @@ data class NewSpotUiState(
     val media: List<PickedMedia> = emptyList(),
     val isOnline: Boolean = false,
     val saveState: SaveSpotState = SaveSpotState.Idle,
-    val canSave: Boolean = false,
     val errors: NewSpotErrors = NewSpotErrors(),
 )
 
@@ -135,7 +134,6 @@ class NewSpotViewModel @Inject constructor(
             media = form.media,
             isOnline = online,
             saveState = save,
-            canSave = !errors.hasAny && online && save !is SaveSpotState.Saving,
             errors = if (showErrors) errors else NewSpotErrors(),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NewSpotUiState())

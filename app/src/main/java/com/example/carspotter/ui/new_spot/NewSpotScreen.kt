@@ -29,6 +29,9 @@ fun NewSpotScreen(
 
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     var showMapPicker by remember { mutableStateOf(false) }
+    // Latch — we want the overlay to keep playing even after the VM resets
+    // saveState back to Idle on consume.
+    var showSuccessOverlay by remember { mutableStateOf(false) }
 
     val takePictureLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
@@ -61,8 +64,7 @@ fun NewSpotScreen(
 
     LaunchedEffect(uiState.saveState) {
         if (uiState.saveState is SaveSpotState.Success) {
-            viewModel.consumeSaveResult()
-            onNavigateBack()
+            showSuccessOverlay = true
         }
     }
 
@@ -110,6 +112,16 @@ fun NewSpotScreen(
                 showMapPicker = false
             },
             onDismiss = { showMapPicker = false },
+        )
+    }
+
+    if (showSuccessOverlay) {
+        SaveSuccessOverlay(
+            onComplete = {
+                showSuccessOverlay = false
+                viewModel.consumeSaveResult()
+                onNavigateBack()
+            },
         )
     }
 }

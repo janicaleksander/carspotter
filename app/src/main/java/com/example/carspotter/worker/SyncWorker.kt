@@ -60,8 +60,8 @@ class SyncWorker @AssistedInject constructor(
             val result = carRepository.syncCars(userCarIds)
 
             // 4. Insert user relationships (cars now exist in Room)
-            userCarRepository.saveToRoom(userCars)
-            userDreamRepository.saveToRoom(userDreams)
+            userCarRepository.saveToRoom(user.id, userCars)
+            userDreamRepository.saveToRoom(user.id, userDreams)
 
             // 5. Sync dependent data (cars exist in Room)
             carDetailRepository.syncCarDetails(result.topCarIds)

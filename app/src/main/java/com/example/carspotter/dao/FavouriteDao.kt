@@ -20,6 +20,9 @@ interface FavouriteDao {
     @Query("SELECT * FROM favourite WHERE syncState != :state")
     suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<Favourite>
 
+    @Query("SELECT * FROM favourite WHERE userId = :userId AND syncState = 'SYNCED'")
+    suspend fun getSyncedForUser(userId: String): List<Favourite>
+
     @Query("SELECT * FROM favourite WHERE userId = :userId AND syncState != 'PENDING_DELETE'")
     fun getAll(userId: String): Flow<List<Favourite>>
 

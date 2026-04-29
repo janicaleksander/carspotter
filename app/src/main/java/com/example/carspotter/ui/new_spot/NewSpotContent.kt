@@ -161,7 +161,6 @@ fun NewSpotContent(
                 SaveSection(
                     isOnline = uiState.isOnline,
                     saveState = uiState.saveState,
-                    canSave = uiState.canSave,
                     hasErrors = uiState.errors.hasAny,
                     onSave = onSave,
                 )
@@ -187,10 +186,12 @@ private fun MediaSection(
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("MEDIA & FILES", fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            // Hint by default (subdued); flips to a red error only when [error] is set.
             Text(
-                text = error ?: "REQUIRED: 1 PHOTO",
-                fontWeight = FontWeight.Bold,
-                color = CarRed,
+                text = error ?: "Required: 1 photo",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (error != null) FontWeight.Bold else FontWeight.Medium,
+                color = if (error != null) CarRed else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -365,24 +366,21 @@ private fun LocationRow(
 private fun SaveSection(
     isOnline: Boolean,
     saveState: SaveSpotState,
-    canSave: Boolean,
     hasErrors: Boolean,
     onSave: () -> Unit,
 ) {
-    // The "fix the highlighted fields" message would just duplicate inline
-    // errors, so suppress it once they're already on screen.
+    // Inline field errors carry the same info, so suppress the duplicate
+    // generic "fix the highlighted fields" message once they're on screen.
     val isFieldErrorRedundant = saveState is SaveSpotState.Error && hasErrors
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
             onClick = onSave,
-            // Stay enabled even with errors so the user can re-trigger save
-            // and reveal the inline messages on first attempt.
+            // Always clickable while not saving — pressing the button is what
+            // reveals the inline field errors on the first attempt.
             enabled = saveState !is SaveSpotState.Saving,
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (canSave) CarRed else CarRed.copy(alpha = .5f),
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = CarRed),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

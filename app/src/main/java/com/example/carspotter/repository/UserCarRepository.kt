@@ -87,15 +87,18 @@ class UserCarRepository @Inject constructor(
     }
 
     /**
-     * Inserts pre-fetched user_car rows into Room with conflict resolution.
-     * Must be called AFTER cars are synced (FK constraint).
+     * Merges cloud `user_car` rows into Room.
      *
-     * Uses Last-Write-Wins strategy:
-     * - If local record is SYNCED → always overwrite with cloud version
-     * - If local record is PENDING_UPDATE/PENDING_DELETE and cloud is newer → cloud wins
-     * - If local record is PENDING_UPDATE/PENDING_DELETE and local is newer → keep local
+     * Also removes local **SYNCED** rows for [userId] whose `$id` no longer
+     * exists in Appwrite (e.g. row deleted in console or another client), so
+     * the garage matches the server. Pending/offline rows are untouched.
      */
-    suspend fun saveToRoom(userCars: List<UserCar>) {
+    suspend fun saveToRoom(userId: String, userCars: List<UserCar>) {
+        val cloudIds = userCars.map { it.id }.toSet()
+        userCarDao.getSyncedForUser(userId)
+            .filter { it.id !in cloudIds }
+            .forEach { userCarDao.hardDelete(it.id) }
+
         val pendingRecords = userCarDao.getPendingRecords()
         val pendingMap = pendingRecords.associateBy { it.id }
 
