@@ -2,6 +2,7 @@ package com.example.carspotter.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -47,38 +48,45 @@ fun AppTextField(
     onClick: (() -> Unit)? = null,
 ) {
     val supportingMessage = errorText ?: supportingText
-    val clickableModifier = if (onClick != null) {
-        modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            role = Role.Button,
-            onClick = onClick,
-        )
-    } else {
-        modifier
-    }
+    val interactionSource = remember { MutableInteractionSource() }
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        placeholder = placeholder?.let { { Text(it) } },
-        supportingText = supportingMessage?.let { { Text(it) } },
-        isError = errorText != null,
-        singleLine = singleLine,
-        minLines = minLines,
-        maxLines = maxLines,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        visualTransformation = visualTransformation,
-        readOnly = readOnly,
-        enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
-        colors = appTextFieldColors(),
-        modifier = clickableModifier.fillMaxWidth(),
-    )
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            placeholder = placeholder?.let { { Text(it) } },
+            supportingText = supportingMessage?.let { { Text(it) } },
+            isError = errorText != null,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            visualTransformation = visualTransformation,
+            readOnly = readOnly,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            shape = RoundedCornerShape(14.dp),
+            colors = appTextFieldColors(),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        if (onClick != null) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        role = Role.Button,
+                        onClick = onClick,
+                    ),
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
