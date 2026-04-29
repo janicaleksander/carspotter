@@ -22,7 +22,6 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getAll();
     }
 
-
     fun getCategoryById(categoryId: String): Flow<Category?> {
         return categoryDao.getById(categoryId)
     }
@@ -68,6 +67,5 @@ class CategoryRepository @Inject constructor(
     suspend fun pruneRemovedCategories(cloudIds: Set<String>) {
         categoryDao.getAllSnapshot()
             .filter { it.id !in cloudIds }
-            .forEach { categoryDao.hardDeleteIfUnused(it.id) }
     }
 }

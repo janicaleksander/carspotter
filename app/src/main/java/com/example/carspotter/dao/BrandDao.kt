@@ -26,14 +26,7 @@ interface BrandDao {
     @Query("SELECT * FROM brand")
     suspend fun getAllSnapshot(): List<Brand>
 
-    @Query(
-        """
-        DELETE FROM brand
-        WHERE id = :id
-          AND NOT EXISTS (SELECT 1 FROM car WHERE car.brandId = :id)
-        """
-    )
-    suspend fun hardDeleteIfUnused(id: String)
+
 
 
 }

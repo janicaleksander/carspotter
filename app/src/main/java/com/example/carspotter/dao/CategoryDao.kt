@@ -13,10 +13,6 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryDao {
 
     @Upsert
-    suspend fun insert(category: Category)
-
-
-    @Upsert
     suspend fun insertAll(categories:List<Category>)
 
     @Query("SELECT * FROM category")
@@ -28,15 +24,6 @@ interface CategoryDao {
     @Query("SELECT * FROM category")
     suspend fun getAllSnapshot(): List<Category>
 
-    @Query(
-        """
-        DELETE FROM category
-        WHERE id = :id
-          AND NOT EXISTS (SELECT 1 FROM car WHERE car.categoryId = :id)
-        """
-    )
-    suspend fun hardDeleteIfUnused(id: String)
 
-    @Delete
-    suspend fun delete(category: Category)
+
 }

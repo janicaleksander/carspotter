@@ -62,6 +62,5 @@ class BrandRepository @Inject constructor(
     suspend fun pruneRemovedBrands(cloudIds: Set<String>) {
         brandDao.getAllSnapshot()
             .filter { it.id !in cloudIds }
-            .forEach { brandDao.hardDeleteIfUnused(it.id) }
     }
 }
