@@ -90,6 +90,8 @@ class GarageDetailViewModel @Inject constructor(
         viewModelScope.launch {
             var removed = false
             try {
+                favouriteRepository.discardFavouriteForCarRemoval(uid, carId)
+                favouriteRepository.pushPending()
                 // Order matters: delete the user_car join row first so Appwrite's
                 // car delete doesn't trip over a dangling reference on push.
                 userCarRepository.softDeleteUserCar(uid, carId)

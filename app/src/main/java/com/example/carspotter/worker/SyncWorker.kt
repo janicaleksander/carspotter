@@ -42,9 +42,10 @@ class SyncWorker @AssistedInject constructor(
             if (user == null) {
                 return Result.success()
             }
-            carRepository.pushPending() // ← dodajesz
-            userCarRepository.pushPending()
+            // Favourites before cars: cloud row references the car row.
             favouriteRepository.pushPending()
+            userCarRepository.pushPending()
+            carRepository.pushPending()
             userDreamRepository.pushPending()//TODO to!!!! ->dodaje do rom i push pedning
             // 1. Global lookup tables (no FK dependencies between them)
             val categoryIds = categoryRepository.syncCategories()

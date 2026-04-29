@@ -61,6 +61,22 @@ class FavouriteRepository @Inject constructor(
     }
 
     /**
+     * Clears favourites for [carId] when that car row is removed from the user's garage.
+     * Mirrors [toggleFavourite] removal semantics so [pushPending] can delete synced rows from Appwrite.
+     * Prefer calling [pushPending] after this before [CarRepository.pushPending] deletes the car remotely.
+     */
+    suspend fun discardFavouriteForCarRemoval(userId: String, carId: String) {
+        val existing = favouriteDao.findByUserAndCar(userId, carId) ?: return
+        val now = LocalDateTime.now()
+        when (existing.syncState) {
+            SyncState.PENDING_CREATE -> favouriteDao.hardDelete(existing.id)
+            SyncState.SYNCED,
+            SyncState.PENDING_UPDATE -> favouriteDao.markAsPendingDelete(existing.id, now)
+            SyncState.PENDING_DELETE -> { /* pushPending will reconcile */ }
+        }
+    }
+
+    /**
      * Syncs favourite rows from Appwrite, filtered by userId.
      * Must be called AFTER cars are synced (FK constraint).
      */
