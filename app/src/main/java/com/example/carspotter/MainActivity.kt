@@ -42,13 +42,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
-///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
-///TODO UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
-///TODO/ UI zbudowany z reużywalnych komponentów (nie piszemy całego ekranu w jednej funkcji/wid
-//TODO co jesli ktos dodal tylko film a nie obraz co wwtedy na miniaturke - wymys zdjecie edodanie
-//todo max tlyko jedno audio moze byc dla auta
-//userDreamRepository.pushPending()//TODO to!!!! ->dodaje do rom i push pedning
 
 @Composable
 fun MainAppGate( authViewModel: AuthViewModel, context: Context){
@@ -70,7 +63,7 @@ fun MainAppGate( authViewModel: AuthViewModel, context: Context){
         composable("gate_screen") {
             when (val currentState = authViewModel.authState) {
                 is AuthState.Loading -> {
-                    // TODO: Ekran ładowania
+                    // TODO: Ekran ładowania prosty loading circle?
                 }
 
                 is AuthState.Authenticated -> {
