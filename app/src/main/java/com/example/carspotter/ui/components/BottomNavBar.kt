@@ -65,8 +65,8 @@ fun BottomNavBar(navController: NavController) {
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = activeColor,
                     selectedTextColor = activeColor,
-                    unselectedIconColor = Neutral90,
-                    unselectedTextColor = Neutral90,
+                    unselectedIconColor = Neutral10.copy(alpha = 0.38f),
+                    unselectedTextColor = Neutral10.copy(alpha = 0.38f),
                     indicatorColor = activeColor.copy(alpha = 0.12f),
                 ),
             )
