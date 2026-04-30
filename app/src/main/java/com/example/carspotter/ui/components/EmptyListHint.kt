@@ -13,9 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-/**
- * Subtle empty-state copy for list screens (garage, tops, etc.).
- */
 @Composable
 fun EmptyListHint(
     primary: String,

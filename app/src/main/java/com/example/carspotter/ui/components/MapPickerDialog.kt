@@ -49,12 +49,7 @@ import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 
-/**
- * Full-screen map dialog where the user taps a location to drop a marker.
- *
- * Uses the same osmdroid stack as [OsmMapView] so we don't depend on Google
- * Play Services. The marker can be dragged for fine-tuning before confirming.
- */
+
 @Composable
 fun MapPickerDialog(
     initialLatitude: Double?,

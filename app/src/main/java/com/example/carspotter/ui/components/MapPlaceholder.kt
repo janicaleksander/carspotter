@@ -22,10 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
-/**
- * Placeholder for the Google Maps preview shown on a spotted car.
- * Reserves space + shows the raw coordinates so the UX is already in place.
- */
+
 @Composable
 fun MapPlaceholder(
     latitude: Double?,

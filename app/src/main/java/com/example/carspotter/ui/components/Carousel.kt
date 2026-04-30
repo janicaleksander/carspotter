@@ -64,7 +64,6 @@ sealed class CarouselItem {
     data class Video(val url: String) : CarouselItem()
 }
 
-// ─── Single-page carousel (HorizontalPager) ────────────────────────────────────
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
@@ -99,7 +98,6 @@ fun Carousel(
     }
 }
 
-// ─── Page indicator dots ────────────────────────────────────────────────────────
 
 @Composable
 private fun PageIndicator(
@@ -146,8 +144,6 @@ private fun ZoomableImage(
 
     Box(modifier = modifier.fillMaxSize()) {
         ZoomableAsyncImage(
-            // Wystarczy przekazać odpowiednio zbudowany ImageRequest,
-            // upewniając się, że disk cache jest aktywny.
             model = ImageRequest.Builder(ctx)
                 .data(url)
                 .crossfade(true)
@@ -221,7 +217,6 @@ private fun FullscreenImageDialog(
     }
 }
 
-// ─── Video player ───────────────────────────────────────────────────────────────
 
 @UnstableApi
 @Composable
@@ -329,7 +324,6 @@ private fun FullscreenVideoDialog(
     }
 }
 
-// ─── Video error view ───────────────────────────────────────────────────────────
 
 @Composable
 private fun VideoErrorView(
@@ -370,7 +364,6 @@ private fun VideoErrorView(
     }
 }
 
-// ─── Overlay buttons ────────────────────────────────────────────────────────────
 
 @Composable
 private fun FullscreenButton(

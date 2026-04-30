@@ -26,16 +26,12 @@ fun CustomizableSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-    searchResults: List<String>,
-    onResultClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: @Composable () -> Unit = { Text("Search") },
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = {
         Icon(Icons.Default.Search, contentDescription = "Search")
     },
-    supportingContent: (@Composable (String) -> Unit)? = null,
-    leadingContent: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         TextField(

@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-/** A labeled value pill, used by [CarInfoGrid]. */
 @Composable
 fun CarInfoChip(
     label: String,
@@ -47,10 +46,7 @@ fun CarInfoChip(
     }
 }
 
-/**
- * A responsive grid of labeled value pills.
- * Items are rendered two per row, stretching to fill equal width.
- */
+
 @Composable
 fun CarInfoGrid(
     items: List<Pair<String, String>>,
@@ -73,7 +69,6 @@ fun CarInfoGrid(
                     )
                 }
                 if (rowItems.size == 1) {
-                    // Reserve space so the single chip aligns left instead of stretching.
                     androidx.compose.foundation.layout.Spacer(modifier = Modifier.weight(1f))
                 }
             }

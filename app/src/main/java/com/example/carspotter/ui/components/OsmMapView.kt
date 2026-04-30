@@ -38,13 +38,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.Marker
 
-/**
- * Renders an OpenStreetMap centered on the given coordinates with a marker
- * plus extra context (scale bar, OSM copyright, city/country label).
- *
- * Falls back to [MapPlaceholder] when coordinates are missing so the slot
- * always reserves the same layout space.
- */
+
 @Composable
 fun OsmMapView(
     latitude: Double?,
