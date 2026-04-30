@@ -69,10 +69,15 @@ fun AuthScreen(viewModel: AuthViewModel) {
 
     val authState = viewModel.authState
     val isLoading = authState is AuthState.Loading
-    val errorMessage = (authState as? AuthState.Unauthenticated)?.errorMessage
+    val unauthenticatedState = authState as? AuthState.Unauthenticated
+    val errorMessage = unauthenticatedState?.errorMessage
+    val errorId = unauthenticatedState?.errorId ?: 0L
 
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let { snackbarHostState.showSnackbar(it) }
+    LaunchedEffect(errorId) {
+        errorMessage?.let {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar(it)
+        }
     }
 
     Scaffold(

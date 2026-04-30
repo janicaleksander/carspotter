@@ -18,6 +18,7 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     var authState by mutableStateOf<AuthState>(AuthState.Loading)
         private set
+    private var nextAuthErrorId = 1L
 
 
     init {
@@ -43,13 +44,13 @@ class AuthViewModel @Inject constructor(
                 authState = if (user!=null){
                     AuthState.Authenticated(user)
                 }else{
-                    AuthState.Unauthenticated("Invalid email or password")
+                    unauthenticated("Invalid email or password")
                 }
             } catch (e: AppwriteException) {
-                authState = AuthState.Unauthenticated("Login failed: ${e.message}")
+                authState = unauthenticated("Login failed: ${e.message}")
                 Log.e("AuthViewModel", "Login error: ${e.message}")
             } catch (e: Exception) {
-                authState = AuthState.Unauthenticated("Login failed: ${e.message ?: "Unknown error"}")
+                authState = unauthenticated("Login failed: ${e.message ?: "Unknown error"}")
                 Log.e("AuthViewModel", "Login error: ${e.message}")
             }
         }
@@ -62,13 +63,13 @@ class AuthViewModel @Inject constructor(
                 authState = if (user!=null){
                     AuthState.Authenticated(user)
                 }else{
-                    AuthState.Unauthenticated("Registration failed. Email may already be in use.")
+                    unauthenticated("Registration failed. Email may already be in use.")
                 }
             } catch (e: AppwriteException) {
-                authState = AuthState.Unauthenticated("Registration failed: ${e.message}")
+                authState = unauthenticated("Registration failed: ${e.message}")
                 Log.e("AuthViewModel", "Register error: ${e.message}")
             } catch (e: Exception) {
-                authState = AuthState.Unauthenticated("Registration failed: ${e.message ?: "Unknown error"}")
+                authState = unauthenticated("Registration failed: ${e.message ?: "Unknown error"}")
                 Log.e("AuthViewModel", "Register error: ${e.message}")
             }
         }
@@ -91,4 +92,10 @@ class AuthViewModel @Inject constructor(
 
 
 
+    private fun unauthenticated(message: String?): AuthState.Unauthenticated {
+        return AuthState.Unauthenticated(
+            errorMessage = message,
+            errorId = if (message == null) 0L else nextAuthErrorId++,
+        )
+    }
 }
