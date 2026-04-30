@@ -16,10 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.carspotter.ui.theme.CarRed
 
-/**
- * Reusable app branding component (logo + app name).
- * Displays a car icon with the app name below it.
- */
 @Composable
 fun AppBranding(
     appName: String? = null,

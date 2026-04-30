@@ -49,15 +49,13 @@ class AccountService @Inject constructor(
         }
     }
 
-    suspend fun getUserID(): String? = getLoggedIn()?.id
 
     suspend fun login(email: String, password: String): User<Map<String, Any>>? {
         return try {
-            // Ensure there is no stale current session before creating a new one.
             try {
                 account.deleteSession("current")
             } catch (_: AppwriteException) {
-                // Ignore if there is no current session.
+                Log.w(TAG, "No existing session to delete before login")
             }
 
             val session = account.createEmailPasswordSession(
@@ -111,7 +109,6 @@ class AccountService @Inject constructor(
                 clearCachedSession()
                 return
             }
-
             throw e
         }
     }

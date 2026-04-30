@@ -21,7 +21,6 @@ interface UserCarDao {
     @Query("SELECT * FROM user_car WHERE syncState != :state")
     suspend fun getPendingRecords(state: SyncState = SyncState.SYNCED): List<UserCar>
 
-    /** Local rows already mirrored from cloud — safe to drop if missing from next pull. */
     @Query("SELECT * FROM user_car WHERE userId = :userId AND syncState = 'SYNCED'")
     suspend fun getSyncedForUser(userId: String): List<UserCar>
 

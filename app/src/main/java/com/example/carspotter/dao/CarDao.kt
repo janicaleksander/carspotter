@@ -12,9 +12,6 @@ import com.example.carspotter.models.CarWithDetails
 import com.example.carspotter.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
-//TODO czemu jest transactional a raz nie ma
-//TODO czemu jest transactional a raz nie ma
-//TODO czemu jest transactional a raz nie ma
 @Dao
 interface CarDao {
 
