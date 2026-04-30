@@ -29,8 +29,6 @@ fun NewSpotScreen(
 
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     var showMapPicker by remember { mutableStateOf(false) }
-    // Latch — we want the overlay to keep playing even after the VM resets
-    // saveState back to Idle on consume.
     var showSuccessOverlay by remember { mutableStateOf(false) }
 
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -130,7 +128,6 @@ private fun createCaptureFile(context: Context, prefix: String, suffix: String):
     return File(dir, "$prefix-${System.currentTimeMillis()}$suffix").apply { createNewFile() }
 }
 
-/** Copies a content:// URI into the app cache so we get an absolute file path. */
 private fun copyUriToCache(
     context: Context,
     uri: Uri,
