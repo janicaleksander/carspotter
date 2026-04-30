@@ -101,7 +101,6 @@ dependencies {
 
     implementation("androidx.media3:media3-exoplayer:1.10.0")
     implementation("androidx.media3:media3-ui:1.10.0")
-    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.9.0+1")
     implementation("me.saket.telephoto:zoomable-image-coil:0.19.0")
 
     implementation("org.osmdroid:osmdroid-android:6.1.20")
