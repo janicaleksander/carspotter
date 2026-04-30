@@ -103,10 +103,6 @@ fun HomeContent(
                         query = uiState.searchQuery,
                         onQueryChange = onSearchQueryChange,
                         onSearch = onSearchQueryChange,
-                        searchResults = uiState.homeCars
-                            .map { it.brandName }
-                            .distinct(),
-                        onResultClick = onSearchQueryChange,
                         modifier = Modifier.statusBarsPadding(),
                         placeholder = { Text("FIND SPOT") },
                     )
