@@ -52,7 +52,6 @@ data class GarageUiState(
     val categories: List<Category> = emptyList(),
     val brands: List<Brand> = emptyList(),
     val userCars: List<GarageCarUiModel> = emptyList(),
-    /** Cars in garage before category/brand/favourites filters (sort not applied). */
     val totalGarageCarCount: Int = 0,
     val selectedCategoryId: String? = null,
     val selectedBrandId: String? = null,
@@ -95,7 +94,6 @@ class GarageViewModel @Inject constructor(
         }
     }
 
-    // ── Location name cache ──────────────────────────────────────────────────────
     private val _locationNames = MutableStateFlow<Map<String, String>>(emptyMap())
     private var resolveJob: Job? = null
 
@@ -121,7 +119,6 @@ class GarageViewModel @Inject constructor(
         }
     }
 
-    // ── Filters ──────────────────────────────────────────────────────────────────
     private val _selectedCategoryId = MutableStateFlow<String?>(null)
     private val _selectedBrandId = MutableStateFlow<String?>(null)
     private val _filterMode = MutableStateFlow(GarageFilterMode.ALL)

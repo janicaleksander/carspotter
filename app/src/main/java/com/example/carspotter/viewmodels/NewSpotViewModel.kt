@@ -30,7 +30,6 @@ import java.time.LocalDateTime
 import java.util.Locale
 import javax.inject.Inject
 
-/** Local file picked by the user, awaiting upload. */
 data class PickedMedia(
     val localPath: String,
     val type: MediaTypeEnum,
@@ -89,8 +88,8 @@ data class NewSpotUiState(
 class NewSpotViewModel @Inject constructor(
     private val accountService: AccountService,
     private val networkMonitor: NetworkMonitor,
-    brandRepository: BrandRepository,
-    categoryRepository: CategoryRepository,
+    private val brandRepository: BrandRepository,
+    private val categoryRepository: CategoryRepository,
     private val userCarRepository: UserCarRepository,
     private val carRepository: CarRepository,
     private val mediaRepository: MediaRepository,
@@ -99,7 +98,6 @@ class NewSpotViewModel @Inject constructor(
     private val userId = MutableStateFlow<String?>(null)
     private val _form = MutableStateFlow(NewSpotForm())
     private val _saveState = MutableStateFlow<SaveSpotState>(SaveSpotState.Idle)
-    /** `true` after the user attempts to save; gates inline error display. */
     private val _showErrors = MutableStateFlow(false)
     private val isOnline: StateFlow<Boolean> = networkMonitor.isOnline
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
@@ -138,7 +136,6 @@ class NewSpotViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NewSpotUiState())
 
-    // ─── Form mutations ────────────────────────────────────────────────────────
 
     fun onBrandSelected(id: String?) = update { it.copy(brandId = id) }
     fun onCategorySelected(id: String?) = update { it.copy(categoryId = id) }
@@ -177,7 +174,6 @@ class NewSpotViewModel @Inject constructor(
         else raw.substring(0, firstDot + 1) + raw.substring(firstDot + 1).replace(".", "")
     }
 
-    // ─── Validation ────────────────────────────────────────────────────────────
 
     private fun validate(form: NewSpotForm): NewSpotErrors {
         val mediaErr = when {
@@ -210,7 +206,6 @@ class NewSpotViewModel @Inject constructor(
         )
     }
 
-    // ─── Save ──────────────────────────────────────────────────────────────────
 
     fun saveSpot() {
         if (_saveState.value is SaveSpotState.Saving) return
@@ -272,9 +267,6 @@ class NewSpotViewModel @Inject constructor(
                 )
                 userCarRepository.pushPending()
 
-                // `id` is overwritten by [MediaRepository.uploadAndSaveMedia]
-                // with the Appwrite row id; the default UUID is just a Room-side
-                // placeholder so we don't have to thread `ID.unique()` here.
                 val mediaToUpload = form.media.map { picked ->
                     Media(
                         carId = carId,

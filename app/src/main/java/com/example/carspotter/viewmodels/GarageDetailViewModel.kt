@@ -45,7 +45,6 @@ data class GarageDetailState(
     val details: GarageCarDetails,
     val isLoading: Boolean = false,
     val isDeleted: Boolean = false,
-    /** True while remove-from-garage is in progress — UI should hide details and show progress. */
     val isRemoving: Boolean = false,
 )
 
@@ -96,8 +95,6 @@ class GarageDetailViewModel @Inject constructor(
             try {
                 favouriteRepository.discardFavouriteForCarRemoval(uid, carId)
                 favouriteRepository.pushPending()
-                // Order matters: delete the user_car join row first so Appwrite's
-                // car delete doesn't trip over a dangling reference on push.
                 userCarRepository.softDeleteUserCar(uid, carId)
                 carRepository.softDeleteUserCar(carId)
                 userCarRepository.pushPending()

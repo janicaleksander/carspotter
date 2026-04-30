@@ -45,7 +45,6 @@ data class DetailTopCarState(
     val details: DetailTopCarModel,
     val isLoading: Boolean = false
 )
-//TODO poczytac czemu tak bo problem blokay UI inaczje, ze trzeba launche itd i suspendy
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -60,7 +59,6 @@ class TopsDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // userId pojawia sie asynchronicznie po starcie ekranu
     private val userId = MutableStateFlow<String?>(null)
     init {
         viewModelScope.launch {
@@ -71,12 +69,10 @@ class TopsDetailViewModel @Inject constructor(
     private val carId: String = checkNotNull(savedStateHandle["carId"])
 
 
-    // Obserwujemy dream dopiero, gdy znamy userId.
     val isDream : StateFlow<Boolean> = userId
         .filterNotNull()
         .flatMapLatest { currentUserId -> dreamRepository.observeIsDream(currentUserId, carId) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-    //jak to sie dzieje ze jak zrobie add to ta obserwacja sie zmieni, jak to obserwuje?
 
     fun addUserDream(carID: String) {
         viewModelScope.launch {

@@ -35,7 +35,6 @@ data class TopsUiState(
     val isLoading: Boolean = true
 )
 
-//todo jeslo nie ma zdjec to nie pokazujemy tego kfelka
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TopsViewModel @Inject constructor(
