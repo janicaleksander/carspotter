@@ -193,7 +193,6 @@ fun SettingsCarImage(imageUrl: String) {
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
                 .crossfade(500)
-                .size(coil.size.Size.ORIGINAL)
                 .build(),
             contentDescription = "Car image",
             contentScale = ContentScale.Crop,

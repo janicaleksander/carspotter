@@ -30,7 +30,7 @@ class CarRepository @Inject constructor(
     }
 
     fun getCarById(carId: String): Flow<Car?> {
-        return carDao.getCarWithDetailsById(carId)
+        return carDao.getCarById(carId)
     }
 
     /**

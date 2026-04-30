@@ -28,7 +28,15 @@ class UserDreamRepository @Inject constructor(
         return userDreamDao.observeIsDream(userId, carId)
     }
 
-    suspend fun addUserDream(userId:String, carId:String){
+    suspend fun addUserDream(userId: String, carId: String) {
+        val existing = userDreamDao.findByUserAndCar(userId, carId)
+        if (existing != null) {
+            when (existing.syncState) {
+                SyncState.PENDING_DELETE -> userDreamDao.markAsSynced(existing.id)
+                else -> return // already exists
+            }
+            return
+        }
         userDreamDao.insert(
             UserDream(
                 id = ID.unique(),
@@ -40,8 +48,8 @@ class UserDreamRepository @Inject constructor(
         )
     }
 
-    suspend fun deleteUserDream(userId: String, carId: String){
-        userDreamDao.softDeleUserDream(userId,carId)
+    suspend fun deleteUserDream(userId: String, carId: String) {
+        userDreamDao.softDeleteUserDream(userId, carId, LocalDateTime.now())
     }
 
     /**

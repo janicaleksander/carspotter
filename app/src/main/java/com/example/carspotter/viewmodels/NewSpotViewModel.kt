@@ -236,12 +236,16 @@ class NewSpotViewModel @Inject constructor(
             _saveState.value = SaveSpotState.Saving
             try {
                 val carId = ID.unique()
+                val brandId = checkNotNull(form.brandId) { "brandId null after validation" }
+                val categoryId = checkNotNull(form.categoryId) { "categoryId null after validation" }
+                val currentUid = checkNotNull(uid) { "userId null after validation" }
+                val loc = checkNotNull(form.location) { "location null after validation" }
 
                 carRepository.insertCar(
                     Car(
                         id = carId,
-                        brandId = form.brandId!!,
-                        categoryId = form.categoryId!!,
+                        brandId = brandId,
+                        categoryId = categoryId,
                         model = form.model.trim(),
                         year = form.year.toInt(),
                         price = form.price.toDouble(),
@@ -255,12 +259,12 @@ class NewSpotViewModel @Inject constructor(
                 userCarRepository.insertUserCar(
                     UserCar(
                         id = ID.unique(),
-                        userId = uid!!,
+                        userId = currentUid,
                         carId = carId,
                         notes = form.notes.trim(),
                         location = Location(
-                            latitude = form.location!!.first,
-                            longitude = form.location.second,
+                            latitude = loc.first,
+                            longitude = loc.second,
                         ),
                         updatedAt = LocalDateTime.now(),
                         syncState = SyncState.PENDING_CREATE,

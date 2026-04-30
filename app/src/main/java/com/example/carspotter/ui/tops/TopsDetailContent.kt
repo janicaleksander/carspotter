@@ -57,7 +57,8 @@ fun TopsDetailContent(
     Scaffold(
         topBar = {
             TabHeader(
-                title = "TOP CAR - ${uiState.details.brandName} ${uiState.details.model}",
+                title = if (uiState.isLoading) "TOP CAR"
+                        else "TOP CAR - ${uiState.details.brandName} ${uiState.details.model}",
                 onNavigateBack = onNavigateBack,
             )
         },

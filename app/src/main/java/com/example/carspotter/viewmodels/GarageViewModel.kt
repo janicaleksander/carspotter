@@ -15,8 +15,11 @@ import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.FavouriteRepository
 import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.UserCarRepository
+import com.example.carspotter.services.NominatimReverseGeocoder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,6 +41,7 @@ data class GarageCarUiModel(
     val price: Double,
     val isFavourite: Boolean,
     val imageUrl: String?,
+    val locationName: String? = null,
 )
 
 enum class GarageFilterMode { ALL, FAVOURITES }
@@ -91,6 +95,33 @@ class GarageViewModel @Inject constructor(
         }
     }
 
+    // ── Location name cache ──────────────────────────────────────────────────────
+    private val _locationNames = MutableStateFlow<Map<String, String>>(emptyMap())
+    private var resolveJob: Job? = null
+
+    private fun resolveLocations(cars: List<UserCarInfo>) {
+        val toResolve = cars.mapNotNull { uc ->
+            val loc = uc.info?.location ?: return@mapNotNull null
+            val key = "${loc.latitude},${loc.longitude}"
+            if (key in _locationNames.value) null else key to loc
+        }
+        if (toResolve.isEmpty() || resolveJob?.isActive == true) return
+
+        resolveJob = viewModelScope.launch {
+            for ((key, loc) in toResolve) {
+                if (key in _locationNames.value) continue
+                val name = NominatimReverseGeocoder.resolve(
+                    loc.latitude, loc.longitude, "com.example.carspotter"
+                )
+                if (name != null) {
+                    _locationNames.value = _locationNames.value + (key to name)
+                }
+                delay(1100) // Nominatim rate limit: 1 req/sec
+            }
+        }
+    }
+
+    // ── Filters ──────────────────────────────────────────────────────────────────
     private val _selectedCategoryId = MutableStateFlow<String?>(null)
     private val _selectedBrandId = MutableStateFlow<String?>(null)
     private val _filterMode = MutableStateFlow(GarageFilterMode.ALL)
@@ -155,12 +186,14 @@ class GarageViewModel @Inject constructor(
     val uiState: StateFlow<GarageUiState> = combine(
         dataFlow,
         filtersFlow,
-    ) { data, filters ->
+        _locationNames,
+    ) { data, filters, locNames ->
         if (data == null) GarageUiState(isLoading = true)
-        else buildUiState(data, filters)
+        else buildUiState(data, filters, locNames)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), GarageUiState())
 
-    private fun buildUiState(data: GarageData, filters: GarageFilters): GarageUiState {
+    private fun buildUiState(data: GarageData, filters: GarageFilters, locNames: Map<String, String>): GarageUiState {
+        resolveLocations(data.userCars)
         val brandMap = data.brands.associateBy({ it.id }, { it.name })
         val categoryMap = data.categories.associateBy({ it.id }, { it.name })
         val photoByCarId: Map<String, String?> = data.medias
@@ -194,6 +227,9 @@ class GarageViewModel @Inject constructor(
                 price = uc.car.price,
                 isFavourite = uc.car.id in favouriteCarIds,
                 imageUrl = photoByCarId[uc.car.id],
+                locationName = uc.info?.location?.let { loc ->
+                    locNames["${loc.latitude},${loc.longitude}"]
+                },
             )
         }
 

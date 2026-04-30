@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.carspotter.auth.AccountService
+import com.example.carspotter.models.Brand
+import com.example.carspotter.models.Category
 import com.example.carspotter.models.Location
 import com.example.carspotter.models.Media
 import com.example.carspotter.repository.BrandRepository
@@ -21,8 +23,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 data class GarageCarDetails(
@@ -113,8 +117,10 @@ class GarageDetailViewModel @Inject constructor(
                 .filterNotNull()
                 .flatMapLatest { car ->
                     combine(
-                        brandRepository.getBrandById(car.brandId).filterNotNull(),
-                        categoryRepository.getCategoryById(car.categoryId).filterNotNull(),
+                        brandRepository.getBrandById(car.brandId)
+                            .map { it ?: Brand(id = car.brandId, name = "", updatedAt = LocalDateTime.now()) },
+                        categoryRepository.getCategoryById(car.categoryId)
+                            .map { it ?: Category(id = car.categoryId, name = "", updatedAt = LocalDateTime.now()) },
                         mediaRepository.getMediaForCar(carId),
                         userCarRepository.observeUserCar(uid, carId),
                     ) { brand, category, media, userCar ->

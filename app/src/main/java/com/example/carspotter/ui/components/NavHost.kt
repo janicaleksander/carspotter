@@ -51,8 +51,16 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 val vm: HomeViewModel = hiltViewModel()
                 HomeScreen(
                     viewModel = vm,
-                    onUserCarClick = { carId -> navController.navigate("garage_car_detail/$carId") },
-                    onDreamCarClick = { carId -> navController.navigate("dream_car_detail/$carId") },
+                    onUserCarClick = { carId ->
+                        navController.navigate("garage_car_detail/$carId") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onDreamCarClick = { carId ->
+                        navController.navigate("dream_car_detail/$carId") {
+                            launchSingleTop = true
+                        }
+                    },
                 )
             }
 
@@ -61,7 +69,11 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 val vm: GarageViewModel = hiltViewModel()
                 GarageScreen(
                     viewModel = vm,
-                    onCarClick = { carId -> navController.navigate("garage_car_detail/$carId") },
+                    onCarClick = { carId ->
+                        navController.navigate("garage_car_detail/$carId") {
+                            launchSingleTop = true
+                        }
+                    },
                 )
             }
             composable(
@@ -94,7 +106,12 @@ fun NavHostComponent(authViewModel: AuthViewModel) {
                 val vm: TopsViewModel = hiltViewModel()
                 TopsScreen(
                     viewModel = vm,
-                    onCarClick = {carId -> navController.navigate("dream_car_detail/$carId")})
+                    onCarClick = { carId ->
+                        navController.navigate("dream_car_detail/$carId") {
+                            launchSingleTop = true
+                        }
+                    },
+                )
             }
             composable(
                 route = "dream_car_detail/{carId}",

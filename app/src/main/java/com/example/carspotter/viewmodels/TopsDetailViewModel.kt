@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.carspotter.auth.AccountService
+import com.example.carspotter.models.Brand
 import com.example.carspotter.models.Category
 import com.example.carspotter.models.Media
 import com.example.carspotter.repository.BrandRepository
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -94,13 +96,13 @@ class TopsDetailViewModel @Inject constructor(
     }
 
     val uiState: StateFlow<DetailTopCarState> = carRepository.getTopCarById(carId)
-        .filterNotNull() // KLUCZ 1: Przepuszcza tylko, gdy auto istnieje. Poniżej car_details na pewno NIE JEST nullem.
+        .filterNotNull()
         .flatMapLatest { carDetails ->
             combine(
                 brandRepository.getBrandById(carDetails.car.brandId)
-                    .filterNotNull(), // Odfiltrowujemy null
+                    .map { it ?: Brand(id = carDetails.car.brandId, name = "", updatedAt = java.time.LocalDateTime.now()) },
                 categoryRepository.getCategoryById(carDetails.car.categoryId)
-                    .filterNotNull(), // Odfiltrowujemy null
+                    .map { it ?: Category(id = carDetails.car.categoryId, name = "", updatedAt = java.time.LocalDateTime.now()) },
                 mediaRepository.getMediaForCar(carId)
             ) { brand, category, media ->
                 DetailTopCarState(
@@ -110,19 +112,15 @@ class TopsDetailViewModel @Inject constructor(
                         category = category.name,
                         year = carDetails.car.year,
                         model = carDetails.car.model,
-                        powerHP = carDetails.details?.powerHP ?: 0, // Bezpieczna wartość domyślna
-                        acceleration = carDetails.details?.acceleration
-                            ?: 0.0, // Bezpieczna wartość domyślna
-                        description = carDetails.details?.description
-                            ?: "", // Bezpieczna wartość domyślna,
+                        powerHP = carDetails.details?.powerHP ?: 0,
+                        acceleration = carDetails.details?.acceleration ?: 0.0,
+                        description = carDetails.details?.description ?: "",
                         maxSpeed = carDetails.details?.maxSpeed ?: 0.0,
                         allMediaURLs = media
                     ),
                     isLoading = false
                 )
-
             }
-
         }
         .stateIn(
             viewModelScope,
@@ -144,4 +142,3 @@ class TopsDetailViewModel @Inject constructor(
             )
         )
 }
-//TOOD refactor thuis to loading istead od state in default
