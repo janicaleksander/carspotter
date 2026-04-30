@@ -28,7 +28,6 @@ import com.example.carspotter.ui.components.AppBranding
 import com.example.carspotter.ui.theme.CarRed
 import java.time.format.DateTimeFormatter
 
-// ─── Root screen composable ───────────────────────────────────────────────────
 
 @Composable
 fun SettingsContent(
@@ -74,7 +73,6 @@ fun SettingsContent(
     }
 }
 
-// ─── Extracted composables ────────────────────────────────────────────────────
 
 
 @Composable
@@ -202,7 +200,6 @@ fun SettingsCarImage(imageUrl: String) {
     }
 }
 
-// ─── Shared primitive ─────────────────────────────────────────────────────────
 
 @Composable
 fun SettingsItemRow(

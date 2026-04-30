@@ -11,7 +11,6 @@ import com.example.carspotter.viewmodels.AuthViewModel
 import com.example.carspotter.viewmodels.SettingsViewModel
 
 
-// SettingsScreen.kt
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
