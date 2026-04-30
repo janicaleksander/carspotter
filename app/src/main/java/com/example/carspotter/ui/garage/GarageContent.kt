@@ -55,7 +55,6 @@ import com.example.carspotter.viewmodels.SortOption
 
 private val GarageCardShape = RoundedCornerShape(16.dp)
 
-// ─── Root screen composable ─────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,7 +138,6 @@ private fun GarageEmptyHint(uiState: GarageUiState) {
     EmptyListHint(primary = primary, secondary = secondary)
 }
 
-// ─── Filter row ─────────────────────────────────────────────────────────────────
 
 @Composable
 fun FilterRow(
@@ -219,7 +217,6 @@ fun FilterRow(
     }
 }
 
-// ─── Car card ───────────────────────────────────────────────────────────────────
 
 @Composable
 fun GarageCarCard(

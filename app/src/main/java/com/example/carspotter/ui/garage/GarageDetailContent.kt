@@ -192,7 +192,6 @@ fun GarageDetailContent(
     }
 }
 
-// ─── Description ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun DescriptionSection(
@@ -246,7 +245,6 @@ private fun DescriptionSection(
     }
 }
 
-// ─── Remove button + confirm dialog ─────────────────────────────────────────────
 
 @Composable
 private fun RemoveFromGarageButton(
