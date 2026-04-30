@@ -59,7 +59,3 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
             .build()
     }
 }
-
-//TODO w widku szczegolow top dtail jest taki bialy pasek jak sie zjedza w dol jakby bial ypasek na dolnyn bottom bar
-//potwierdzeni czy napewno chcezz usunac swoje auto i po usnecou teleport do poprzednieog widoku
-//i ma nie niebyc go tab
