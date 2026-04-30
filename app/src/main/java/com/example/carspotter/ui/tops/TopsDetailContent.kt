@@ -41,7 +41,6 @@ import com.example.carspotter.ui.components.TabHeader
 import com.example.carspotter.ui.theme.CarRed
 import com.example.carspotter.viewmodels.DetailTopCarState
 
-// ─── Root detail composable ─────────────────────────────────────────────────────
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,7 +137,6 @@ fun TopsDetailContent(
     }
 }
 
-// ─── Description section ────────────────────────────────────────────────────────
 
 @Composable
 private fun DescriptionSection(
@@ -191,7 +189,6 @@ private fun DescriptionSection(
     }
 }
 
-// ─── Dream garage actions ───────────────────────────────────────────────────────
 
 @Composable
 private fun DreamActions(

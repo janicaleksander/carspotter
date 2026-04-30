@@ -51,7 +51,6 @@ import java.util.Locale
 
 private val TopsCardShape = RoundedCornerShape(16.dp)
 
-// ─── Root screen composable ─────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +119,6 @@ fun TopsContent(
     }
 }
 
-// ─── Category filter row (horizontal slider) ────────────────────────────────────
 
 @Composable
 fun CategoryFilterRow(
@@ -173,7 +171,6 @@ fun CategoryChip(
     )
 }
 
-// ─── Car card ────────────────────────────────────────────────────────────────────
 
 @Composable
 fun TopCarCard(
@@ -258,7 +255,6 @@ fun DreamCarInfoOverlay(car: TopCarUiModel) {
     }
 }
 
-// ─── Shared primitive ────────────────────────────────────────────────────────────
 
 @Composable
 fun StatColumn(
