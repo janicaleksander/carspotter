@@ -44,11 +44,11 @@ import com.example.carspotter.models.Category
 import com.example.carspotter.ui.components.CarCoverImage
 import com.example.carspotter.ui.components.EmptyListHint
 import com.example.carspotter.ui.components.TabHeader
+import com.example.carspotter.ui.theme.TopsOrange
 import com.example.carspotter.viewmodels.TopCarUiModel
 import com.example.carspotter.viewmodels.TopsUiState
 import java.util.Locale
 
-private val TopsOrange = Color(0xFFE8975A)
 private val TopsCardShape = RoundedCornerShape(16.dp)
 
 // ─── Root screen composable ─────────────────────────────────────────────────────

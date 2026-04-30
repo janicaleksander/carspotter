@@ -7,6 +7,8 @@ val CarRed        = Color(0xFF9B1B1B)
 val CarRedDark    = Color(0xFF6D1313)
 val CarRedLight   = Color(0xFFCF4444)
 
+val TopsOrange    = Color(0xFFE8975A)
+
 val Neutral10     = Color(0xFF1A1A1A)
 val Neutral20     = Color(0xFF2D2D2D)
 val Neutral90     = Color(0xFFE8E5E0)
