@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,23 +34,30 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import coil.annotation.ExperimentalCoilApi
+import coil.imageLoader
+import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.request.SuccessResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
+import java.io.File
 
 sealed class CarouselItem {
     data class Image(val url: String) : CarouselItem()
@@ -57,7 +65,6 @@ sealed class CarouselItem {
 }
 
 // ─── Single-page carousel (HorizontalPager) ────────────────────────────────────
-// Shows one full-width item at a time with swipe-to-navigate + page indicator dots.
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
@@ -121,13 +128,14 @@ private fun PageIndicator(
 }
 
 // ─── 8K zoomable image ──────────────────────────────────────────────────────────
-// telephoto's ZoomableAsyncImage handles 8K (7680×4320) idiomatically:
-// - Uses SubSamplingImage under the hood: only visible tiles are decoded
-// - Never loads the full ~132 MB bitmap into RAM
-// - Pinch-to-zoom + pan gestures out of the box
-// Coil's ImageRequest is built explicitly so the source bitmap isn't downsampled
-// by Coil before telephoto gets a chance to stream tiles at zoom level.
+// Telephoto wymaga lokalnego pliku (file://) żeby działał tile subsampling.
+// Dlatego najpierw pobieramy obraz przez Coil do dyskowego cache, a następnie
+// kopiujemy go do własnego katalogu (żeby Coil nie usunął pliku gdy snapshot
+// zostanie zamknięty). Dopiero ten lokalny plik przekazujemy do ZoomableAsyncImage.
+// Dopóki plik nie jest gotowy — wyświetlamy obraz przez URL (bez subsamplingu),
+// co jest akceptowalne bo użytkownik i tak nie zdąży jeszcze zoomować.
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun ZoomableImage(
     url: String,
@@ -138,17 +146,20 @@ private fun ZoomableImage(
 
     Box(modifier = modifier.fillMaxSize()) {
         ZoomableAsyncImage(
+            // Wystarczy przekazać odpowiednio zbudowany ImageRequest,
+            // upewniając się, że disk cache jest aktywny.
             model = ImageRequest.Builder(ctx)
                 .data(url)
                 .crossfade(true)
+
+                .diskCachePolicy(CachePolicy.ENABLED)
                 .build(),
             contentDescription = null,
+
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
             state = rememberZoomableImageState(
-                rememberZoomableState(
-                    zoomSpec = ZoomSpec(maxZoomFactor = 8f),
-                ),
+                rememberZoomableState(zoomSpec = ZoomSpec(maxZoomFactor = 4f)),
             ),
         )
         FullscreenButton(
@@ -160,13 +171,15 @@ private fun ZoomableImage(
     }
 
     if (fullscreen) {
-        FullscreenImageDialog(url = url, onDismiss = { fullscreen = false })
+        FullscreenImageDialog(
+            url = url,
+            onDismiss = { fullscreen = false },
+        )
     }
 }
-
 // ─── Fullscreen image dialog ────────────────────────────────────────────────────
-// Uses a platform-width-less Dialog so the image takes the entire screen.
-// ContentScale.Fit + higher maxZoomFactor lets the user pixel-peek on 8K content.
+// Przyjmuje File zamiast String — telephoto dostaje file:// URI i może robić
+// tile subsampling tak samo jak w widoku carousel.
 
 @Composable
 private fun FullscreenImageDialog(
@@ -187,13 +200,14 @@ private fun FullscreenImageDialog(
                 model = ImageRequest.Builder(ctx)
                     .data(url)
                     .crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
                 state = rememberZoomableImageState(
                     rememberZoomableState(
-                        zoomSpec = ZoomSpec(maxZoomFactor = 10f),
+                        zoomSpec = ZoomSpec(maxZoomFactor = 4f),
                     ),
                 ),
             )
@@ -208,10 +222,6 @@ private fun FullscreenImageDialog(
 }
 
 // ─── Video player ───────────────────────────────────────────────────────────────
-// Keyed on `url` so switching pages reinitialises the player for a new stream.
-// A single ExoPlayer instance is reused between the embedded view and the
-// fullscreen dialog by moving it off the old PlayerView (onRelease → player = null)
-// and attaching it to the new PlayerView that the dialog creates.
 
 @UnstableApi
 @Composable
@@ -222,17 +232,11 @@ private fun VideoPlayer(
     val ctx = LocalContext.current
 
     val player = remember(url) {
-        ExoPlayer.Builder(ctx)
-            .setRenderersFactory(
-                DefaultRenderersFactory(ctx).apply {
-                    setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
-                },
-            )
-            .build().apply {
-                setMediaItem(MediaItem.fromUri(url))
-                prepare()
-                playWhenReady = false
-            }
+        ExoPlayer.Builder(ctx).build().apply {
+            setMediaItem(MediaItem.fromUri(url))
+            prepare()
+            playWhenReady = false
+        }
     }
 
     var playbackError by remember(url) { mutableStateOf<PlaybackException?>(null) }
@@ -278,8 +282,6 @@ private fun VideoPlayer(
             )
         }
     } else {
-        // Reserve the space while the embedded view is detached so the
-        // surrounding layout doesn't collapse.
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -328,9 +330,6 @@ private fun FullscreenVideoDialog(
 }
 
 // ─── Video error view ───────────────────────────────────────────────────────────
-// Rendered instead of PlayerView when ExoPlayer reports a fatal playback error.
-// Codec-related error codes get a dedicated message; anything else is treated
-// as a generic playback failure.
 
 @Composable
 private fun VideoErrorView(
@@ -342,13 +341,12 @@ private fun VideoErrorView(
         PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED,
         PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES,
-        -> "Kodek wideo nie jest obsługiwany przez to urządzenie"
-        else -> "Nie można odtworzyć filmu"
+            -> "Video codec is not supported on this device"
+        else -> "Can't play this video"
     }
 
     Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+        modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center,
     ) {
         Column(
