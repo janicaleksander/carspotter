@@ -1,5 +1,6 @@
 package com.example.carspotter.repository
 
+import android.webkit.MimeTypeMap
 import com.example.carspotter.BuildConfig
 import com.example.carspotter.dao.MediaDao
 import com.example.carspotter.models.Converters
@@ -15,6 +16,12 @@ import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
+
+data class MediaDownloadTarget(
+    val url: String,
+    val fileName: String,
+    val mimeType: String,
+)
 
 @Singleton
 class MediaRepository @Inject constructor(
@@ -124,6 +131,41 @@ class MediaRepository @Inject constructor(
         mediaDao.insertAll(savedMedia)
     }
 
+    suspend fun buildDownloadTargets(
+        carLabel: String,
+        mediaList: List<Media>,
+    ): List<MediaDownloadTarget> {
+        if (mediaList.isEmpty()) return emptyList()
+
+        val normalizedCarLabel = sanitizeFileName(carLabel).ifBlank { "carspotter_car" }
+        val counters = mutableMapOf<MediaTypeEnum, Int>()
+
+        return mediaList.mapNotNull { media ->
+            val fileId = extractFileId(media.filePath) ?: return@mapNotNull null
+            val index = (counters[media.type] ?: 0) + 1
+            counters[media.type] = index
+            val remoteFile = runCatching {
+                storage.getFile(
+                    bucketId = BuildConfig.BUCKET_ID,
+                    fileId = fileId,
+                )
+            }.getOrNull()
+            val mimeType = remoteFile?.mimeType?.takeIf { it.isNotBlank() }
+                ?: defaultMimeType(media.type)
+            val extension = resolveExtension(
+                fileName = remoteFile?.name,
+                mimeType = mimeType,
+                type = media.type,
+            )
+
+            MediaDownloadTarget(
+                url = buildDownloadUrl(fileId),
+                fileName = "${normalizedCarLabel}_$index.$extension",
+                mimeType = mimeType,
+            )
+        }
+    }
+
     /**
      * Hard-deletes every media that belongs to [carId] from Appwrite — both the
      * file in Storage and the row in the `media` table. Best-effort: any single
@@ -157,6 +199,49 @@ class MediaRepository @Inject constructor(
 
     private fun buildFileUrl(fileId: String): String =
         "${BuildConfig.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${BuildConfig.BUCKET_ID}/files/$fileId/view?project=${BuildConfig.APPWRITE_PROJECT_ID}"
+
+    private fun buildDownloadUrl(fileId: String): String =
+        "${BuildConfig.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${BuildConfig.BUCKET_ID}/files/$fileId/download?project=${BuildConfig.APPWRITE_PROJECT_ID}"
+
+    private fun resolveExtension(
+        fileName: String?,
+        mimeType: String,
+        type: MediaTypeEnum,
+    ): String {
+        val fromFileName = fileName
+            ?.substringAfterLast('.', "")
+            ?.trim()
+            ?.lowercase()
+            ?.takeIf { it.isNotBlank() }
+        if (fromFileName != null) return fromFileName
+
+        val fromMimeType = MimeTypeMap.getSingleton()
+            .getExtensionFromMimeType(mimeType)
+            ?.trim()
+            ?.lowercase()
+            ?.takeIf { it.isNotBlank() }
+        if (fromMimeType != null) return fromMimeType
+
+        return when (type) {
+            MediaTypeEnum.PHOTO -> "jpg"
+            MediaTypeEnum.VIDEO -> "mp4"
+            MediaTypeEnum.AUDIO -> "mp3"
+        }
+    }
+
+    private fun defaultMimeType(type: MediaTypeEnum): String {
+        return when (type) {
+            MediaTypeEnum.PHOTO -> "image/*"
+            MediaTypeEnum.VIDEO -> "video/*"
+            MediaTypeEnum.AUDIO -> "audio/*"
+        }
+    }
+
+    private fun sanitizeFileName(value: String): String {
+        return value
+            .replace(Regex("[^A-Za-z0-9]+"), "_")
+            .trim('_')
+    }
 
     private fun extractFileId(url: String): String? =
         FILE_ID_REGEX.find(url)?.groupValues?.getOrNull(1)

@@ -12,6 +12,7 @@ import com.example.carspotter.repository.BrandRepository
 import com.example.carspotter.repository.CarRepository
 import com.example.carspotter.repository.CategoryRepository
 import com.example.carspotter.repository.FavouriteRepository
+import com.example.carspotter.repository.MediaDownloadTarget
 import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.UserCarRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -105,6 +106,15 @@ class GarageDetailViewModel @Inject constructor(
                 if (!removed) _isRemoving.value = false
             }
         }
+    }
+
+    suspend fun buildMediaDownloadTargets(): List<MediaDownloadTarget> {
+        val details = uiState.value.details
+        val carLabel = "${details.brandName} ${details.model}".trim().ifBlank { "car" }
+        return mediaRepository.buildDownloadTargets(
+            carLabel = carLabel,
+            mediaList = details.allMediaURLs,
+        )
     }
 
     val uiState: StateFlow<GarageDetailState> = userId

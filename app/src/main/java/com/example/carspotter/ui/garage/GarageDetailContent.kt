@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -57,6 +58,7 @@ fun GarageDetailContent(
     uiState: GarageDetailState,
     isFavourite: Boolean,
     onToggleFavourite: () -> Unit,
+    onDownloadMedia: () -> Unit,
     onRemoveFromGarage: () -> Unit,
     onNavigateBack: () -> Unit,
     onDeleted: () -> Unit,
@@ -70,7 +72,8 @@ fun GarageDetailContent(
 
     Scaffold(
         topBar = {
-            TabHeader(
+            if (!uiState.isRemoving) {
+                TabHeader(
                 title = when {
                     uiState.isRemoving -> "Removing…"
                     else -> "${uiState.details.brandName} ${uiState.details.model}".trim()
@@ -78,7 +81,8 @@ fun GarageDetailContent(
                 onNavigateBack = onNavigateBack,
                 onFavouriteClick = onToggleFavourite,
                 isFavourite = isFavourite,
-            )
+                )
+            }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier,
@@ -171,6 +175,15 @@ fun GarageDetailContent(
                 )
             }
 
+            if (details.allMediaURLs.isNotEmpty()) {
+                item(key = "download_media") {
+                    DownloadMediaButton(
+                        onClick = onDownloadMedia,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    )
+                }
+            }
+
             item(key = "remove_action") {
                 RemoveFromGarageButton(
                     onClick = { showDeleteDialog = true },
@@ -245,6 +258,32 @@ private fun DescriptionSection(
     }
 }
 
+
+@Composable
+private fun DownloadMediaButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(54.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Download,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Download media",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
 
 @Composable
 private fun RemoveFromGarageButton(
