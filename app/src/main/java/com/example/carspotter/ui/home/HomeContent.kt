@@ -93,7 +93,7 @@ fun HomeContent(
             item(key = "branding_search") {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     AppBranding(
                         modifier = Modifier.fillMaxWidth(),
