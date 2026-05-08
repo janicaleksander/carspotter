@@ -34,6 +34,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -56,6 +59,7 @@ fun AudioPlayer(
     if (url == null) return
 
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val player = remember(url) {
         ExoPlayer.Builder(context).build().apply {
@@ -66,7 +70,7 @@ fun AudioPlayer(
 
     var isPlaying by remember(url) { mutableStateOf(player.isPlaying) }
 
-    DisposableEffect(player) {
+    DisposableEffect(player, lifecycleOwner) {
         val listener = object : Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
                 isPlaying = playing
@@ -78,9 +82,22 @@ fun AudioPlayer(
                 }
             }
         }
+        val lifecycleObserver = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE ||
+                event == Lifecycle.Event.ON_STOP ||
+                event == Lifecycle.Event.ON_DESTROY
+            ) {
+                player.pause()
+            }
+        }
         player.addListener(listener)
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
             player.removeListener(listener)
+            player.pause()
+            player.stop()
+            player.clearMediaItems()
             player.release()
         }
     }

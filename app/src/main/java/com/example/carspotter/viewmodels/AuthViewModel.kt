@@ -7,11 +7,13 @@ import com.example.carspotter.auth.AccountService
 import com.example.carspotter.auth.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.appwrite.exceptions.AppwriteException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,7 +47,9 @@ class AuthViewModel @Inject constructor(
 
     fun checkSession() {
         viewModelScope.launch {
-            val user = accountService.getLoggedIn()
+            val user = withContext(Dispatchers.IO) {
+                accountService.getLoggedIn()
+            }
             authState = if (user != null) {
                 AuthState.Authenticated(user)
             } else {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,6 +30,8 @@ import com.example.carspotter.ui.login.AuthScreen
 import com.example.carspotter.ui.theme.CarspotterTheme
 import com.example.carspotter.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -49,6 +52,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainAppGate(authViewModel: AuthViewModel, context: Context) {
     val navController = rememberNavController()
+    val syncScope = rememberCoroutineScope()
 
     LaunchedEffect(authViewModel.authState) {
         if (authViewModel.authState is AuthState.Unauthenticated &&
@@ -76,32 +80,34 @@ fun MainAppGate(authViewModel: AuthViewModel, context: Context) {
                 is AuthState.Authenticated -> {
                     val user = currentState.user
                     LaunchedEffect(user.id) {
-                        val workManager = WorkManager.getInstance(context)
-
-                        val immediateSync = OneTimeWorkRequestBuilder<SyncWorker>().build()
-                        workManager.enqueueUniqueWork(
-                            "sync_work_immediate",
-                            ExistingWorkPolicy.REPLACE,
-                            immediateSync,
-                        )
-
-                        val periodicSync = PeriodicWorkRequestBuilder<SyncWorker>(
-                            15,
-                            TimeUnit.MINUTES,
-                        ).build()
-                        workManager.enqueueUniquePeriodicWork(
-                            "sync_work_periodic",
-                            ExistingPeriodicWorkPolicy.KEEP,
-                            periodicSync,
-                        )
-
-                        Log.d(
-                            "MainAppGate",
-                            "User authenticated: immediate sync started & periodic scheduled",
-                        )
-
                         navController.navigate("main_screen") {
                             popUpTo("gate_screen") { inclusive = true }
+                        }
+
+                        syncScope.launch(Dispatchers.IO) {
+                            val workManager = WorkManager.getInstance(context)
+
+                            val immediateSync = OneTimeWorkRequestBuilder<SyncWorker>().build()
+                            workManager.enqueueUniqueWork(
+                                "sync_work_immediate",
+                                ExistingWorkPolicy.REPLACE,
+                                immediateSync,
+                            )
+
+                            val periodicSync = PeriodicWorkRequestBuilder<SyncWorker>(
+                                15,
+                                TimeUnit.MINUTES,
+                            ).build()
+                            workManager.enqueueUniquePeriodicWork(
+                                "sync_work_periodic",
+                                ExistingPeriodicWorkPolicy.KEEP,
+                                periodicSync,
+                            )
+
+                            Log.d(
+                                "MainAppGate",
+                                "User authenticated: immediate sync started & periodic scheduled",
+                            )
                         }
                     }
                 }

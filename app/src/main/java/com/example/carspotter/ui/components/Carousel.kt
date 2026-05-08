@@ -40,6 +40,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -233,6 +236,7 @@ private fun VideoPlayer(
     onPlayStarted: () -> Unit,
 ) {
     val ctx = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val player = remember(url) {
         ExoPlayer.Builder(ctx).build().apply {
@@ -244,7 +248,7 @@ private fun VideoPlayer(
 
     var playbackError by remember(url) { mutableStateOf<PlaybackException?>(null) }
 
-    DisposableEffect(player) {
+    DisposableEffect(player, lifecycleOwner) {
         val listener = object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
                 playbackError = error
@@ -256,9 +260,22 @@ private fun VideoPlayer(
                 }
             }
         }
+        val lifecycleObserver = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE ||
+                event == Lifecycle.Event.ON_STOP ||
+                event == Lifecycle.Event.ON_DESTROY
+            ) {
+                player.pause()
+            }
+        }
         player.addListener(listener)
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
             player.removeListener(listener)
+            player.pause()
+            player.stop()
+            player.clearMediaItems()
             player.release()
         }
     }
