@@ -38,23 +38,17 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
     }
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)
-            // Ustawienie pamięci podręcznej RAM (opcjonalne, ale zalecane)
             .memoryCache {
                 MemoryCache.Builder(this)
                     .maxSizePercent(0.25)
                     .build()
             }
-            // KLUCZOWE: Konfiguracja pamięci dyskowej
             .diskCache {
                 DiskCache.Builder()
                     .directory(cacheDir.resolve("image_cache"))
-                    // Zwiększamy cache do 250 MB. Pliki 8K ważą dużo,
-                    // mały cache spowoduje ciągłe nadpisywanie i pobieranie od nowa.
                     .maxSizeBytes(250L * 1024 * 1024)
                     .build()
             }
-            // Włącz logger na etapie dewelopmentu, aby widzieć w Logcat,
-            // czy pliki uderzają w "DISK" czy w "NETWORK".
             .logger(DebugLogger())
             .build()
     }

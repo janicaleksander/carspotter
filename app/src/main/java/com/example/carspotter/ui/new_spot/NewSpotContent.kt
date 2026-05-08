@@ -365,7 +365,7 @@ private fun SaveSection(
 
         val errorText = when {
             !isOnline -> "You're offline. New spots can't be saved without internet."
-            isFieldErrorRedundant -> null
+            isFieldErrorRedundant -> null //user already see error above
             saveState is SaveSpotState.Error -> saveState.message
             else -> null
         }

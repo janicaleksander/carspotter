@@ -70,8 +70,8 @@ private data class HomeData(
     val favourites: List<Favourite>,
     val medias: List<Media>,
 )
-@OptIn(ExperimentalCoroutinesApi::class)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val accountService: AccountService,

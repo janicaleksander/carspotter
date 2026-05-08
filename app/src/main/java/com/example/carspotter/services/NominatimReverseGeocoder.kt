@@ -7,14 +7,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
 
-/**
- * Minimal wrapper around the public Nominatim reverse-geocoding endpoint.
- *
- * Nominatim's usage policy requires a descriptive User-Agent and limits
- * callers to ~1 request/second, which is fine for the "show current car
- * address" use-case. No extra dependency is needed — the response is plain
- * JSON parsed with [org.json.JSONObject].
- */
+
 internal object NominatimReverseGeocoder {
 
     suspend fun resolve(

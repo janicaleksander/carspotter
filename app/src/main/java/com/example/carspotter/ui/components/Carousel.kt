@@ -68,7 +68,6 @@ sealed class CarouselItem {
 }
 
 
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun Carousel(
     items: List<CarouselItem>,
@@ -134,13 +133,6 @@ private fun PageIndicator(
     }
 }
 
-// ─── 8K zoomable image ──────────────────────────────────────────────────────────
-// Telephoto wymaga lokalnego pliku (file://) żeby działał tile subsampling.
-// Dlatego najpierw pobieramy obraz przez Coil do dyskowego cache, a następnie
-// kopiujemy go do własnego katalogu (żeby Coil nie usunął pliku gdy snapshot
-// zostanie zamknięty). Dopiero ten lokalny plik przekazujemy do ZoomableAsyncImage.
-// Dopóki plik nie jest gotowy — wyświetlamy obraz przez URL (bez subsamplingu),
-// co jest akceptowalne bo użytkownik i tak nie zdąży jeszcze zoomować.
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -182,9 +174,6 @@ private fun ZoomableImage(
         )
     }
 }
-// ─── Fullscreen image dialog ────────────────────────────────────────────────────
-// Przyjmuje File zamiast String — telephoto dostaje file:// URI i może robić
-// tile subsampling tak samo jak w widoku carousel.
 
 @Composable
 private fun FullscreenImageDialog(

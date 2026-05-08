@@ -88,24 +88,3 @@ class TopsViewModel @Inject constructor(
     }
 }
 
-/*
-*
-* Bez stateIn:
-kotlin// ViewModel
-val state: Flow<TopsUiState> = repo.getItems()
-kotlin// UI
-val uiState by viewModel.state.collectAsStateWithLifecycle()
-collectAsStateWithLifecycle zatrzymuje kolekcję gdy ekran schodzi w tło. Gdy wraca — zaczyna od nowa. Flow nie pamięta ostatniej wartości, UI przez chwilę nie ma stanu (migotanie, loading).
-
-Z stateIn:
-kotlinval state: StateFlow<TopsUiState> = repo.getItems()
-    .stateIn(viewModelScope, WhileSubscribed(5000), TopsUiState())
-StateFlow zawsze trzyma ostatnią wartość. Gdy UI wraca — dostaje ją natychmiast, zero migotania.
-
-Obrazowo:
-Flow       = rura z wodą — odkręcasz, leci; zakręcasz, stop; odkręcasz znowu — czekasz
-StateFlow  = zbiornik     — zawsze pełny, odkręcasz i masz wodę od razu
-
-Wielu odbiorców to edge case (np. dwa ekrany obserwują ten sam stan). W praktyce stateIn używasz głównie dla natychmiastowej wartości przy powrocie na ekran.
-*
-* */

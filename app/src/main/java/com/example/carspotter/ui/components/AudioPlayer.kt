@@ -42,13 +42,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.carspotter.ui.theme.CarRed
 
-/**
- * Renders a play/pause button wired to an ExoPlayer instance.
- * No-op when [url] is null (car has no audio sample).
- *
- * After playback [finishes][Player.STATE_ENDED], the next tap seeks to the start so audio can
- * play again (otherwise ExoPlayer stays at the end and appears "stuck").
- */
+
 @Composable
 fun AudioPlayer(
     url: String?,
