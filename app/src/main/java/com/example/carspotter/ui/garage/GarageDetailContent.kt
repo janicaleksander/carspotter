@@ -69,6 +69,8 @@ fun GarageDetailContent(
     }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var pauseAudioSignal by remember { mutableStateOf(0) }
+    var pauseVideoSignal by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -142,6 +144,8 @@ fun GarageDetailContent(
                     Carousel(
                         items = mediaItems,
                         modifier = Modifier.fillMaxWidth(),
+                        pauseVideoSignal = pauseVideoSignal,
+                        onVideoPlayStarted = { pauseAudioSignal++ },
                     )
                 } else {
                     EmptyListHint(
@@ -163,6 +167,8 @@ fun GarageDetailContent(
                     url = details.allMediaURLs
                         .firstOrNull { it.type == MediaTypeEnum.AUDIO }?.filePath,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    pauseSignal = pauseAudioSignal,
+                    onPlayStarted = { pauseVideoSignal++ },
                 )
             }
 

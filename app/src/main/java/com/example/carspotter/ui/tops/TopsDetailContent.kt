@@ -27,6 +27,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +57,9 @@ fun TopsDetailContent(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var pauseAudioSignal by remember { mutableStateOf(0) }
+    var pauseVideoSignal by remember { mutableStateOf(0) }
+
     Scaffold(
         topBar = {
             TabHeader(
@@ -95,6 +102,8 @@ fun TopsDetailContent(
                     Carousel(
                         items = mediaItems,
                         modifier = Modifier.fillMaxWidth(),
+                        pauseVideoSignal = pauseVideoSignal,
+                        onVideoPlayStarted = { pauseAudioSignal++ },
                     )
                 } else {
                     EmptyListHint(
@@ -122,6 +131,8 @@ fun TopsDetailContent(
                     url = uiState.details.allMediaURLs
                         .firstOrNull { it.type == MediaTypeEnum.AUDIO }?.filePath,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    pauseSignal = pauseAudioSignal,
+                    onPlayStarted = { pauseVideoSignal++ },
                 )
             }
 

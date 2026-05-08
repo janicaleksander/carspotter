@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,8 @@ import com.example.carspotter.ui.theme.CarRed
 fun AudioPlayer(
     url: String?,
     modifier: Modifier = Modifier,
+    pauseSignal: Int,
+    onPlayStarted: () -> Unit,
 ) {
     if (url == null) return
 
@@ -82,6 +85,12 @@ fun AudioPlayer(
         }
     }
 
+    LaunchedEffect(pauseSignal) {
+        if (player.isPlaying) {
+            player.pause()
+        }
+    }
+
     PlaySoundButton(
         isPlaying = isPlaying,
         onClick = {
@@ -91,6 +100,7 @@ fun AudioPlayer(
                 if (player.playbackState == Player.STATE_ENDED) {
                     player.seekTo(0)
                 }
+                onPlayStarted()
                 player.play()
             }
         },

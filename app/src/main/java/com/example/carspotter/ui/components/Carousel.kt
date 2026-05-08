@@ -70,6 +70,8 @@ sealed class CarouselItem {
 fun Carousel(
     items: List<CarouselItem>,
     modifier: Modifier = Modifier,
+    pauseVideoSignal: Int,
+    onVideoPlayStarted: () -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { items.size })
 
@@ -82,7 +84,11 @@ fun Carousel(
         ) { page ->
             when (val item = items[page]) {
                 is CarouselItem.Image -> ZoomableImage(url = item.url)
-                is CarouselItem.Video -> VideoPlayer(url = item.url)
+                is CarouselItem.Video -> VideoPlayer(
+                    url = item.url,
+                    pauseSignal = pauseVideoSignal,
+                    onPlayStarted = onVideoPlayStarted,
+                )
             }
         }
 
@@ -223,6 +229,8 @@ private fun FullscreenImageDialog(
 private fun VideoPlayer(
     url: String,
     modifier: Modifier = Modifier,
+    pauseSignal: Int,
+    onPlayStarted: () -> Unit,
 ) {
     val ctx = LocalContext.current
 
@@ -241,11 +249,23 @@ private fun VideoPlayer(
             override fun onPlayerError(error: PlaybackException) {
                 playbackError = error
             }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (isPlaying) {
+                    onPlayStarted()
+                }
+            }
         }
         player.addListener(listener)
         onDispose {
             player.removeListener(listener)
             player.release()
+        }
+    }
+
+    LaunchedEffect(pauseSignal) {
+        if (player.isPlaying) {
+            player.pause()
         }
     }
 
