@@ -1,5 +1,8 @@
 package com.example.carspotter.ui.components
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -7,7 +10,10 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -20,6 +26,8 @@ import com.example.carspotter.ui.theme.TopsOrange
 
 @Composable
 fun BottomNavBar(navController: NavController) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val screens = listOf(
         Screen.Home,
         Screen.Garage,
@@ -33,6 +41,7 @@ fun BottomNavBar(navController: NavController) {
 
     NavigationBar(
         containerColor = NeutralWhite,
+        modifier = Modifier.height(if (isLandscape) 56.dp else 80.dp),
     ) {
         screens.forEach { screen ->
             val isSelected = currentRoute == screen.route
@@ -53,15 +62,17 @@ fun BottomNavBar(navController: NavController) {
                 icon = {
                     Icon(
                         imageVector = screen.icon,
-                        contentDescription = screen.label
+                        contentDescription = screen.label,
+                        modifier = Modifier.size(if (isLandscape) 22.dp else 24.dp),
                     )
                 },
-                label = {
+                label = if (isLandscape) null else ({
                     Text(
                         text = screen.label,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                     )
-                },
+                }),
+                alwaysShowLabel = !isLandscape,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = activeColor,
                     selectedTextColor = activeColor,
