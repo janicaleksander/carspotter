@@ -41,7 +41,7 @@ fun BottomNavBar(navController: NavController) {
 
     NavigationBar(
         containerColor = NeutralWhite,
-        modifier = Modifier.height(if (isLandscape) 56.dp else 80.dp),
+        modifier = if (isLandscape) Modifier.height(56.dp) else Modifier,
     ) {
         screens.forEach { screen ->
             val isSelected = currentRoute == screen.route
