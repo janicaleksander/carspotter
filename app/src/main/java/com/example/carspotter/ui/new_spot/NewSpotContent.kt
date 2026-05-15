@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +35,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,18 +73,15 @@ fun NewSpotContent(
     onNotesChange: (String) -> Unit,
     onOpenMapPicker: () -> Unit,
     onSave: () -> Unit,
-    onNavigateBack: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        topBar = { TabHeader(title = "ADD NEW SPOT", onNavigateBack = onNavigateBack) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        modifier = modifier,
-    ) { padding ->
+    Column(modifier = modifier.fillMaxSize()) {
+        TabHeader(title = "ADD NEW SPOT", onNavigateBack = onNavigateBack)
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .weight(1f)
                 .imePadding(),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 22.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp),

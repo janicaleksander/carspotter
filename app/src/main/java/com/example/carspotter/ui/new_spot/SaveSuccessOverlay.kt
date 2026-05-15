@@ -48,14 +48,13 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
     val needleAngle = remember { Animatable(NEEDLE_MIN) }
     val speedKmh   = remember { Animatable(0f) }
     val titleScale = remember { Animatable(0f) }
-    val streaks    = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
         // 1 – curtain in
         curtain.animateTo(1f, tween(280))
 
         // 2 – needle sweep + counter
-        coroutineScope {
+        coroutineScope { // this block is not going to finish until every launch finish inside
             launch {
                 needleAngle.animateTo(NEEDLE_MAX, tween(900, easing = FastOutSlowInEasing))
                 needleAngle.animateTo(
@@ -71,7 +70,7 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
             }
         }
 
-        // 3 – title + streaks
+        // 3 – title
         coroutineScope {
             launch {
                 titleScale.animateTo(
@@ -82,12 +81,11 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
                     ),
                 )
             }
-            launch { streaks.animateTo(1f, tween(700, easing = LinearEasing)) }
         }
 
         // 4 – hold, then finish (no curtain fade-out — it revealed the form underneath)
         delay(550)
-        onComplete()
+        onComplete() // callback what to do after animation finishes
     }
 
     Box(
@@ -102,11 +100,9 @@ fun SaveSuccessOverlay(onComplete: () -> Unit) {
                     ),
                 ),
             )
-            .pointerInput(Unit) {},
+            .pointerInput(Unit) {},// block all UI interactions under the curtain
         contentAlignment = Alignment.Center,
     ) {
-        SpeedStreaks(progress = streaks.value, modifier = Modifier.fillMaxSize())
-
         Column(
             modifier = Modifier.offset(y = (-14).dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -154,7 +150,6 @@ private fun Speedometer(
             val radius   = size.minDimension / 2f - 18.dp.toPx()
             val arcStroke = 10.dp.toPx()
 
-            // Track arc – szary (jasny, widoczny na białym)
             drawArc(
                 color      = Color(0xFFCCCCCC),
                 startAngle = NEEDLE_MIN,
@@ -165,7 +160,6 @@ private fun Speedometer(
                 size       = Size(radius * 2, radius * 2),
             )
 
-            // Wypełniony łuk – CarRed
             val sweep = (needleAngle - NEEDLE_MIN).coerceIn(0f, NEEDLE_MAX - NEEDLE_MIN)
             drawArc(
                 color      = CarRed,
@@ -220,30 +214,6 @@ private fun Speedometer(
                 color         = CarRed.copy(alpha = 0.6f),
                 fontSize      = 11.sp,
                 letterSpacing = 4.sp,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SpeedStreaks(progress: Float, modifier: Modifier = Modifier) {
-    if (progress <= 0f) return
-    Canvas(modifier = modifier) {
-        val w      = size.width
-        val h      = size.height
-        val len    = w * 0.32f
-        val travel = w + len * 2
-
-        repeat(14) { i ->
-            val y     = ((i * 8973L) % 100L) / 100f * h
-            val phase = (progress + i / 14f) % 1f
-            val alpha = (1f - abs(phase - 0.5f) * 2f) * 0.40f
-            drawLine(
-                color       = CarRed.copy(alpha = alpha),
-                start       = Offset(-len + travel * phase, y),
-                end         = Offset(-len + travel * phase + len, y),
-                strokeWidth = 3.dp.toPx(),
-                cap         = StrokeCap.Round,
             )
         }
     }

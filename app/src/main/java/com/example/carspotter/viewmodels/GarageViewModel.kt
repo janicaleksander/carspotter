@@ -17,6 +17,7 @@ import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.UserCarRepository
 import com.example.carspotter.services.NominatimReverseGeocoder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class GarageCarUiModel(
@@ -90,7 +92,9 @@ class GarageViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            userId.value = accountService.getLoggedIn()?.id
+            userId.value = withContext(Dispatchers.IO) {
+                accountService.getLoggedIn()?.id
+            }
         }
     }
 
@@ -108,9 +112,13 @@ class GarageViewModel @Inject constructor(
         resolveJob = viewModelScope.launch {
             for ((key, loc) in toResolve) {
                 if (key in _locationNames.value) continue
-                val name = NominatimReverseGeocoder.resolve(
-                    loc.latitude, loc.longitude, "com.example.carspotter"
-                )
+                val name = withContext(Dispatchers.IO) {
+                    NominatimReverseGeocoder.resolve(
+                        loc.latitude,
+                        loc.longitude,
+                        "com.example.carspotter",
+                    )
+                }
                 if (name != null) {
                     _locationNames.value = _locationNames.value + (key to name)
                 }

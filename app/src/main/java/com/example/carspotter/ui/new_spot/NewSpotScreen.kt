@@ -2,6 +2,7 @@ package com.example.carspotter.ui.new_spot
 
 import android.content.Context
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -60,6 +61,11 @@ fun NewSpotScreen(
         copyUriToCache(context, uri, "audio", ".m4a")?.let(viewModel::setAudio)
     }
 
+    val isSaving = uiState.saveState is SaveSpotState.Saving
+
+    // Block the system back button / gesture while saving is in progress
+    BackHandler(enabled = isSaving) { /* no-op – wait for save to finish */ }
+
     LaunchedEffect(uiState.saveState) {
         if (uiState.saveState is SaveSpotState.Success) {
             showSuccessOverlay = true
@@ -98,7 +104,7 @@ fun NewSpotScreen(
         onNotesChange = viewModel::onNotesChange,
         onOpenMapPicker = { showMapPicker = true },
         onSave = viewModel::saveSpot,
-        onNavigateBack = onNavigateBack,
+        onNavigateBack = if (isSaving) null else onNavigateBack,
     )
 
     if (showMapPicker) {

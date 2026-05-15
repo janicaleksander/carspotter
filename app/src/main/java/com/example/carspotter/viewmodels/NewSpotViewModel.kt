@@ -20,12 +20,15 @@ import com.example.carspotter.repository.MediaRepository
 import com.example.carspotter.repository.UserCarRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.appwrite.ID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.util.Locale
 import javax.inject.Inject
@@ -100,11 +103,14 @@ class NewSpotViewModel @Inject constructor(
     private val _saveState = MutableStateFlow<SaveSpotState>(SaveSpotState.Idle)
     private val _showErrors = MutableStateFlow(false)
     private val isOnline: StateFlow<Boolean> = networkMonitor.isOnline
+        .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     init {
         viewModelScope.launch {
-            userId.value = accountService.getLoggedIn()?.id
+            userId.value = withContext(Dispatchers.IO) {
+                accountService.getLoggedIn()?.id
+            }
         }
     }
 
