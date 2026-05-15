@@ -1,7 +1,6 @@
 package com.example.carspotter.viewmodels
 
 import org.junit.Test
-import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SanitizePriceTest {

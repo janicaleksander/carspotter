@@ -1,5 +1,7 @@
-package com.example.carspotter.models
+package com.example.carspotter.util
 
+import com.example.carspotter.models.Converters
+import com.example.carspotter.models.MediaTypeEnum
 import org.junit.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
