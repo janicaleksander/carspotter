@@ -173,14 +173,6 @@ class NewSpotViewModel @Inject constructor(
         _form.value = block(_form.value)
     }
 
-    internal fun sanitizePrice(value: String): String {
-        val raw = value.replace(',', '.').filter { it.isDigit() || it == '.' }
-        val firstDot = raw.indexOf('.')
-        return if (firstDot < 0) raw
-        else raw.substring(0, firstDot + 1) + raw.substring(firstDot + 1).replace(".", "")
-    }
-
-
     private fun validate(form: NewSpotForm): NewSpotErrors = validateNewSpotForm(form)
 
 
@@ -269,6 +261,13 @@ class NewSpotViewModel @Inject constructor(
 
 internal const val MAX_MODEL_LENGTH = 100
 internal const val MAX_NOTES_LENGTH = 1_000
+
+internal fun sanitizePrice(value: String): String {
+    val raw = value.replace(',', '.').filter { it.isDigit() || it == '.' }
+    val firstDot = raw.indexOf('.')
+    return if (firstDot < 0) raw
+    else raw.substring(0, firstDot + 1) + raw.substring(firstDot + 1).replace(".", "")
+}
 
 internal fun validateNewSpotForm(form: NewSpotForm): NewSpotErrors {
     val mediaErr = when {
