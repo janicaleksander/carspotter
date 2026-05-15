@@ -38,7 +38,7 @@ internal object NominatimReverseGeocoder {
         }.getOrNull()
     }
 
-    private fun formatAddress(json: JSONObject): String? {
+    internal fun formatAddress(json: JSONObject): String? {
         val address = json.optJSONObject("address") ?: return json.optString("display_name")
             .takeIf { it.isNotBlank() }
         val city = listOf("city", "town", "village", "hamlet", "municipality")
