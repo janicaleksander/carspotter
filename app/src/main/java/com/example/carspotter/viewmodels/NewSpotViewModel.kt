@@ -45,7 +45,7 @@ sealed interface SaveSpotState {
     data class Error(val message: String) : SaveSpotState
 }
 
-private data class NewSpotForm(
+internal data class NewSpotForm(
     val brandId: String? = null,
     val categoryId: String? = null,
     val model: String = "",
@@ -173,7 +173,7 @@ class NewSpotViewModel @Inject constructor(
         _form.value = block(_form.value)
     }
 
-    private fun sanitizePrice(value: String): String {
+    internal fun sanitizePrice(value: String): String {
         val raw = value.replace(',', '.').filter { it.isDigit() || it == '.' }
         val firstDot = raw.indexOf('.')
         return if (firstDot < 0) raw
@@ -181,36 +181,7 @@ class NewSpotViewModel @Inject constructor(
     }
 
 
-    private fun validate(form: NewSpotForm): NewSpotErrors {
-        val mediaErr = when {
-            form.media.none { it.type == MediaTypeEnum.PHOTO } -> "Add at least one photo"
-            form.media.count { it.type == MediaTypeEnum.AUDIO } > 1 -> "Only one engine sound is allowed"
-            else -> null
-        }
-        val yearInt = form.year.toIntOrNull()
-        val yearErr = when {
-            form.year.isBlank() -> "Year is required"
-            yearInt == null || yearInt !in 1900..(LocalDateTime.now().year + 1) -> "Enter a valid year"
-            else -> null
-        }
-        val priceVal = form.price.toDoubleOrNull()
-        val priceErr = when {
-            form.price.isBlank() -> "Price is required"
-            priceVal == null || priceVal < 0.0 -> "Enter a valid price"
-            else -> null
-        }
-        val notesErr = if (form.notes.isBlank()) "Notes are required" else null
-        return NewSpotErrors(
-            media = mediaErr,
-            brand = if (form.brandId.isNullOrBlank()) "Pick a brand" else null,
-            category = if (form.categoryId.isNullOrBlank()) "Pick a category" else null,
-            model = if (form.model.trim().isEmpty()) "Model is required" else null,
-            year = yearErr,
-            price = priceErr,
-            location = if (form.location == null) "Pick a location on the map" else null,
-            notes = notesErr,
-        )
-    }
+    private fun validate(form: NewSpotForm): NewSpotErrors = validateNewSpotForm(form)
 
 
     fun saveSpot() {
@@ -294,4 +265,51 @@ class NewSpotViewModel @Inject constructor(
     fun consumeSaveResult() {
         _saveState.value = SaveSpotState.Idle
     }
+}
+
+internal const val MAX_MODEL_LENGTH = 100
+internal const val MAX_NOTES_LENGTH = 1_000
+
+internal fun validateNewSpotForm(form: NewSpotForm): NewSpotErrors {
+    val mediaErr = when {
+        form.media.none { it.type == MediaTypeEnum.PHOTO } -> "Add at least one photo"
+        form.media.count { it.type == MediaTypeEnum.AUDIO } > 1 -> "Only one engine sound is allowed"
+        else -> null
+    }
+    val yearInt = form.year.toIntOrNull()
+    val currentYear = LocalDateTime.now().year
+    val yearErr = when {
+        form.year.isBlank() -> "Year is required"
+        yearInt == null || yearInt !in 1900..(currentYear + 1) -> "Enter a year between 1900 and ${currentYear + 1}"
+        else -> null
+    }
+    val priceVal = form.price.toDoubleOrNull()
+    val priceErr = when {
+        form.price.isBlank() -> "Price is required"
+        priceVal == null -> "Enter a valid price"
+        priceVal <= 0.0 -> "Price must be greater than zero"
+        else -> null
+    }
+    val modelTrimmed = form.model.trim()
+    val modelErr = when {
+        modelTrimmed.isEmpty() -> "Model is required"
+        modelTrimmed.length > MAX_MODEL_LENGTH -> "Model name is too long (max $MAX_MODEL_LENGTH characters)"
+        else -> null
+    }
+    val notesTrimmed = form.notes.trim()
+    val notesErr = when {
+        notesTrimmed.isEmpty() -> "Notes are required"
+        notesTrimmed.length > MAX_NOTES_LENGTH -> "Notes are too long (max $MAX_NOTES_LENGTH characters)"
+        else -> null
+    }
+    return NewSpotErrors(
+        media = mediaErr,
+        brand = if (form.brandId.isNullOrBlank()) "Pick a brand" else null,
+        category = if (form.categoryId.isNullOrBlank()) "Pick a category" else null,
+        model = modelErr,
+        year = yearErr,
+        price = priceErr,
+        location = if (form.location == null) "Pick a location on the map" else null,
+        notes = notesErr,
+    )
 }
