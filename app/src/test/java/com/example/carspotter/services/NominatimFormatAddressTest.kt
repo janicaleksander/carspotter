@@ -28,8 +28,8 @@ class NominatimFormatAddressTest {
     @Test
     fun `falls back to display_name when address object is absent`() {
         assertEquals(
-            "Some Place, Somewhere",
-            parse("""{"display_name":"Some Place, Somewhere"}"""),
+            "Some Place Somewhere",
+            parse("""{"display_name":"Some Place Somewhere"}"""),
         )
     }
 }

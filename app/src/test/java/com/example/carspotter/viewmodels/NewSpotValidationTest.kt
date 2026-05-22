@@ -28,8 +28,6 @@ private fun form(
 
 class NewSpotValidationTest {
 
-    // ── happy path ────────────────────────────────────────────────────────────
-
     @Test
     fun `valid form produces no errors`() {
         val errors = validateNewSpotForm(form())
@@ -42,8 +40,6 @@ class NewSpotValidationTest {
         assertNull(errors.location)
         assertNull(errors.notes)
     }
-
-    // ── media ─────────────────────────────────────────────────────────────────
 
     @Test
     fun `missing photo produces media error`() {
@@ -75,8 +71,6 @@ class NewSpotValidationTest {
         assertNull(validateNewSpotForm(form(media = photoAndAudio)).media)
     }
 
-    // ── brand / category / location ───────────────────────────────────────────
-
     @Test
     fun `null brandId produces brand error`() {
         assertNotNull(validateNewSpotForm(form(brandId = null)).brand)
@@ -91,8 +85,6 @@ class NewSpotValidationTest {
     fun `null location produces location error`() {
         assertNotNull(validateNewSpotForm(form(location = null)).location)
     }
-
-    // ── model ─────────────────────────────────────────────────────────────────
 
     @Test
     fun `blank model produces model error`() {
@@ -109,7 +101,6 @@ class NewSpotValidationTest {
         assertNotNull(validateNewSpotForm(form(model = "A".repeat(MAX_MODEL_LENGTH + 1))).model)
     }
 
-    // ── year ──────────────────────────────────────────────────────────────────
 
     @Test
     fun `blank year produces year error`() {
@@ -138,8 +129,6 @@ class NewSpotValidationTest {
         assertNotNull(validateNewSpotForm(form(year = tooFar)).year)
     }
 
-    // ── price ─────────────────────────────────────────────────────────────────
-
     @Test
     fun `blank price produces price error`() {
         assertNotNull(validateNewSpotForm(form(price = "")).price)
@@ -159,8 +148,6 @@ class NewSpotValidationTest {
     fun `positive price is valid`() {
         assertNull(validateNewSpotForm(form(price = "1.00")).price)
     }
-
-    // ── notes ─────────────────────────────────────────────────────────────────
 
     @Test
     fun `blank notes produces notes error`() {

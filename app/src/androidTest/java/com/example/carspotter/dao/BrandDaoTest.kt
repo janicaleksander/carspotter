@@ -40,7 +40,7 @@ class BrandDaoTest {
         val bid = UUID.randomUUID().toString();
         val brand = Brand(
             id = bid,
-            name = "Porsche",
+            name = "Dacia",
             updatedAt = LocalDateTime.of(2026, 5, 15, 12, 0),
         )
 
@@ -67,7 +67,7 @@ class BrandDaoTest {
     }
 
     @Test
-    fun insertAll_withDuplicateId_upserts() = runTest {
+    fun insertAllWithDuplicateIdUpserts() = runTest {
         val sharedId = UUID.randomUUID().toString()
         val original = Brand(sharedId, "BMW",   LocalDateTime.of(2024, 1, 1, 0, 0))
         val updated  = Brand(sharedId, "BMW M", LocalDateTime.of(2024, 6, 1, 0, 0))

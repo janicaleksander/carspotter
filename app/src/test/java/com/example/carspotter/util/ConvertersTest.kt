@@ -2,6 +2,7 @@ package com.example.carspotter.util
 
 import com.example.carspotter.models.Converters
 import com.example.carspotter.models.MediaTypeEnum
+import com.example.carspotter.models.SyncState
 import org.junit.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
@@ -20,7 +21,7 @@ class ConvertersTest {
 
     @Test
     fun `fromLocalDateTime produces non-null string`() {
-        assertNotNull(converters.fromLocalDateTime(LocalDateTime.of(2024, 1, 15, 10, 30)))
+        assertNotNull(converters.fromLocalDateTime(LocalDateTime.of(2025, 1, 15, 10, 30)))
     }
 
     @Test
@@ -30,7 +31,7 @@ class ConvertersTest {
 
     @Test
     fun `toLocalDateTime parses plain LocalDateTime string`() {
-        val original = LocalDateTime.of(2024, 6, 1, 12, 0, 0)
+        val original = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
         val parsed = converters.toLocalDateTime(original.toString())
         assertEquals(original, parsed)
     }
@@ -38,7 +39,7 @@ class ConvertersTest {
 
     @Test
     fun `fromLocalDateTime and toLocalDateTime are inverse operations`() {
-        val original = LocalDateTime.of(2023, 11, 5, 8, 45, 0)
+        val original = LocalDateTime.of(2025, 11, 5, 8, 45, 0)
         val serialized = converters.fromLocalDateTime(original)
         val restored = converters.toLocalDateTime(serialized)
         assertEquals(original, restored)
@@ -56,6 +57,21 @@ class ConvertersTest {
     fun `toMediaTypeEnum round-trips all values`() {
         MediaTypeEnum.entries.forEach { type ->
             assertEquals(type, converters.toMediaTypeEnum(converters.fromMediaTypeEnum(type)))
+        }
+    }
+
+    @Test
+    fun `fromSyncState returns name of each enum value`() {
+        assertEquals("SYNCED",         converters.fromSyncState(SyncState.SYNCED))
+        assertEquals("PENDING_UPDATE",  converters.fromSyncState(SyncState.PENDING_UPDATE))
+        assertEquals("PENDING_DELETE",  converters.fromSyncState(SyncState.PENDING_DELETE))
+        assertEquals("PENDING_CREATE",  converters.fromSyncState(SyncState.PENDING_CREATE))
+    }
+
+    @Test
+    fun `toSyncState round-trips all values`() {
+        SyncState.entries.forEach { state ->
+            assertEquals(state, converters.toSyncState(converters.fromSyncState(state)))
         }
     }
 }

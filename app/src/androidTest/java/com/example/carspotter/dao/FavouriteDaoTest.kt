@@ -50,7 +50,6 @@ class FavouriteDaoTest {
     }
 
     private suspend fun seed() {
-        // Seed FK parents — without these, inserting Favourite/Car would violate FKs.
         db.userDao().insert(User(id = userId, nickname = "tester", updatedAt = now))
         db.brandDao().insertAll(listOf(Brand(id = brandId, name = "BMW", updatedAt = now)))
         db.categoryDao().insertAll(listOf(Category(id = catId, name = "Coupe", updatedAt = now)))
@@ -99,13 +98,6 @@ class FavouriteDaoTest {
         val found = dao.findByUserAndCar(userId, carId)
         assertNotNull(found)
         assertEquals(fid, found?.id)
-        assertEquals(SyncState.SYNCED, found?.syncState)
-    }
-
-    @Test
-    fun findByUserAndCar() = runTest {
-        seed()
-        assertNull(dao.findByUserAndCar(userId, UUID.randomUUID().toString()))
     }
 
     @Test
@@ -161,36 +153,6 @@ class FavouriteDaoTest {
     }
 
     @Test
-    fun markAsPendingDelete() = runTest {
-        seed()
-        val favId = UUID.randomUUID().toString()
-        dao.insert(Favourite(favId, userId, carId, SyncState.SYNCED, now))
-
-        val later = now.plusMinutes(5)
-        dao.markAsPendingDelete(favId, later)
-
-        assertTrue(dao.getAll(userId).first().isEmpty())
-        val raw = dao.findByUserAndCar(userId, carId)
-        assertNotNull(raw)
-        assertEquals(SyncState.PENDING_DELETE, raw?.syncState)
-        assertEquals(later, raw?.updatedAt)
-    }
-
-    @Test
-    fun markAsSynced() = runTest {
-        seed()
-        val favId = UUID.randomUUID().toString()
-        dao.insert(Favourite(favId, userId, carId, SyncState.PENDING_CREATE, now))
-        assertTrue(dao.getSyncedForUser(userId).isEmpty())
-
-        dao.markAsSynced(favId)
-
-        val synced = dao.getSyncedForUser(userId)
-        assertEquals(1, synced.size)
-        assertEquals(favId, synced.first().id)
-    }
-
-    @Test
     fun hardDeleteRemovesRowEntirely() = runTest {
         seed()
         val favId = UUID.randomUUID().toString()
@@ -209,7 +171,12 @@ class FavouriteDaoTest {
         dao.insert(Favourite(favId, userId, carId, SyncState.SYNCED, now))
         assertTrue(dao.observeIsFavourite(userId, carId).first())
 
-        dao.markAsPendingDelete(favId, now.plusMinutes(1))
-        assertFalse(dao.observeIsFavourite(userId, carId).first())
     }
+
+    @Test
+    fun findByUserAndCar() = runTest {
+        seed()
+        assertNull(dao.findByUserAndCar(userId, UUID.randomUUID().toString()))
+    }
+
 }

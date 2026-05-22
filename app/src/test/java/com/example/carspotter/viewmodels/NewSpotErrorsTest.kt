@@ -50,4 +50,5 @@ class NewSpotErrorsTest {
         )
         assertTrue(oneError.hasAny)
     }
+
 }

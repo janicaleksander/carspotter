@@ -38,19 +38,19 @@ class AddAndRemoveSpotTest {
 
     private companion object {
         val NOW           = LocalDateTime.of(2026, 5, 15, 12, 0)
-        const val USER_ID  = "user-1"
-        const val BRAND_ID = "brand-1"
-        const val CAT_ID   = "cat-1"
+         val USER_ID  = UUID.randomUUID().toString()
+         val BRAND_ID = UUID.randomUUID().toString()
+         val CAT_ID   = UUID.randomUUID().toString()
 
-        const val DEFAULT_MODEL      = "M3"
-        const val DEFAULT_YEAR       = 2024
-        const val DEFAULT_PRICE      = 90_000.0
-        const val DEFAULT_NOTES      = "Seen at Warsaw meet"
-        const val DEFAULT_MEDIA_PATH = "/storage/photo.jpg"
+         val DEFAULT_MODEL      = "M3"
+         val DEFAULT_YEAR       = 2024
+         val DEFAULT_PRICE      = 90_000.0
+         val DEFAULT_NOTES      = "Seen at Warsaw meet"
+         val DEFAULT_MEDIA_PATH = "/storage/photo.jpg"
 
-        const val LAT          = 52.2297
-        const val LNG          = 21.0122
-        const val LAT_DELTA    = 0.0001
+         val LAT          = 52.2297
+         val LNG          = 21.0122
+         val LAT_DELTA    = 0.0001
 
         val DEFAULT_LOCATION = Location(latitude = LAT, longitude = LNG)
     }
@@ -219,7 +219,7 @@ class AddAndRemoveSpotTest {
     @Test
     fun softDeleteCarIsNoForTopCar() = runTest {
         seed()
-        val topCarId = "top-1"
+        val topCarId = UUID.randomUUID().toString()
         db.carDao().insert(
             Car(
                 id         = topCarId,
